@@ -9,6 +9,7 @@ Created on Fri Sep  4 20:29:58 2020
 import os
 import pickle
 
+
 import numpy as np
 #from tensorflow.keras import Input
 #from tensorflow.keras import Model
@@ -33,6 +34,9 @@ import tensorflow as tf
 from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import InteractiveSession
 
+from scipy.spatial import distance
+from scipy import signal
+
 config = ConfigProto()
 config.gpu_options.allow_growth = True
 session = InteractiveSession(config=config)
@@ -50,34 +54,56 @@ def load_data_smooth(directory, model_kmer_dict):
         counter +=1
         if 'events' in file:
             file_raw = pickle.load(open(directory+file,"rb"))
-            for signal in file_raw:
+            for signal_values in file_raw:
                 signal_smoothed = []
                 dwell_smoothed = []
-                distance_smoothed = []
-                for event in signal:
+                for event in signal_values:
                     if len(event) > 1000: # maximun event lenght
                         dwell_smoothed += [1000]
                     else:
-                        dwell_smoothed += [len(event)]
-                    event_smoothed = smooth_event(event, 20)
-                    signal_smoothed += event_smoothed
+                        dwell_smoothed += [len(event)] # record the original dwelling time
+                    event_smoothed = smooth_event(event, 20) # smooth the event
+                    signal_smoothed += event_smoothed  # add the event to the signal
                     
-                    
-                    distance_smoothed += distance_calculator()
-                
                 if file in dic_signal:
+                    expected_smoothed = make_expected(model_kmer_dict, 
+                                                    file.split('_')[-2],
+                                                    20)
+                    dic_distance[file] += [distance_calculator(expected_smoothed,
+                                                               signal_smoothed)]
                     dic_signal[file] += [signal_smoothed]
                     dic_dwell[file] += [dwell_smoothed]
                 else:
+                    expected_smoothed = make_expected(model_kmer_dict, 
+                                                    file.split('_')[-2],
+                                                    20)
+                    dic_distance[file] = [distance_calculator(expected_smoothed,
+                                                         signal_smoothed)]
                     dic_signal[file] = [signal_smoothed]
                     dic_dwell[file] = [dwell_smoothed]
                     
         if counter == 5:
-            return dic_signal, dic_dwell
+            return dic_signal, dic_dwell, dic_distance
 
 
-def distance_calculator(signa)
+def make_expected(model_kmer_dict, kmer, event_lenght):
+    '''
+    '''
+    expected_signal = []
+    for i in range(5):
+        expected_signal += [model_kmer_dict[kmer[i:i+5]]]*event_lenght
+    return expected_signal
 
+def distance_calculator(signal_expected, event_smoothed):
+    '''
+    '''
+    #vector_distance = list(np.round(abs(np.array(signal_expected) - \
+    #                                    np.array(event_smoothed)), 3))
+    vector_distance = list(signal.correlate(signal_expected, 
+                                            event_smoothed, 
+                                            mode='same',
+                                            method='fft'))
+    return vector_distance
 
 def smooth_event(raw_signal, lenght_events):
     '''
@@ -87,7 +113,7 @@ def smooth_event(raw_signal, lenght_events):
     
     if len(raw_signal) < lenght_events:
         event = top_median(raw_signal, lenght_events)
-        raw_signal_events = [event]
+        raw_signal_events = [round(i, 3) for i in event]
         
     else:
         division = floor(len(raw_signal)/lenght_events)
@@ -98,7 +124,7 @@ def smooth_event(raw_signal, lenght_events):
                 break
         if len(new_event) < lenght_events:
             new_event = top_median(new_event, lenght_events)
-        raw_signal_events = [new_event]
+        raw_signal_events = [round(i, 3) for i in new_event]
     return raw_signal_events
 
 
@@ -204,22 +230,66 @@ def plot_signals_10(KO_signal_filtered_np, WT_signal_filtered_np, kmer, save=Non
 
 if __name__ == '__main__':
     
-    
-    mod_rep_1 = '/media/labuser/Data/nanopore/m6A_classifier/data/mod_rep1_eventalign_numpy_sites/'
-    mod_rep_2 = '/media/labuser/Data/nanopore/m6A_classifier/data/mod_rep2_eventalign_numpy_sites/'
+    mod_rep_1 = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/mod_rep1_eventalign_numpy_sites_AA/'
     no_mod_rep_1 = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/no_mod_rep1_eventalign_numpy_sites_AA/'
-    no_mod_rep_2 = '/media/labuser/Data/nanopore/m6A_classifier/data/no_mod_rep2_eventalign_numpy_sites/'
     
     model_kmer = pd.read_csv('/media/labuser/Data/nanopore/m6A_classifier/data/model_kmer.csv',
                              sep=',')
     
     model_kmer_dict = dict(zip(model_kmer['model_kmer'], model_kmer['model_mean']))
 
+    mod_rep_1_signal_events, \
+    mod_rep_1_signal_dwell, \
+    mod_rep_1_signal_distances = load_data_smooth(mod_rep_1, model_kmer_dict)
+
     
-    mod_rep_1_signal_events = load_data_smooth(mod_rep_1)
-    #mod_rep_2_signal_events = load_data_events(mod_rep_2)
-    no_mod_rep_1_signal_events, no_mod_rep_1_signal_dwell = load_data_smooth(no_mod_rep_1, model_kmer_dict)
-    #no_mod_rep_2_signal_events = load_data_events(no_mod_rep_2) 
+    no_mod_rep_1_signal_events, \
+    no_mod_rep_1_signal_dwell, \
+    no_mod_rep_1_signal_distances = load_data_smooth(no_mod_rep_1, model_kmer_dict)
+    
+    mod_rep_1_signal_events, \
+    mod_rep_1_signal_dwell, \
+    mod_rep_1_signal_distances_cross = load_data_smooth(mod_rep_1, model_kmer_dict)
+    
+    no_mod_rep_1_signal_events, \
+    no_mod_rep_1_signal_dwell, \
+    no_mod_rep_1_signal_distances_cross = load_data_smooth(no_mod_rep_1, model_kmer_dict)
+    
+    mod_rep_1_signal_distances_flat = [item for sublist in mod_rep_1_signal_distances.values() for item in sublist]
+    mod_rep_1_signal_distances_flat = [item for sublist in mod_rep_1_signal_distances_flat for item in sublist]
+
+    no_mod_rep_1_signal_distances_flat = [item for sublist in no_mod_rep_1_signal_distances.values() for item in sublist]
+    no_mod_rep_1_signal_distances_flat = [item for sublist in no_mod_rep_1_signal_distances_flat for item in sublist]
+
+    mod_rep_1_signal_distances_cross_flat = [item for sublist in mod_rep_1_signal_distances_cross.values() for item in sublist]
+    mod_rep_1_signal_distances_cross_flat = [item for sublist in mod_rep_1_signal_distances_cross_flat for item in sublist]
+    
+    no_mod_rep_1_signal_distances_cross_flat = [item for sublist in no_mod_rep_1_signal_distances_cross.values() for item in sublist]
+    no_mod_rep_1_signal_distances_cross_flat = [item for sublist in no_mod_rep_1_signal_distances_cross_flat for item in sublist]
+    
+    np.median(mod_rep_1_signal_distances_flat)
+    np.std(mod_rep_1_signal_distances_flat)
+
+    plt.title('mod_rep_1_signal_distances_flat')
+    g = sns.histplot(mod_rep_1_signal_distances_flat)
+    g.set(xlim=(0, 50))
+    
+    np.median(no_mod_rep_1_signal_distances_flat)
+    np.std(no_mod_rep_1_signal_distances_flat)
+
+    plt.title('no_mod_rep_1_signal_distances_flat')
+    g = sns.histplot(no_mod_rep_1_signal_distances_flat)
+    g.set(xlim=(0, 50))
+    
+    np.median(mod_rep_1_signal_distances_cross_flat)
+    plt.title('mod_rep_1_signal_distances_cross_flat')
+    g = sns.histplot(mod_rep_1_signal_distances_cross_flat)
+    #g.set(xlim=(0, 50))
+    
+    np.median(no_mod_rep_1_signal_distances_cross_flat)
+    plt.title('no_mod_rep_1_signal_distances_cross_flat')
+    g = sns.histplot(no_mod_rep_1_signal_distances_cross_flat)
+    # g.set(xlim=(0, 50))
     
     
     for i in mod_rep_1_signal_events.keys():
