@@ -4,11 +4,12 @@
 Created on Fri Sep  4 20:29:58 2020
 
 @author: pablo
+
+
 """
 
 import os
 import pickle
-
 
 import numpy as np
 #from tensorflow.keras import Input
@@ -36,12 +37,19 @@ from tensorflow.compat.v1 import InteractiveSession
 
 from scipy.spatial import distance
 from scipy import signal
+from math import floor
+
+from multiprocessing import Process, Queue
+
+import ray
+ray.init()
+
 
 config = ConfigProto()
 config.gpu_options.allow_growth = True
 session = InteractiveSession(config=config)
 
-
+@ray.remote
 def load_data_smooth(directory, model_kmer_dict):
     '''
     '''
@@ -64,26 +72,27 @@ def load_data_smooth(directory, model_kmer_dict):
                         dwell_smoothed += [len(event)] # record the original dwelling time
                     event_smoothed = smooth_event(event, 20) # smooth the event
                     signal_smoothed += event_smoothed  # add the event to the signal
-                    
-                if file in dic_signal:
-                    expected_smoothed = make_expected(model_kmer_dict, 
+                
+                expected_smoothed = make_expected(model_kmer_dict, 
                                                     file.split('_')[-2],
                                                     20)
-                    dic_distance[file] += [distance_calculator(expected_smoothed,
-                                                               signal_smoothed)]
+                try: # fix the equal kmers bug in script Epinano_site_parse_noA_all.py
+                    distance_vector = distance_calculator(expected_smoothed,
+                                                          signal_smoothed)
+                except:
+                    break
+                
+                if file in dic_signal:
                     dic_signal[file] += [signal_smoothed]
                     dic_dwell[file] += [dwell_smoothed]
+                    dic_distance[file] += [distance_vector]
                 else:
-                    expected_smoothed = make_expected(model_kmer_dict, 
-                                                    file.split('_')[-2],
-                                                    20)
-                    dic_distance[file] = [distance_calculator(expected_smoothed,
-                                                         signal_smoothed)]
+                    dic_distance[file] = [distance_vector]
                     dic_signal[file] = [signal_smoothed]
                     dic_dwell[file] = [dwell_smoothed]
-                    
-        if counter == 5:
-            return dic_signal, dic_dwell, dic_distance
+                
+        if counter == 500:
+            return [dic_signal, dic_dwell, dic_distance]
 
 
 def make_expected(model_kmer_dict, kmer, event_lenght):
@@ -97,12 +106,9 @@ def make_expected(model_kmer_dict, kmer, event_lenght):
 def distance_calculator(signal_expected, event_smoothed):
     '''
     '''
-    #vector_distance = list(np.round(abs(np.array(signal_expected) - \
-    #                                    np.array(event_smoothed)), 3))
-    vector_distance = list(signal.correlate(signal_expected, 
-                                            event_smoothed, 
-                                            mode='same',
-                                            method='fft'))
+    vector_distance = list(np.round(abs(np.array(signal_expected) - \
+                                        np.array(event_smoothed)), 3))
+    
     return vector_distance
 
 def smooth_event(raw_signal, lenght_events):
@@ -163,16 +169,6 @@ def f1_m(y_true, y_pred):
     precision = precision_m(y_true, y_pred)
     recall = recall_m(y_true, y_pred)
     return 2*((precision*recall)/(precision+recall+K.epsilon()))
-
-
-def Min_Max_scaler(signal):
-    '''
-    Function to scale the data
-    '''
-    min_max_scaler = preprocessing.MinMaxScaler()
-    #signal = signal.reshape((len(signal),1))
-    signal = min_max_scaler.fit_transform(signal)
-    return signal
 
 
 def plot_signals_10(KO_signal_filtered_np, WT_signal_filtered_np, kmer, save=None):
@@ -237,59 +233,28 @@ if __name__ == '__main__':
                              sep=',')
     
     model_kmer_dict = dict(zip(model_kmer['model_kmer'], model_kmer['model_mean']))
-
+    
+    #no_mod_rep_1_signal_events, \
+    #no_mod_rep_1_signal_dwell, \
+    #no_mod_rep_1_signal_distances = load_data_smooth.remote(mod_rep_1, model_kmer_dict)
+    
+    # start the remote processes
+    ret_id1 = load_data_smooth.remote(mod_rep_1, model_kmer_dict)
+    ret_id2 = load_data_smooth.remote(no_mod_rep_1, model_kmer_dict)
+    
+    ret1 = ray.get(ret_id1)
+    ret2 = ray.get(ret_id2)
+    
     mod_rep_1_signal_events, \
     mod_rep_1_signal_dwell, \
-    mod_rep_1_signal_distances = load_data_smooth(mod_rep_1, model_kmer_dict)
-
+    mod_rep_1_signal_distances = ret1
     
     no_mod_rep_1_signal_events, \
     no_mod_rep_1_signal_dwell, \
-    no_mod_rep_1_signal_distances = load_data_smooth(no_mod_rep_1, model_kmer_dict)
+    no_mod_rep_1_signal_distances = ret2
     
-    mod_rep_1_signal_events, \
-    mod_rep_1_signal_dwell, \
-    mod_rep_1_signal_distances_cross = load_data_smooth(mod_rep_1, model_kmer_dict)
     
-    no_mod_rep_1_signal_events, \
-    no_mod_rep_1_signal_dwell, \
-    no_mod_rep_1_signal_distances_cross = load_data_smooth(no_mod_rep_1, model_kmer_dict)
-    
-    mod_rep_1_signal_distances_flat = [item for sublist in mod_rep_1_signal_distances.values() for item in sublist]
-    mod_rep_1_signal_distances_flat = [item for sublist in mod_rep_1_signal_distances_flat for item in sublist]
-
-    no_mod_rep_1_signal_distances_flat = [item for sublist in no_mod_rep_1_signal_distances.values() for item in sublist]
-    no_mod_rep_1_signal_distances_flat = [item for sublist in no_mod_rep_1_signal_distances_flat for item in sublist]
-
-    mod_rep_1_signal_distances_cross_flat = [item for sublist in mod_rep_1_signal_distances_cross.values() for item in sublist]
-    mod_rep_1_signal_distances_cross_flat = [item for sublist in mod_rep_1_signal_distances_cross_flat for item in sublist]
-    
-    no_mod_rep_1_signal_distances_cross_flat = [item for sublist in no_mod_rep_1_signal_distances_cross.values() for item in sublist]
-    no_mod_rep_1_signal_distances_cross_flat = [item for sublist in no_mod_rep_1_signal_distances_cross_flat for item in sublist]
-    
-    np.median(mod_rep_1_signal_distances_flat)
-    np.std(mod_rep_1_signal_distances_flat)
-
-    plt.title('mod_rep_1_signal_distances_flat')
-    g = sns.histplot(mod_rep_1_signal_distances_flat)
-    g.set(xlim=(0, 50))
-    
-    np.median(no_mod_rep_1_signal_distances_flat)
-    np.std(no_mod_rep_1_signal_distances_flat)
-
-    plt.title('no_mod_rep_1_signal_distances_flat')
-    g = sns.histplot(no_mod_rep_1_signal_distances_flat)
-    g.set(xlim=(0, 50))
-    
-    np.median(mod_rep_1_signal_distances_cross_flat)
-    plt.title('mod_rep_1_signal_distances_cross_flat')
-    g = sns.histplot(mod_rep_1_signal_distances_cross_flat)
-    #g.set(xlim=(0, 50))
-    
-    np.median(no_mod_rep_1_signal_distances_cross_flat)
-    plt.title('no_mod_rep_1_signal_distances_cross_flat')
-    g = sns.histplot(no_mod_rep_1_signal_distances_cross_flat)
-    # g.set(xlim=(0, 50))
+    # I have to scale the values
     
     
     for i in mod_rep_1_signal_events.keys():
@@ -341,8 +306,6 @@ if __name__ == '__main__':
     
     
     '''
-    
-    
     train_X = []
     train_y = []
     
