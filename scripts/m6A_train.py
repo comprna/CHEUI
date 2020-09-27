@@ -168,7 +168,6 @@ def load_data(directory):
     
     return dic_signal
 
-
 def recall_m(y_true, y_pred):
     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
     possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
@@ -181,7 +180,6 @@ def precision_m(y_true, y_pred):
     predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
     precision = true_positives / (predicted_positives + K.epsilon())
     return precision
-
 
 def f1_m(y_true, y_pred):
     precision = precision_m(y_true, y_pred)
@@ -368,24 +366,15 @@ if __name__ == '__main__':
     for i in no_mod_rep_1_signal_dwell:
         no_mod_rep_1_signal_dwell_vector += [[i[0]]*20+[i[1]]*20+[i[2]]*20+[i[3]]*20+[i[4]]*20]
     
-    # min max scale vectors
-    no_mod_rep_1_signal_events_array = minmax_scale(no_mod_rep_1_signal_events, axis=1)
-    no_mod_rep_1_signal_dwell_array = minmax_scale(no_mod_rep_1_signal_dwell_vector, axis=1)
-    no_mod_rep_1_signal_distances_array = minmax_scale(no_mod_rep_1_signal_distances, axis=1)
     
-    mod_rep_1_signal_events_array = minmax_scale(mod_rep_1_signal_events, axis=1)
-    mod_rep_1_signal_dwell_array = minmax_scale(mod_rep_1_signal_dwell_vector, axis=1)
-    mod_rep_1_signal_distances_array = minmax_scale(mod_rep_1_signal_distances, axis=1)
-    
-    # make the input vectors
-    no_mod_input = np.concatenate([no_mod_rep_1_signal_events_array,
-                                   no_mod_rep_1_signal_dwell_array,
-                                   no_mod_rep_1_signal_distances_array],
+    no_mod_input = np.concatenate([no_mod_rep_1_signal_events,
+                                   no_mod_rep_1_signal_dwell_vector,
+                                   no_mod_rep_1_signal_distances],
                                   axis=1)
     
-    mod_input = np.concatenate([mod_rep_1_signal_events_array,
-                                mod_rep_1_signal_dwell_array,
-                                mod_rep_1_signal_distances_array],
+    mod_input = np.concatenate([mod_rep_1_signal_events,
+                                mod_rep_1_signal_dwell_vector,
+                                mod_rep_1_signal_distances],
                                 axis=1)
     
     no_mod_input = no_mod_input.reshape(len(no_mod_input), 100, 3)
@@ -393,10 +382,12 @@ if __name__ == '__main__':
     
     total_data = np.concatenate([no_mod_input, mod_input],
                                 axis=0)
+    
     # Create y
     target = np.concatenate([np.zeros(len(no_mod_input)),
                              np.ones(len(mod_input))],
                             axis=0)
+    
     # shuffle data
     total_data , target = shuffle(total_data, target, random_state=42)
     
@@ -427,11 +418,6 @@ if __name__ == '__main__':
           validation_data=(X_test, y_test),
           callbacks=[checkpoint]
           )
-    
-    
-    
-    
-    
     
 
 
