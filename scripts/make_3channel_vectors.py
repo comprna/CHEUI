@@ -43,17 +43,14 @@ from scipy import signal
 from math import floor
 
 from sklearn.preprocessing import minmax_scale
-
-import ray
-ray.init()
-
+import sys
 
 config = ConfigProto()
 config.gpu_options.allow_growth = True
 session = InteractiveSession(config=config)
 
 
-@ray.remote
+#@ray.remote
 def load_data_smooth(directory, model_kmer_dict, lenght_event):
     '''
     '''
@@ -81,9 +78,9 @@ def load_data_smooth(directory, model_kmer_dict, lenght_event):
                                               file.split('_')[-2],
                                               lenght_event)
             
-            #sequence = file.split('_')[-2]
+            sequence = file.split('_')[-2]
             
-            #sequence_smothed = make_sequences(sequence, lenght_event)
+            sequence_smothed = make_sequences(sequence, lenght_event)
             
             try: # fix the equal kmers bug in script Epinano_site_parse_noA_all.py
                 distance_vector = distance_calculator(expected_smoothed,
@@ -91,17 +88,17 @@ def load_data_smooth(directory, model_kmer_dict, lenght_event):
             except:
                 break
             
-            #with open(directory[:-1]+'event.npy', "ab") as f:
-            #    pickle.dump(signal_smoothed, f)
+            with open(directory[:-1]+'event.npy', "ab") as f:
+                pickle.dump(signal_smoothed, f)
 
             with open(directory[:-1]+'distances_euclidean.npy', "ab") as f:
                 pickle.dump(distance_vector, f)
 
-            #with open(directory[:-1]+'dwell.npy', "ab") as f:
-            #    pickle.dump(dwell_smoothed, f)
+            with open(directory[:-1]+'dwell.npy', "ab") as f:
+                pickle.dump(dwell_smoothed, f)
             
-            #with open(directory[:-1]+'sequences.npy', "ab") as f:
-           #     pickle.dump(sequence_smothed, f)
+            with open(directory[:-1]+'sequences.npy', "ab") as f:
+                pickle.dump(sequence_smothed, f)
             
             #if file in dic_signal:
             #    dic_signal[file] += [signal_smoothed]
@@ -269,7 +266,7 @@ def plot_UMAP(no_mod_list, mod_list, plot=None):
     
     
 
-@ray.remote
+#@ray.remote
 def load_local_stored(file_path):
     '''
     '''
@@ -303,8 +300,8 @@ def f1(y_true, y_pred):
 
 if __name__ == '__main__':
     
-    mod_rep_1 = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/doubleAA/mod_rep1_eventalign_numpy_sites_AA/'
-    no_mod_rep_1 = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/doubleAA/no_mod_rep1_eventalign_numpy_sites_AA/'
+    #directory = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/doubleAA/mod_rep1_eventalign_numpy_sites_AA/'
+    directory = sys.argv[1]
     
     model_kmer = pd.read_csv('/media/labuser/Data/nanopore/m6A_classifier/data/model_kmer.csv',
                              sep=',')
@@ -319,116 +316,10 @@ if __name__ == '__main__':
     
     # start the load the raw signal files and preprocess the signals
     # also creating the vectors for distances, sequences and dwelling time
-    #ret_id1 = load_data_smooth.remote(mod_rep_1, model_kmer_dict, 20)
-    #ret_id2 = load_data_smooth.remote(no_mod_rep_1, model_kmer_dict, 20)
+    ret_id1 = load_data_smooth(directory, model_kmer_dict, 20)
     
-    #ret1 = ray.get(ret_id1)
-    #ret2 = ray.get(ret_id2)
-    
-    # load the local stored data
-    directory = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/doubleAA/'
-    mod_rep_1_signal_dwell_id = load_local_stored.remote(directory+'mod_rep1_eventalign_numpy_sites_AAdwell.npy')
-    mod_rep_1_signal_events_id = load_local_stored.remote(directory+'mod_rep1_eventalign_numpy_sites_AAevent.npy')
-    mod_rep_1_signal_distances_id = load_local_stored.remote(directory+'mod_rep1_eventalign_numpy_sites_AAdistances.npy')
-    #mod_rep_1_signal_sequences_id = load_local_stored.remote(directory+'mod_rep1_eventalign_numpy_sites_AAsequences.npy')
 
-    no_mod_rep_1_signal_dwell_id = load_local_stored.remote(directory+'no_mod_rep1_eventalign_numpy_sites_AAdwell.npy')
-    no_mod_rep_1_signal_events_id = load_local_stored.remote(directory+'no_mod_rep1_eventalign_numpy_sites_AAevent.npy')
-    no_mod_rep_1_signal_distances_id = load_local_stored.remote(directory+'no_mod_rep1_eventalign_numpy_sites_AAdistances.npy')
-    #no_mod_rep_1_signal_sequences_id = load_local_stored.remote(directory+'no_mod_rep1_eventalign_numpy_sites_AAsequences.npy')
 
-    mod_rep_1_signal_dwell = ray.get(mod_rep_1_signal_dwell_id)
-    mod_rep_1_signal_events = ray.get(mod_rep_1_signal_events_id)
-    mod_rep_1_signal_distances = ray.get(mod_rep_1_signal_distances_id)
-    #mod_rep_1_signal_sequences = ray.get(mod_rep_1_signal_sequences_id)
 
-    no_mod_rep_1_signal_dwell  = ray.get(no_mod_rep_1_signal_dwell_id)
-    no_mod_rep_1_signal_events = ray.get(no_mod_rep_1_signal_events_id)
-    no_mod_rep_1_signal_distances = ray.get(no_mod_rep_1_signal_distances_id)
-    #no_mod_rep_1_signal_sequences = ray.get(no_mod_rep_1_signal_sequences_id)
-    
-    # put dwell time between 0 and 1
-    #no_mod_rep_1_signal_dwell_sc = [[item/1000 for item in subl] for subl in no_mod_rep_1_signal_dwell]
-    #mod_rep_1_signal_dwell_sc = [[item/1000 for item in subl] for subl in mod_rep_1_signal_dwell]
-    
-    # concatenate input vectors
-    no_mod_input = np.concatenate([no_mod_rep_1_signal_events,
-                                   no_mod_rep_1_signal_dwell,
-                                   no_mod_rep_1_signal_distances],
-                                   #np.array(no_mod_rep_1_signal_sequences)],
-                                   axis=1)
-    
-    mod_input = np.concatenate([mod_rep_1_signal_events,
-                                mod_rep_1_signal_dwell,
-                                mod_rep_1_signal_distances],
-                                #np.array(mod_rep_1_signal_sequences)],
-                                axis=1)
-    
-    no_mod_input = no_mod_input.reshape(len(no_mod_input), 3, 100)
-    mod_input = mod_input.reshape(len(mod_input), 3, 100)
-    
-    # transpose the last two dimensions to have each channel with separate information
-    no_mod_input =  np.transpose(no_mod_input, (0, 2, 1))
-    mod_input = np.transpose(mod_input, (0, 2, 1))
-    
-    
-    total_data = np.concatenate([no_mod_input, mod_input],
-                                axis=0)
-    
-    # Create y
-    target = np.concatenate([np.zeros(len(no_mod_input)),
-                             np.ones(len(mod_input))],
-                            axis=0)
-    
-    # shuffle data
-    total_data , target = shuffle(total_data, target, random_state=42)
-    
-    X_train, X_test, y_train, y_test = train_test_split( \
-                        total_data, target, test_size=0.20, random_state=42)
-    
-    from DL_models import build_TCN_causalCall, TCN
-    from tensorflow.keras import Input, Model # only for TCN
-    from tcn import tcn_full_summary
-    from tensorflow.keras.layers import Dense
-
-   # inputs = Input(batch_shape=(None, 100, 3))
-    
-    #predictions = build_TCN_causalCall(inputs, 1)
-    i = Input(batch_shape=(None, 100, 3))
-
-    x1 = TCN(return_sequences=False,
-             nb_filters=48,
-             nb_stacks=3,
-             kernel_size=3,
-             dilations=[1,2,4,8,16], 
-             padding='same',
-             activation='relu',
-             use_batch_norm=True,
-             dropout_rate=0.15)(i)
-
-    o = Dense(1, activation='sigmoid')(x1)
-    
-    
-    model = Model(inputs=[i], outputs=[o])
-   
-    model.compile(optimizer='nadam',
-                  loss='binary_crossentropy',
-                  metrics=['accuracy',
-                           recall,
-                           precision,
-                           f1])
-    
-    tcn_full_summary(model, expand_residual_blocks=True)
-
-    checkpoint = ModelCheckpoint('/media/labuser/Data/nanopore/m6A_classifier/scripts/models/m6A_classifier_DB.h5',
-                                 monitor='val_acc', verbose=1,
-                                 save_best_only=True, mode='max')
-    
-    model.fit(X_train, y_train,
-              batch_size=125,
-              epochs=1,
-              validation_data=(X_test, y_test),
-              #callbacks=[checkpoint]
-              )
 
 
