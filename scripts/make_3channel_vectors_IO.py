@@ -31,50 +31,57 @@ def load_data_smooth(directory, model_kmer_dict, lenght_event):
     dic_distance = {} # dictionary of distance from the non-modified to the signal
     for file in files:
         counter = 0
-        file_raw = pickle.load(open(directory+file,"rb"))
-        for signal_values in file_raw:
-            signal_smoothed = []
-            dwell_smoothed = []
-            sequence_smothed = []
-            for event in signal_values:
-                if len(event) > 1000: # maximun event lenght
-                    dwell_smoothed += [1000/1000]*lenght_event
-                else:
-                    dwell_smoothed += [len(event)/1000]*lenght_event # record the original dwelling time
-                event_smoothed = smooth_event(event, lenght_event) # smooth the event
-                signal_smoothed += event_smoothed  # add the event to the signal
-            
-            expected_smoothed = make_expected(model_kmer_dict, 
-                                              file.split('_')[-2],
-                                              lenght_event)
-            
-            sequence = file.split('_')[-2]
-            
-            sequence_smothed = make_sequences(sequence, lenght_event)
-            
-            try: # fix the equal kmers bug in script Epinano_site_parse_noA_all.py
-                distance_vector = distance_calculator(expected_smoothed,
-                                                      signal_smoothed)
-                counter +=1
+        with open(directory+file, 'rb') as fr:
+            try:
+                while True:
+                    signal_smoothed = []
+                    dwell_smoothed = []
+                    sequence_smothed = []
+                    counter_events = 0
+                    for event in pickle.load(fr):
+                        counter_events +=1
+                        
+                        if len(event) > 1000: # maximun event lenght
+                            dwell_smoothed += [1000/1000]*lenght_event
+                        else:
+                            dwell_smoothed += [len(event)/1000]*lenght_event # record the original dwelling time
+                        event_smoothed = smooth_event(event, lenght_event) # smooth the event
+                        signal_smoothed += event_smoothed  # add the event to the signal
+                        if counter_events == 5:
+                            break
+    
+                    expected_smoothed = make_expected(model_kmer_dict, 
+                                                      file.split('_')[-1],
+                                                      lenght_event)
+                    sequence = file.split('_')[-1]
+                    
+                    sequence_smothed = make_sequences(sequence, lenght_event)
+                    
+                    try: # fix the equal kmers bug in script Epinano_site_parse_noA_all.py
+                        distance_vector = distance_calculator(expected_smoothed,
+                                                              signal_smoothed)
+                        counter +=1
+                    except:
+                        continue
+                    
+                    with open(directory[:-1]+'event.npy', "ab") as f:
+                        pickle.dump(signal_smoothed, f)
+        
+                    with open(directory[:-1]+'distances_euclidean.npy', "ab") as f:
+                        pickle.dump(distance_vector, f)
+        
+                    with open(directory[:-1]+'dwell.npy', "ab") as f:
+                        pickle.dump(dwell_smoothed, f)
+                    
+                    with open(directory[:-1]+'sequences.npy', "ab") as f:
+                        pickle.dump(sequence_smothed, f)
+                    
+                    if counter == 2000:
+                        continue
+                    #return [dic_signal, dic_dwell, dic_distance]
             except:
-                break
-            
-            with open(directory[:-1]+'event.npy', "ab") as f:
-                pickle.dump(signal_smoothed, f)
-
-            with open(directory[:-1]+'distances_euclidean.npy', "ab") as f:
-                pickle.dump(distance_vector, f)
-
-            with open(directory[:-1]+'dwell.npy', "ab") as f:
-                pickle.dump(dwell_smoothed, f)
-            
-            with open(directory[:-1]+'sequences.npy', "ab") as f:
-                pickle.dump(sequence_smothed, f)
-            
-         
-        if counter == int(sys.argv[2]): # if there is already that many signal go to the next file
-            continue
-            #return [dic_signal, dic_dwell, dic_distance]
+                pass
+        
 
 
 def make_expected(model_kmer_dict, kmer, event_lenght):
@@ -244,9 +251,10 @@ def load_local_stored(file_path):
     return data
 
 
+
 if __name__ == '__main__':
     
-    #directory = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/doubleAA/mod_rep1_eventalign_numpy_sites_AA/'
+    #directory = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/doubleAA/mod_rep2_eventalign_numpy_sites_AA/'
     directory = sys.argv[1]
     
     model_kmer = pd.read_csv('/media/labuser/Data/nanopore/m6A_classifier/data/model_kmer.csv',

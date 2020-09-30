@@ -53,133 +53,6 @@ config.gpu_options.allow_growth = True
 session = InteractiveSession(config=config)
 
 
-@ray.remote
-def load_data_smooth(directory, model_kmer_dict, lenght_event):
-    '''
-    '''
-    files = os.listdir(directory)
-    dic_signal = {} # dictionary of signal event values
-    dic_dwell = {} # dictionary of dwelling time values
-    dic_distance = {} # dictionary of distance from the non-modified to the signal
-    counter = 0
-    for file in files:
-        counter +=1
-        file_raw = pickle.load(open(directory+file,"rb"))
-        for signal_values in file_raw:
-            signal_smoothed = []
-            dwell_smoothed = []
-            sequence_smothed = []
-            for event in signal_values:
-                if len(event) > 1000: # maximun event lenght
-                    dwell_smoothed += [1000/1000]*lenght_event
-                else:
-                    dwell_smoothed += [len(event)/1000]*lenght_event # record the original dwelling time
-                event_smoothed = smooth_event(event, lenght_event) # smooth the event
-                signal_smoothed += event_smoothed  # add the event to the signal
-            
-            expected_smoothed = make_expected(model_kmer_dict, 
-                                              file.split('_')[-2],
-                                              lenght_event)
-            
-            #sequence = file.split('_')[-2]
-            
-            #sequence_smothed = make_sequences(sequence, lenght_event)
-            
-            try: # fix the equal kmers bug in script Epinano_site_parse_noA_all.py
-                distance_vector = distance_calculator(expected_smoothed,
-                                                      signal_smoothed)
-            except:
-                break
-            
-            #with open(directory[:-1]+'event.npy', "ab") as f:
-            #    pickle.dump(signal_smoothed, f)
-
-            with open(directory[:-1]+'distances_euclidean.npy', "ab") as f:
-                pickle.dump(distance_vector, f)
-
-            #with open(directory[:-1]+'dwell.npy', "ab") as f:
-            #    pickle.dump(dwell_smoothed, f)
-            
-            #with open(directory[:-1]+'sequences.npy', "ab") as f:
-           #     pickle.dump(sequence_smothed, f)
-            
-            #if file in dic_signal:
-            #    dic_signal[file] += [signal_smoothed]
-            #    dic_dwell[file] += [dwell_smoothed]
-            #    dic_distance[file] += [distance_vector]
-            #else:
-            #    dic_distance[file] = [distance_vector]
-            #    dic_signal[file] = [signal_smoothed]
-            #    dic_dwell[file] = [dwell_smoothed]
-            
-        if counter == 200:
-            return True
-            #return [dic_signal, dic_dwell, dic_distance]
-
-
-def make_expected(model_kmer_dict, kmer, event_lenght):
-    '''
-    '''
-    expected_signal = []
-    for i in range(5):
-        expected_signal += [model_kmer_dict[kmer[i:i+5]]]*event_lenght
-    return expected_signal
-
-def distance_calculator(signal_expected, event_smoothed):
-    '''
-    '''
-    #vector_distance = list(np.round(abs(np.array(signal_expected) - \
-    #                                    np.array(event_smoothed)), 3))
-    
-    vector_distance_eu =    list(np.round(abs(np.array(signal_expected) - \
-                                        np.array(event_smoothed)), 3))
-    
-    return vector_distance
-
-
-def smooth_event(raw_signal, lenght_events):
-    '''
-    smmoth the signal 
-    '''
-    raw_signal_events = []
-    
-    if len(raw_signal) < lenght_events:
-        event = top_median(raw_signal, lenght_events)
-        raw_signal_events = [round(i, 3) for i in event]
-        
-    else:
-        division = floor(len(raw_signal)/lenght_events)
-        new_event = []
-        for i in range(0, len(raw_signal), division):
-            new_event.append(np.median(raw_signal[i:i+division]))
-            if len(new_event) == lenght_events:
-                break
-        if len(new_event) < lenght_events:
-            new_event = top_median(new_event, lenght_events)
-        raw_signal_events = [round(i, 3) for i in new_event]
-    return raw_signal_events
-
-
-def top_median(array, lenght):
-    '''
-    This function top an array until some specific lenght
-    '''
-    extra_measure = [np.median(array)]*(lenght-len(array))
-    array += extra_measure
-    return array
-
-
-def load_data(directory):
-    '''
-    '''
-    files = os.listdir(directory)
-    dic_signal = {}
-    for file in files:
-        dic_signal[file] = pickle.load(open(directory+file,"rb" ))
-    
-    return dic_signal
-
-
 def plot_signals_10(KO_signal_filtered_np, WT_signal_filtered_np, kmer, save=None):
     '''
     This function wil plot the median and sd of a bunch of signals
@@ -268,8 +141,6 @@ def plot_UMAP(no_mod_list, mod_list, plot=None):
     return True
     
     
-
-@ray.remote
 def load_local_stored(file_path):
     '''
     '''
@@ -302,28 +173,6 @@ def f1(y_true, y_pred):
 
 
 if __name__ == '__main__':
-    
-    mod_rep_1 = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/doubleAA/mod_rep1_eventalign_numpy_sites_AA/'
-    no_mod_rep_1 = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/doubleAA/no_mod_rep1_eventalign_numpy_sites_AA/'
-    
-    model_kmer = pd.read_csv('/media/labuser/Data/nanopore/m6A_classifier/data/model_kmer.csv',
-                             sep=',')
-    
-    # create a dictionary with each kmer and its current value
-    model_kmer_dict = dict(zip(model_kmer['model_kmer'], model_kmer['model_mean']))
-    
-    # Create a column with the numbers that we will use as tokens from 0 to 1
-    model_kmer['number'] = [round((i+1)/1025, 5) for i in range(len(model_kmer))]
-    
-    tokenizer = dict(zip(model_kmer['model_kmer'], model_kmer['number']))
-    
-    # start the load the raw signal files and preprocess the signals
-    # also creating the vectors for distances, sequences and dwelling time
-    #ret_id1 = load_data_smooth.remote(mod_rep_1, model_kmer_dict, 20)
-    #ret_id2 = load_data_smooth.remote(no_mod_rep_1, model_kmer_dict, 20)
-    
-    #ret1 = ray.get(ret_id1)
-    #ret2 = ray.get(ret_id2)
     
     # load the local stored data
     directory = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/doubleAA/'
@@ -391,8 +240,7 @@ if __name__ == '__main__':
     from tcn import tcn_full_summary
     from tensorflow.keras.layers import Dense
 
-   # inputs = Input(batch_shape=(None, 100, 3))
-    
+
     #predictions = build_TCN_causalCall(inputs, 1)
     i = Input(batch_shape=(None, 100, 3))
 
