@@ -10,16 +10,16 @@ import os
 import pickle
 
 import numpy as np
-#from tensorflow.keras import Input
-#from tensorflow.keras import Model
-#from tensorflow.keras.layers import Dense
-#from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras import Input
+from tensorflow.keras import Model
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 from keras import backend as K
 from sklearn import preprocessing
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
-from keras.models import Model
-from keras.callbacks import ModelCheckpoint
+from tensorflow.keras.models import Model
+from tensorflow.keras.callbacks import ModelCheckpoint
 
 from itertools import product
 import umap
@@ -43,6 +43,7 @@ from scipy import signal
 from math import floor
 
 from sklearn.preprocessing import minmax_scale
+
 
 import ray
 ray.init()
@@ -108,16 +109,6 @@ def plot_signals_10(KO_signal_filtered_np, WT_signal_filtered_np, kmer, save=Non
     return True
 
 
-def make_sequences(nucleotides, lenght):
-    '''
-    '''
-    sequence_to_number = []
-    for i in range(len(nucleotides)-4):
-        sequence_to_number += [tokenizer[nucleotides[i:i+5]]]*lenght
-    return(sequence_to_number)
-    # return list(map(int, ''.join([OneHotDNA[i] for i in nucleotides])))
-
-
 def plot_UMAP(no_mod_list, mod_list, plot=None):
     '''
     '''
@@ -140,7 +131,7 @@ def plot_UMAP(no_mod_list, mod_list, plot=None):
     plt.close('all')
     return True
     
-    
+@ray.remote
 def load_local_stored(file_path):
     '''
     '''
@@ -175,7 +166,7 @@ def f1(y_true, y_pred):
 if __name__ == '__main__':
     
     # load the local stored data
-    directory = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/doubleAA/'
+    directory = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/doubleAA/re1_test/'
     mod_rep_1_signal_dwell_id = load_local_stored.remote(directory+'mod_rep1_eventalign_numpy_sites_AAdwell.npy')
     mod_rep_1_signal_events_id = load_local_stored.remote(directory+'mod_rep1_eventalign_numpy_sites_AAevent.npy')
     mod_rep_1_signal_distances_id = load_local_stored.remote(directory+'mod_rep1_eventalign_numpy_sites_AAdistances.npy')
@@ -234,12 +225,12 @@ if __name__ == '__main__':
     
     X_train, X_test, y_train, y_test = train_test_split( \
                         total_data, target, test_size=0.20, random_state=42)
-    
+    '''
+    TCN model
     from DL_models import build_TCN_causalCall, TCN
     from tensorflow.keras import Input, Model # only for TCN
     from tcn import tcn_full_summary
     from tensorflow.keras.layers import Dense
-
 
     #predictions = build_TCN_causalCall(inputs, 1)
     i = Input(batch_shape=(None, 100, 3))
@@ -255,18 +246,26 @@ if __name__ == '__main__':
              dropout_rate=0.15)(i)
 
     o = Dense(1, activation='sigmoid')(x1)
-    
-    
     model = Model(inputs=[i], outputs=[o])
-   
+    
+    tcn_full_summary(model, expand_residual_blocks=True)
+
+    '''
+    from DL_models import build_Jasper, build_deepbinner
+
+    inputs = Input(shape=(100, 3))
+
+    output = build_Jasper(inputs)
+    
+    model = Model(inputs=inputs, outputs=output)
+
     model.compile(optimizer='nadam',
                   loss='binary_crossentropy',
                   metrics=['accuracy',
                            recall,
                            precision,
                            f1])
-    
-    tcn_full_summary(model, expand_residual_blocks=True)
+    model.summary()
 
     checkpoint = ModelCheckpoint('/media/labuser/Data/nanopore/m6A_classifier/scripts/models/m6A_classifier_DB.h5',
                                  monitor='val_acc', verbose=1,
@@ -276,7 +275,7 @@ if __name__ == '__main__':
               batch_size=125,
               epochs=1,
               validation_data=(X_test, y_test),
-              #callbacks=[checkpoint]
+              callbacks=[checkpoint]
               )
 
 
