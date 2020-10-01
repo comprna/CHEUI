@@ -20,9 +20,11 @@ If not, see <http://www.gnu.org/licenses/>.
 """
 
 from tensorflow.keras.layers import Conv1D, MaxPooling1D, AveragePooling1D, Dropout, concatenate,\
-    BatchNormalization, GaussianNoise, GlobalAveragePooling1D, Softmax, Add, Dense, Activation
+    BatchNormalization, GaussianNoise, GlobalAveragePooling1D, Softmax, Add, Dense, Activation,\
+    Attention
 
 from tensorflow.keras.activations import relu
+import keras.backend as K
 
 
 def build_deepbinner(inputs, class_count):
@@ -105,14 +107,14 @@ def build_deepbinner(inputs, class_count):
     return x
 
 
+
 def _bn_relu(input):
     """Helper to build a BN -> relu block
     """
     norm = BatchNormalization()(input)
     return Activation("relu")(norm)
 
-
-def build_Jasper(inputs):
+def build_Jasper(inputs, Deep=None):
     '''
     a Jasper BxR model has B blocks, each with R subblocks. 
     Each sub-block applies the following operations: 
@@ -139,11 +141,12 @@ def build_Jasper(inputs):
     # pre-processing (prolog) Conv layer
     x = Conv1D(filters=48, 
                kernel_size=3,
-               padding='same', 
+               padding='same',
+               dilation_rate=2
                )(x)
     x = _bn_relu(x)
     
-    ## first block
+    ## First block
     
     n_filter = 48
     kernel_s = 2
@@ -151,29 +154,39 @@ def build_Jasper(inputs):
     
     a = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
-               padding='same')(x)
+               padding='same',
+              )(x)
     a = _bn_relu(a)
     a = Dropout(rate=droppout)(a)
     
     a = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
-               padding='same')(a)
+               padding='same',
+               )(a)
     a = _bn_relu(a)
     a = Dropout(rate=droppout)(a)
     
     a = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
-               padding='same')(a)
-    a =_bn_relu(a)
-    a = Dropout(rate=droppout)(a)
-    
+               padding='same',
+               )(a)
+    a = BatchNormalization()(a)
+    '''
     #  1X1 conv residual connection
+    '''
     x1 = Conv1D(filters=48, 
                kernel_size=1, 
                padding='same', 
                )(x)
     x1 = BatchNormalization()(x1)
-    
+    '''
+    #  1X1 conv residual connection
+    '''
+    a = Add()([x1, a])
+    a = Activation("relu")(a)
+    a = Dropout(rate=droppout)(a)
+    #a = MaxPooling1D(pool_size=2,padding='same')(a)
+
     ## Second block
     n_filter = 48
     kernel_s = 3
@@ -181,37 +194,44 @@ def build_Jasper(inputs):
     
     b = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
-               padding='same')(a)
+               padding='same',
+               )(a)
     b = BatchNormalization()(b)
-    
-    # add the residual connection
-    b = Add()([x1, b])
-    
     b = Activation("relu")(b)
-    
     b = Dropout(rate=droppout)(b)
     
     b = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
-               padding='same')(b)
+               padding='same',
+               )(b)
     b =_bn_relu(b)
-    
     b = Dropout(rate=droppout)(b)
     
     b = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
-               padding='same')(b)
-    b =_bn_relu(b)
-    b = Dropout(rate=droppout)(b)
-    
+               padding='same',
+               )(b)
+    b = BatchNormalization()(b)
+
+    '''
     #  1X1 conv residual connection
+    '''
     x1 = Conv1D(filters=48, 
                kernel_size=1, 
                padding='same', 
                )(a)
-    
-    x1= BatchNormalization()(x1)
-    
+    x1 = BatchNormalization()(x1)
+    '''
+    #  1X1 conv residual connection
+    '''
+    if Deep == True:
+        b = Add()([x1, b, a])
+    else:
+        b = Add()([x1, b])
+    b = Activation("relu")(b)
+    b = Dropout(rate=droppout)(b)
+    #b = MaxPooling1D(pool_size=2,padding='same')(b)
+
     ## Third block
     n_filter = 48
     kernel_s = 3
@@ -220,37 +240,39 @@ def build_Jasper(inputs):
     c = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same')(b)
-    
-    c = BatchNormalization()(c)
-    # add the residual connection
-    c = Add()([x1, c])
-    
-    c = Activation("relu")(c)
-    
-    
+    c = _bn_relu(c)
     c = Dropout(rate=droppout)(c)
     
     c = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same')(c)
     c = _bn_relu(c)
-    
     c = Dropout(rate=droppout)(c)
 
     c = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same')(c)
-    c = _bn_relu(c)
-    c = Dropout(rate=droppout)(c)
-    
+    c = BatchNormalization()(c)
+
+    '''
     #  1X1 conv residual connection
+    '''
     x1 = Conv1D(filters=48, 
                kernel_size=1, 
                padding='same', 
                )(b)
-    
     x1 = BatchNormalization()(x1)
-    
+    '''
+    #  1X1 conv residual connection
+    '''
+    if Deep == True:
+        c = Add()([x1, b, a, c])
+    else:
+        c = Add()([x1, c])
+    c = Activation("relu")(c)
+    c = Dropout(rate=droppout)(c)
+    #c = MaxPooling1D(pool_size=2,padding='same')(c)
+
     ## fourth block
     n_filter = 48
     kernel_s = 3
@@ -259,47 +281,49 @@ def build_Jasper(inputs):
     d = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same')(c)
-    d = BatchNormalization()(d)
-    
-    # add the residual connection
-    d = Add()([x1, d])
-    
-    d = Activation("relu")(d)
-    
+    d =_bn_relu(d)
     d = Dropout(rate=droppout)(d) 
     
     d = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same')(d)
     d =_bn_relu(d)
-
     d = Dropout(rate=droppout)(d)
 
     d = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same')(d)
     d = BatchNormalization()(d)
-    d = _bn_relu(d)
-    
+
+    '''
     #  1X1 conv residual connection
+    '''
     x1 = Conv1D(filters=48, 
                kernel_size=1, 
                padding='same', 
                )(c)
-    
     x1 = BatchNormalization()(x1)
-    
+    '''
+    #  1X1 conv residual connection
+    '''
+    if Deep == True:
+        d = Add()([x1, b, a, c, d])
+    else:
+        d = Add()([x1, d])
+    d = Activation("relu")(d)
+    d = Dropout(rate=droppout)(d)
+    #d = MaxPooling1D(pool_size=2,padding='same')(d)
+
     # epilog conv layer
     x = Conv1D(filters=48, 
                kernel_size=3,
+               dilation_rate=2,
                padding='same')(d)
-    x = BatchNormalization()(x)
-    x = Add()([x1, x])
-
-    x = Activation("relu")(x)
+    x =_bn_relu(x)
     
     x = Conv1D(filters=48, 
                kernel_size=3,
+               dilation_rate=2,
                padding='same')(x)
     x =_bn_relu(x)
     

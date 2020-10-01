@@ -20,6 +20,8 @@ from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.models import Model
 from tensorflow.keras.callbacks import ModelCheckpoint
+import keras_metrics
+
 
 from itertools import product
 import umap
@@ -257,16 +259,16 @@ if __name__ == '__main__':
 
     inputs = Input(shape=(100, 3))
 
-    output = build_Jasper(inputs)
+    output = build_Jasper(inputs,Deep=True)
     
     model = Model(inputs=inputs, outputs=output)
-
-    model.compile(optimizer='nadam',
+    
+    model.compile(optimizer='adam',
                   loss='binary_crossentropy',
                   metrics=['accuracy',
-                           recall,
-                           precision,
-                           f1])
+                           keras_metrics.recall(),
+                           keras_metrics.precision(),
+                           ])
     model.summary()
 
     checkpoint = ModelCheckpoint('/media/labuser/Data/nanopore/m6A_classifier/scripts/models/m6A_classifier_DB.h5',
@@ -280,9 +282,9 @@ if __name__ == '__main__':
               #callbacks=[checkpoint]
               )
 
-    AUC = tf.keras.metrics.AUC()
-    AUC.update_state(y_test, model.predict(X_test))
-    print(AUC.result().numpy())
+    #AUC = tf.keras.metrics.AUC()
+    #AUC.update_state(y_test, model.predict(X_test))
+    #print(AUC.result().numpy())
 
 
 
