@@ -64,19 +64,19 @@ def load_data_smooth(directory, model_kmer_dict, lenght_event):
                     except:
                         continue
                     
-                    with open(directory[:-1]+'event_400.npy', "ab") as f:
+                    with open(directory[:-1]+'event_50.npy', "ab") as f:
                         pickle.dump(signal_smoothed, f)
         
-                    with open(directory[:-1]+'distances_euclidean_400.npy', "ab") as f:
+                    with open(directory[:-1]+'distances_euclidean_50.npy', "ab") as f:
                         pickle.dump(distance_vector, f)
         
-                    with open(directory[:-1]+'dwell_400.npy', "ab") as f:
+                    with open(directory[:-1]+'dwell_50.npy', "ab") as f:
                         pickle.dump(dwell_smoothed, f)
                     
-                    with open(directory[:-1]+'sequences_400.npy', "ab") as f:
+                    with open(directory[:-1]+'sequences_50.npy', "ab") as f:
                         pickle.dump(sequence_smothed, f)
                     
-                    if counter == 400:
+                    if counter == 50:
                         continue
                     #return [dic_signal, dic_dwell, dic_distance]
             except:

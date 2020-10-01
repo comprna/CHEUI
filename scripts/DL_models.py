@@ -155,6 +155,7 @@ def build_Jasper(inputs, Deep=None):
     a = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same',
+               dilation_rate=2
               )(x)
     a = _bn_relu(a)
     a = Dropout(rate=droppout)(a)
@@ -162,6 +163,7 @@ def build_Jasper(inputs, Deep=None):
     a = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same',
+               dilation_rate=2
                )(a)
     a = _bn_relu(a)
     a = Dropout(rate=droppout)(a)
@@ -169,13 +171,14 @@ def build_Jasper(inputs, Deep=None):
     a = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same',
+               dilation_rate=2
                )(a)
     a = BatchNormalization()(a)
     '''
     #  1X1 conv residual connection
     '''
     x1 = Conv1D(filters=48, 
-               kernel_size=1, 
+               kernel_size=2, 
                padding='same', 
                )(x)
     x1 = BatchNormalization()(x1)
@@ -195,6 +198,7 @@ def build_Jasper(inputs, Deep=None):
     b = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same',
+               dilation_rate=2
                )(a)
     b = BatchNormalization()(b)
     b = Activation("relu")(b)
@@ -203,6 +207,7 @@ def build_Jasper(inputs, Deep=None):
     b = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same',
+               dilation_rate=2
                )(b)
     b =_bn_relu(b)
     b = Dropout(rate=droppout)(b)
@@ -210,6 +215,7 @@ def build_Jasper(inputs, Deep=None):
     b = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same',
+               dilation_rate=2
                )(b)
     b = BatchNormalization()(b)
 
@@ -239,19 +245,22 @@ def build_Jasper(inputs, Deep=None):
     
     c = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
-               padding='same')(b)
+               padding='same',
+               dilation_rate=2)(b)
     c = _bn_relu(c)
     c = Dropout(rate=droppout)(c)
     
     c = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
-               padding='same')(c)
+               padding='same',
+               dilation_rate=2)(c)
     c = _bn_relu(c)
     c = Dropout(rate=droppout)(c)
 
     c = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
-               padding='same')(c)
+               padding='same',
+               dilation_rate=2)(c)
     c = BatchNormalization()(c)
 
     '''
@@ -280,26 +289,29 @@ def build_Jasper(inputs, Deep=None):
     
     d = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
-               padding='same')(c)
+               padding='same',
+               dilation_rate=2)(c)
     d =_bn_relu(d)
     d = Dropout(rate=droppout)(d) 
     
     d = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
-               padding='same')(d)
+               padding='same',
+               dilation_rate=2)(d)
     d =_bn_relu(d)
     d = Dropout(rate=droppout)(d)
 
     d = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
-               padding='same')(d)
+               padding='same',
+               dilation_rate=2)(d)
     d = BatchNormalization()(d)
 
     '''
     #  1X1 conv residual connection
     '''
     x1 = Conv1D(filters=48, 
-               kernel_size=1, 
+               kernel_size=2, 
                padding='same', 
                )(c)
     x1 = BatchNormalization()(x1)
