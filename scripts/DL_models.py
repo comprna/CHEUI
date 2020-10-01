@@ -137,13 +137,20 @@ def build_Jasper(inputs, Deep=None):
     '''
     
     x = inputs
-
+    '''
     # pre-processing (prolog) Conv layer
     x = Conv1D(filters=48, 
                kernel_size=3,
                padding='same',
                dilation_rate=2
                )(x)
+    x = _bn_relu(x)
+    '''
+    x1 = Conv1D(filters=48, kernel_size=1, padding='same', activation='relu')(x)
+    x2 = Conv1D(filters=48, kernel_size=3, padding='same', activation='relu')(x)
+    x3 = Conv1D(filters=48, kernel_size=3, dilation_rate=2, padding='same', activation='relu')(x)
+    x = concatenate([x1, x2, x3], axis=2)
+    x = MaxPooling1D(pool_size=3)(x)
     x = _bn_relu(x)
     
     ## First block
@@ -155,7 +162,6 @@ def build_Jasper(inputs, Deep=None):
     a = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same',
-               dilation_rate=2
               )(x)
     a = _bn_relu(a)
     a = Dropout(rate=droppout)(a)
@@ -163,7 +169,6 @@ def build_Jasper(inputs, Deep=None):
     a = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same',
-               dilation_rate=2
                )(a)
     a = _bn_relu(a)
     a = Dropout(rate=droppout)(a)
@@ -171,7 +176,6 @@ def build_Jasper(inputs, Deep=None):
     a = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same',
-               dilation_rate=2
                )(a)
     a = BatchNormalization()(a)
     '''
@@ -198,7 +202,6 @@ def build_Jasper(inputs, Deep=None):
     b = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same',
-               dilation_rate=2
                )(a)
     b = BatchNormalization()(b)
     b = Activation("relu")(b)
@@ -207,7 +210,6 @@ def build_Jasper(inputs, Deep=None):
     b = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same',
-               dilation_rate=2
                )(b)
     b =_bn_relu(b)
     b = Dropout(rate=droppout)(b)
@@ -215,7 +217,6 @@ def build_Jasper(inputs, Deep=None):
     b = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same',
-               dilation_rate=2
                )(b)
     b = BatchNormalization()(b)
 
@@ -246,21 +247,21 @@ def build_Jasper(inputs, Deep=None):
     c = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same',
-               dilation_rate=2)(b)
+               )(b)
     c = _bn_relu(c)
     c = Dropout(rate=droppout)(c)
     
     c = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same',
-               dilation_rate=2)(c)
+               )(c)
     c = _bn_relu(c)
     c = Dropout(rate=droppout)(c)
 
     c = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same',
-               dilation_rate=2)(c)
+               )(c)
     c = BatchNormalization()(c)
 
     '''
@@ -290,21 +291,21 @@ def build_Jasper(inputs, Deep=None):
     d = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same',
-               dilation_rate=2)(c)
+               )(c)
     d =_bn_relu(d)
     d = Dropout(rate=droppout)(d) 
     
     d = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same',
-               dilation_rate=2)(d)
+               )(d)
     d =_bn_relu(d)
     d = Dropout(rate=droppout)(d)
 
     d = Conv1D(filters=n_filter, 
                kernel_size=kernel_s,
                padding='same',
-               dilation_rate=2)(d)
+               )(d)
     d = BatchNormalization()(d)
 
     '''
