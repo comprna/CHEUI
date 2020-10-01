@@ -151,11 +151,13 @@ def recall(y_true, y_pred):
     recall = true_positives / (possible_positives + K.epsilon())
     return recall
 
+
 def precision(y_true, y_pred):
     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
     predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
     precision = true_positives / (predicted_positives + K.epsilon())
     return precision
+
 
 def f1(y_true, y_pred):
     precision_ = precision(y_true, y_pred)
@@ -249,8 +251,8 @@ if __name__ == '__main__':
     model = Model(inputs=[i], outputs=[o])
     
     tcn_full_summary(model, expand_residual_blocks=True)
-
     '''
+
     from DL_models import build_Jasper, build_deepbinner
 
     inputs = Input(shape=(100, 3))
@@ -274,8 +276,15 @@ if __name__ == '__main__':
     model.fit(X_train, y_train,
               batch_size=125,
               epochs=1,
-              validation_data=(X_test, y_test),
-              callbacks=[checkpoint]
+              validation_data=(X_test, y_test)
+              #callbacks=[checkpoint]
               )
+
+    AUC = tf.keras.metrics.AUC()
+    AUC.update_state(y_test, model.predict(X_test))
+    print(AUC.result().numpy())
+
+
+
 
 
