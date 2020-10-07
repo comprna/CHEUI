@@ -59,22 +59,21 @@ def load_data_smooth(directory, model_kmer_dict, lenght_event):
             except:
                 break
             
-            with open(directory[:-1]+'event.npy', "ab") as f:
+            with open(directory[:-1]+'event_50.npy', "ab") as f:
                 pickle.dump(signal_smoothed, f)
 
-            with open(directory[:-1]+'distances_euclidean.npy', "ab") as f:
+            with open(directory[:-1]+'distances_euclidean_50.npy', "ab") as f:
                 pickle.dump(distance_vector, f)
 
-            with open(directory[:-1]+'dwell.npy', "ab") as f:
+            with open(directory[:-1]+'dwell_50.npy', "ab") as f:
                 pickle.dump(dwell_smoothed, f)
             
-            with open(directory[:-1]+'sequences.npy', "ab") as f:
+            with open(directory[:-1]+'sequences_50.npy', "ab") as f:
                 pickle.dump(sequence_smothed, f)
             
-         
-        if counter == int(sys.argv[2]): # if there is already that many signal go to the next file
-            continue
-            #return [dic_signal, dic_dwell, dic_distance]
+            if counter == 50: # if there is already that many signal go to the next file
+                break
+                #return [dic_signal, dic_dwell, dic_distance]
 
 
 def make_expected(model_kmer_dict, kmer, event_lenght):

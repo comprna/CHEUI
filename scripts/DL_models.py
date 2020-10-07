@@ -135,7 +135,6 @@ def build_Jasper(inputs, Deep=None):
     blocks: one pre-processing and three post-processing.
     https://arxiv.org/pdf/1904.03288.pdf
     '''
-    
     x = inputs
     '''
     # pre-processing (prolog) Conv layer
