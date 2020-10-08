@@ -150,7 +150,7 @@ if __name__ == '__main__':
     mod_rep_1_signal_dwell_id = load_local_stored(directory+'mod_rep1_eventalign_numpy_sites_AAdwell_50.npy')
     mod_rep_1_signal_events_id = load_local_stored(directory+'mod_rep1_eventalign_numpy_sites_AAevent_50.npy')
     mod_rep_1_signal_distances_id = load_local_stored(directory+'mod_rep1_eventalign_numpy_sites_AAdistances_euclidean_50.npy')
-    #mod_rep_1_signal_sequences_id = load_local_stored.remote(directory+'mod_rep1_eventalign_numpy_sites_AAsequences.npy')
+    mod_rep_1_signal_sequences_id = load_local_stored.remote(directory+'mod_rep1_eventalign_numpy_sites_AAsequences.npy')
     
     no_mod_rep_1_signal_dwell_id = load_local_stored(directory+'no_mod_rep1_eventalign_numpy_sites_AAdwell_50.npy')
     no_mod_rep_1_signal_events_id = load_local_stored(directory+'no_mod_rep1_eventalign_numpy_sites_AAevent_50.npy')
@@ -178,18 +178,18 @@ if __name__ == '__main__':
     no_mod_rep_1_signal_events = ray.get(no_mod_rep_1_signal_events_id)
     no_mod_rep_1_signal_distances = ray.get(no_mod_rep_1_signal_distances_id)
     #no_mod_rep_1_signal_sequences = ray.get(no_mod_rep_1_signal_sequences_id)
-
+    
     mod_rep_2_signal_dwell = ray.get(mod_rep_2_signal_dwell_id)
     mod_rep_2_signal_events = ray.get(mod_rep_2_signal_events_id)
     mod_rep_2_signal_distances = ray.get(mod_rep_2_signal_distances_id)
     #mod_rep_1_signal_sequences = ray.get(mod_rep_1_signal_sequences_id)
-
+    
     no_mod_rep_2_signal_dwell  = ray.get(no_mod_rep_2_signal_dwell_id)
     no_mod_rep_2_signal_events = ray.get(no_mod_rep_2_signal_events_id)
     no_mod_rep_2_signal_distances = ray.get(no_mod_rep_2_signal_distances_id)
     #no_mod_rep_1_signal_sequences = ray.get(no_mod_rep_1_signal_sequences_id)
     '''
-
+    
     # concatenate vectors test
     no_mod_rep1 = np.concatenate([no_mod_rep_1_signal_events_id,
                                   no_mod_rep_1_signal_dwell_id,
