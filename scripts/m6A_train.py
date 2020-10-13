@@ -150,22 +150,46 @@ if __name__ == '__main__':
     mod_rep_1_signal_dwell_id = load_local_stored(directory+'mod_rep1_eventalign_numpy_sites_AAdwell_50.npy')
     mod_rep_1_signal_events_id = load_local_stored(directory+'mod_rep1_eventalign_numpy_sites_AAevent_50.npy')
     mod_rep_1_signal_distances_id = load_local_stored(directory+'mod_rep1_eventalign_numpy_sites_AAdistances_euclidean_50.npy')
-    mod_rep_1_signal_sequences_id = load_local_stored.remote(directory+'mod_rep1_eventalign_numpy_sites_AAsequences.npy')
+    mod_rep_1_signal_sequences_id = load_local_stored(directory+'mod_rep1_eventalign_numpy_sites_AAsequences.npy')
     
     no_mod_rep_1_signal_dwell_id = load_local_stored(directory+'no_mod_rep1_eventalign_numpy_sites_AAdwell_50.npy')
     no_mod_rep_1_signal_events_id = load_local_stored(directory+'no_mod_rep1_eventalign_numpy_sites_AAevent_50.npy')
     no_mod_rep_1_signal_distances_id = load_local_stored(directory+'no_mod_rep1_eventalign_numpy_sites_AAdistances_euclidean_50.npy')
-    #no_mod_rep_1_signal_sequences_id = load_local_stored.remote(directory+'no_mod_rep1_eventalign_numpy_sites_AAsequences.npy')
+    no_mod_rep_1_signal_sequences_id = load_local_stored.remote(directory+'no_mod_rep1_eventalign_numpy_sites_AAsequences.npy')
     
     mod_rep_2_signal_dwell_id = load_local_stored(directory+'mod_rep2_eventalign_numpy_sites_AAdwell_1000.npy')
     mod_rep_2_signal_events_id = load_local_stored(directory+'mod_rep2_eventalign_numpy_sites_AAevent_1000.npy')
     mod_rep_2_signal_distances_id = load_local_stored(directory+'mod_rep2_eventalign_numpy_sites_AAdistances_euclidean_1000.npy')
-    #mod_rep_1_signal_sequences_id = load_local_stored.remote(directory+'mod_rep1_eventalign_numpy_sites_AAsequences.npy')
+    mod_rep_2_signal_sequences_id = load_local_stored(directory+'mod_rep2_eventalign_numpy_sites_AAsequences_1000.npy')
+    
+    df_mod_2 = pd.DataFrame({'event':mod_rep_2_signal_events_id,
+                             'distances': mod_rep_2_signal_distances_id,
+                             'dwell': mod_rep_2_signal_dwell_id,
+                             'sequences':mod_rep_2_signal_sequences_id,
+                             'label': len(mod_rep_2_signal_dwell_id)*[1]})
+    
+    df_mod_2.to_csv('/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/doubleAA/train_AA_mod_2.csv',
+                    sep='\t',
+                    index=None
+                    )
 
     no_mod_rep_2_signal_dwell_id = load_local_stored(directory+'no_mod_rep2_eventalign_numpy_sites_AAdwell_1000.npy')
     no_mod_rep_2_signal_events_id = load_local_stored(directory+'no_mod_rep2_eventalign_numpy_sites_AAevent_1000.npy')
     no_mod_rep_2_signal_distances_id = load_local_stored(directory+'no_mod_rep2_eventalign_numpy_sites_AAdistances_euclidean_1000.npy')
-    #no_mod_rep_1_signal_sequences_id = load_local_stored.remote(directory+'no_mod_rep1_eventalign_numpy_sites_AAsequences.npy')
+    no_mod_rep_2_signal_sequences_id = load_local_stored(directory+'no_mod_rep2_eventalign_numpy_sites_AAsequences_1000.npy')
+    
+    
+    df_no_mod_2 = pd.DataFrame({'event':no_mod_rep_2_signal_events_id,
+                                'distances': no_mod_rep_2_signal_distances_id,
+                                'dwell': no_mod_rep_2_signal_dwell_id,
+                                'sequences': no_mod_rep_2_signal_sequences_id,
+                                'label': len(no_mod_rep_2_signal_dwell_id)*[0]})
+   
+    df_no_mod_2.to_csv('/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/doubleAA/train_AA_no_mod_2.csv',
+                sep='\t',
+                index=None
+                )
+    
     
     '''
     mod_rep_1_signal_dwell = ray.get(mod_rep_1_signal_dwell_id)
