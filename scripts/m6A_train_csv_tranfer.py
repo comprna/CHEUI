@@ -11,7 +11,7 @@ import numpy as np
 from tensorflow.keras import Input
 from tensorflow.keras.models import Model
 import keras_metrics
-
+from tensorflow import keras
 from sklearn.metrics import precision_recall_curve
 from matplotlib import pyplot
 
@@ -28,7 +28,8 @@ from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import InteractiveSession
 
 from DL_models import build_Jasper, build_deepbinner
-
+import os
+import sys
 
 config = ConfigProto()
 config.gpu_options.allow_growth = True
@@ -39,20 +40,17 @@ def parse_chunk(chunk):
     '''
     '''
     events = chunk['event']
-    dwell = chunk['dwell']
     distances = chunk['distances']
     
     events = np.array([np.array(xi) for xi in events])
-    dwell = np.array([np.array(xi) for xi in dwell])
     distances = np.array([np.array(xi) for xi in distances])
 
     combined = np.concatenate((events,
-                              dwell,
                               distances), 
                               axis=1)
     
     # reshape the vectors
-    combined = combined.reshape(len(combined), 3, 100)
+    combined = combined.reshape(len(combined), 2, 100)
     
     # transpose the last two dimensions to have each channel with separate information
     combined = np.transpose(combined, (0, 2, 1))
@@ -62,8 +60,23 @@ def parse_chunk(chunk):
 
 if __name__ == '__main__':
     
+    
+    train_path = sys.argv[1]
+    test_path =  sys.argv[2]
+    OUT_FOLDER = sys.argv[3]
+    
+    if not os.path.exists(OUT_FOLDER):
+        os.makedirs(OUT_FOLDER)
+        
+    
+    # parse the testing files
+    test = pd.read_csv(test_path, sep='\t', converters={'event': eval,
+                                                        'distances': eval})
+    X_test = parse_chunk(test)
+    y_test = test['label']
+    
     # Define model Inout
-    inputs = Input(shape=(100, 3))
+    inputs = Input(shape=(100, 2))
     
     output = build_Jasper(inputs,Deep=True)
     #output = build_deepbinner(inputs, 1)
@@ -74,28 +87,24 @@ if __name__ == '__main__':
     
     model = Model(inputs=inputs, outputs=output)
     
+    # load pre-train weights
+    model.load_weights('/media/labuser/Data/nanopore/m6A_classifier/plots/jasper2vectors/93600000model.h5')
+    
+    # freeze layers until the last 3 convolutions
+    for i in enumerate(model.layers[:-9]):
+        model.layers[i[0]].trainable = False
+    
+    
     model.compile(optimizer='adam',
                   loss='binary_crossentropy',
                   metrics=['accuracy',
                            keras_metrics.recall(),
                            keras_metrics.precision(),
                            ])
-
-    train_path = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/train_AA_shuffle.csv'
-    test_path =  '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/test_s.csv'
-    OUT_FOLDER = '/media/labuser/Data/nanopore/m6A_classifier/plots/'
-    
     model.summary()
     
-    # parse the testing files
-    test = pd.read_csv(test_path, sep='\t', converters={'event': eval,
-                                                        'dwell': eval,
-                                                        'distances': eval})
-    X_test = parse_chunk(test)
-    y_test = test['label']
     
-    
-    epochs =1
+    epochs = 10
     histories = []
     
     for e in range(1,epochs+1):
@@ -142,7 +151,7 @@ if __name__ == '__main__':
         val_recall.append(i.history['val_recall'][0])
     
     
-    # summarize history for accuracy 
+    # summarize history for accuracy
     f, ax = plt.subplots( figsize=(13,9))
     sns.lineplot(x=np.arange(len(acc)), y=np.array(acc), palette="tab10", linewidth=2.5, label='Accuracy')
     sns.lineplot(x=np.arange(len(acc)), y=np.array(val_acc), palette="tab10", linewidth=2.5, label='Val accuracy')
