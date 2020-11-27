@@ -11,70 +11,69 @@ import pickle
 
 import numpy as np
 
-import umap
-import matplotlib.pyplot as plt
-import seaborn as sns
+#import umap
+#import matplotlib.pyplot as plt
+#import seaborn as sns
 import pandas as pd
-from matplotlib.lines import Line2D
-
+#from matplotlib.lines import Line2D
 from math import floor
-
 import sys
 
 #@ray.remote
-def load_data_smooth(directory, model_kmer_dict, lenght_event):
+def load_data_smooth(directory, model_kmer_dict, lenght_event, label, df):
     '''
-    '''
+    '''  
     files = os.listdir(directory)
-    dic_signal = {} # dictionary of signal event values
-    dic_dwell = {} # dictionary of dwelling time values
-    dic_distance = {} # dictionary of distance from the non-modified to the signal
     for file in files:
         counter = 0
-        file_raw = pickle.load(open(directory+file,"rb"))
-        for signal_values in file_raw:
-            signal_smoothed = []
-            dwell_smoothed = []
-            sequence_smothed = []
-            for event in signal_values:
-                if len(event) > 1000: # maximun event lenght
-                    dwell_smoothed += [1000/1000]*lenght_event
-                else:
-                    dwell_smoothed += [len(event)/1000]*lenght_event # record the original dwelling time
-                event_smoothed = smooth_event(event, lenght_event) # smooth the event
-                signal_smoothed += event_smoothed  # add the event to the signal
-            
-            expected_smoothed = make_expected(model_kmer_dict, 
-                                              file.split('_')[-1],
-                                              lenght_event)
-            
-            sequence = file.split('_')[-1]
-            
-            sequence_smothed = make_sequences(sequence, lenght_event)
-            
-            try: # fix the equal kmers bug in script Epinano_site_parse_noA_all.py
-                distance_vector = distance_calculator(expected_smoothed,
-                                                      signal_smoothed)
-                counter +=1
+        with open(directory+file, 'rb') as fr:
+            try:
+                while True:
+                    signal_smoothed = []
+                    dwell_smoothed = []
+                    sequence_smothed = []
+                    counter_events = 0
+                    for event in pickle.load(fr):
+                        counter_events +=1
+                        
+                        if len(event) > 1000: # maximun event lenght
+                            dwell_smoothed += [1000/1000]*lenght_event
+                        else:
+                            dwell_smoothed += [len(event)/1000]*lenght_event # record the original dwelling time
+                      
+                        event_smoothed = smooth_event(event, lenght_event) # smooth the event
+                        signal_smoothed += event_smoothed  # add the event to the signal
+                        if counter_events == 5:
+                            break
+    
+                    expected_smoothed = make_expected(model_kmer_dict, 
+                                                      file.split('_')[-1],
+                                                      lenght_event)
+                    sequence = file.split('_')[-1]
+                    
+                    sequence_smothed = make_sequences(sequence, lenght_event)
+                    
+                    try: # fix the equal kmers bug in script Epinano_site_parse_noA_all.py
+                        distance_vector = distance_calculator(expected_smoothed,
+                                                              signal_smoothed)
+                        counter +=1
+                    except:
+                        continue
+                                        
+                    df_temp = pd.DataFrame({'event': [signal_smoothed],
+                                            'distances': [distance_vector],
+                                            'dwell': [dwell_smoothed],
+                                            'sequences': [sequence_smothed],
+                                            'label':label \
+                                            })
+                    df = df.append(df_temp)
+                    
+                    if counter == 2000:
+                        break
             except:
-                break
-            
-            with open(directory[:-1]+'event_30.npy', "ab") as f:
-                pickle.dump(signal_smoothed, f)
-
-            with open(directory[:-1]+'distances_euclidean_30.npy', "ab") as f:
-                pickle.dump(distance_vector, f)
-
-            with open(directory[:-1]+'dwell_30.npy', "ab") as f:
-                pickle.dump(dwell_smoothed, f)
-            
-            with open(directory[:-1]+'sequences_30.npy', "ab") as f:
-                pickle.dump(sequence_smothed, f)
-            
-            if counter == 30: # if there is already that many signal go to the next file
-                break
-                #return [dic_signal, dic_dwell, dic_distance]
-
+                pass
+    return df
+        
 
 def make_expected(model_kmer_dict, kmer, event_lenght):
     '''
@@ -202,30 +201,6 @@ def make_sequences(nucleotides, lenght):
     for i in range(len(nucleotides)-4):
         sequence_to_number += [tokenizer[nucleotides[i:i+5]]]*lenght
     return(sequence_to_number)
-    # return list(map(int, ''.join([OneHotDNA[i] for i in nucleotides])))
-
-
-def plot_UMAP(no_mod_list, mod_list, plot=None):
-    '''
-    '''
-    reducer = umap.UMAP()
-    embedding = reducer.fit_transform(np.concatenate([mod_list, no_mod_list]))
-    
-    plt.figure(figsize=(15, 8))
-    sns.scatterplot(embedding[:len(mod_list),0],
-                    embedding[:len(mod_list),1],
-                    color='b')
-        
-    sns.scatterplot(embedding[len(mod_list):,0],
-                    embedding[len(mod_list):,1],
-                    color='r')
-    if plot:
-        plt.savefig(plot+'UMAPembedding'+'.pdf',
-                    format='pdf',
-                    dpi=1200)
-    plt.show()
-    plt.close('all')
-    return True
     
     
 
@@ -243,12 +218,13 @@ def load_local_stored(file_path):
     return data
 
 
+
 if __name__ == '__main__':
     
-    directory = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/singleA/no_mod_rep2_eventalign_numpy_sites/'
-    #directory = sys.argv[1]
+    #directory = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/doubleAA/mod_rep2_eventalign_numpy_sites_AA/'
+    directory = sys.argv[1]
     
-    model_kmer = pd.read_csv('/media/labuser/Data/nanopore/m6A_classifier/data/model_kmer.csv',
+    model_kmer = pd.read_csv('/g/data/xc17/pm1122/lib/xpore/xpore/diffmod/model_kmer.csv',
                              sep=',')
     
     # create a dictionary with each kmer and its current value
@@ -259,11 +235,29 @@ if __name__ == '__main__':
     
     tokenizer = dict(zip(model_kmer['model_kmer'], model_kmer['number']))
     
+    df = pd.DataFrame({'event':[],
+                       'distances':[],
+                       'dwell':[],
+                       'sequences':[],
+                       'label':[]})
+    
     # start the load the raw signal files and preprocess the signals
     # also creating the vectors for distances, sequences and dwelling time
-    ret_id1 = load_data_smooth(directory, model_kmer_dict, 20)
+    df = load_data_smooth(directory, model_kmer_dict, 20, 1, df)
     
-
+    #directory = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/doubleAA/no_mod_rep2_eventalign_numpy_sites_AA/'
+    directory = sys.argv[2]
+    
+    df = load_data_smooth(directory, model_kmer_dict, 20, 0, df)
+    
+    path_csv = '/'.join(directory.split('/')[:-2])
+    
+    df.sample(frac=1).round(3).to_csv(path_csv+'/TRAIN_s.csv',
+               mode='w', 
+               sep='\t',
+               index=None)
+    
+    
 
 
 

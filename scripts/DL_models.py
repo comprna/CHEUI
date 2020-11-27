@@ -593,24 +593,10 @@ def build_Jasper_2inputs(input1, input2, Deep=None):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     
 from tcn import TCN
     
-def build_TCN(inputs):
+def build_TCN(inputs, output):
     '''
     '''
     x1 = TCN(return_sequences=False,
@@ -623,15 +609,209 @@ def build_TCN(inputs):
              use_batch_norm=True,
              dropout_rate=0.2)(inputs)
     
-    output = Dense(1, activation='sigmoid')(x1)
+    output = Dense(output, activation='sigmoid')(x1)
     
     return output
     
 
+def build_TCN_cc(inputs, output):
+    '''
+    '''
+    x1 = TCN(nb_filters=48,
+             kernel_size=2,
+             dilations=[1], 
+             padding='same',
+             use_batch_norm=True,
+             return_sequences=True,
+             dropout_rate=0.2)(inputs)
+     
+    x1 = TCN(return_sequences=True,
+             nb_filters=48,
+             kernel_size=2,
+             dilations=[1], 
+             padding='same',
+             use_batch_norm=True,
+             dropout_rate=0.2)(x1)
+    
+    x1 = TCN(return_sequences=True,
+             nb_filters=48,
+             kernel_size=2,
+             dilations=[1], 
+             padding='same',
+             use_batch_norm=True,
+             dropout_rate=0.2)(x1)
+    '''
+    residual connection
+    '''
+    xres = Conv1D(filters=48, 
+                kernel_size=1, 
+                padding='same', 
+                )(inputs)
+    '''
+    residual connection
+    '''
+    
+    x1 = Add()([x1, xres])
+    x1 = Activation("relu")(x1)
+    
+    x2 = TCN(nb_filters=48,
+             kernel_size=2,
+             dilations=[2], 
+             padding='same',
+             use_batch_norm=True,
+             return_sequences=True,
+             dropout_rate=0.2)(x1)
+     
+    x2 = TCN(return_sequences=True,
+             nb_filters=48,
+             kernel_size=2,
+             dilations=[2], 
+             padding='same',
+             use_batch_norm=True,
+             dropout_rate=0.2)(x2)
+    
+    x2 = TCN(return_sequences=True,
+             nb_filters=48,
+             kernel_size=2,
+             dilations=[2], 
+             padding='same',
+             use_batch_norm=True,
+             dropout_rate=0.2)(x2)
+    '''
+    residual connection
+    '''
+    xres = Conv1D(filters=48, 
+                kernel_size=1, 
+                padding='same', 
+                )(x1)
+    '''
+    residual connection
+    '''
+    
+    x2 = Add()([x2, xres])
+    x2 = Activation("relu")(x2)
+    
+    x3 = TCN(nb_filters=48,
+             kernel_size=2,
+             dilations=[4], 
+             padding='same',
+             use_batch_norm=True,
+             return_sequences=True,
+             dropout_rate=0.2)(x2)
+     
+    x3 = TCN(return_sequences=True,
+             nb_filters=48,
+             kernel_size=2,
+             dilations=[4], 
+             padding='same',
+             use_batch_norm=True,
+             dropout_rate=0.2)(x3)
+    
+    x3 = TCN(return_sequences=True,
+             nb_filters=48,
+             kernel_size=2,
+             dilations=[4], 
+             padding='same',
+             use_batch_norm=True,
+             dropout_rate=0.2)(x3)
+    '''
+    residual connection
+    '''
+    xres = Conv1D(filters=48, 
+                kernel_size=1, 
+                padding='same', 
+                )(x2)
+    '''
+    residual connection
+    '''
+    
+    x3 = Add()([x3, xres])
+    x3 = Activation("relu")(x3)
+    
+    x4 = TCN(nb_filters=48,
+             kernel_size=2,
+             dilations=[8], 
+             padding='same',
+             use_batch_norm=True,
+             return_sequences=True,
+             dropout_rate=0.2)(x3)
+     
+    x4 = TCN(return_sequences=True,
+             nb_filters=48,
+             kernel_size=2,
+             dilations=[8], 
+             padding='same',
+             use_batch_norm=True,
+             dropout_rate=0.2)(x4)
+    
+    x4 = TCN(return_sequences=True,
+             nb_filters=48,
+             kernel_size=2,
+             dilations=[8], 
+             padding='same',
+             use_batch_norm=True,
+             dropout_rate=0.2)(x4)
+    '''
+    residual connection
+    '''
+    xres = Conv1D(filters=48, 
+                kernel_size=1, 
+                padding='same', 
+                )(x3)
+    '''
+    residual connection
+    '''
+    x4 = Add()([x4, xres])
+    x4= Activation("relu")(x4)
+    
+    x4 = GlobalAveragePooling1D()(x4)
+    
+    output = Dense(output, activation='sigmoid')(x4)
+    
+    return output
 
 
+from tensorflow.keras.layers import  Reshape
 
+from tensorflow.keras.models import Model
+from tensorflow.keras import Input
 
+import numpy as np
+
+def autoencoderConv1D(signal_shape=(50, 1)):
+    """
+    Conv2D auto-encoder model.
+    Arguments:
+        img_shape: e.g. (28, 28, 1) for MNIST
+    return:
+        (autoencoder, encoder), Model of autoencoder and model of encoder
+    """
+    input_img = Input(shape=signal_shape)
+    # Encoder
+    x = Conv1D(32, 3, activation='relu', padding='same')(input_img)
+    x = Conv1D(24, 3, activation='relu', padding='same')(x)
+    x = Conv1D(16, 3, activation='relu', padding='same')(x)
+    shape_before_flattening = K.int_shape(x)
+    # at this point the representation is (4, 4, 8) i.e. 128-dimensional
+    x = Flatten()(x)
+    encoded = Dense(50, activation='relu', name='encoded')(x)
+
+    # Decoder
+    x = Dense(np.prod(shape_before_flattening[1:]),
+                activation='relu')(encoded)
+    # Reshape into an image of the same shape as before our last `Flatten` layer
+    x = Reshape(shape_before_flattening[1:])(x)
+    
+    x = Conv1D(16, 3, activation='relu', padding='same')(x)
+    #x = UpSampling1D((2, 2))(x)
+    x = Conv1D(24, 3, activation='relu', padding='same')(x)
+    #x = UpSampling1D((2, 2))(x)
+    x = Conv1D(32, 3, activation='relu', padding='same')(x)
+    #x = UpSampling1D((2, 2))(x)
+    decoded = Conv1D(1, 2, activation='relu', padding='same')(x)
+
+    return Model(inputs=input_img, outputs=decoded, name='AE'), \
+           Model(inputs=input_img, outputs=encoded, name='encoder')
 
 
 

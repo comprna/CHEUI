@@ -6,12 +6,11 @@ Created on Fri Sep  4 20:29:58 2020
 @author: pablo
 """
 
-
 import numpy as np
 from tensorflow.keras import Input
 from tensorflow.keras.models import Model
 import keras_metrics
-from tensorflow import keras
+
 from sklearn.metrics import precision_recall_curve
 from matplotlib import pyplot
 
@@ -27,26 +26,29 @@ import tensorflow as tf
 from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import InteractiveSession
 
-from DL_models import build_Jasper, build_deepbinner, build_TCN, build_TCN_cc
-import os
+from DL_models import build_Jasper, build_deepbinner, build_TCN_cc
 import sys
+import os
 
 config = ConfigProto()
 config.gpu_options.allow_growth = True
 session = InteractiveSession(config=config)
 
-tf.random.set_seed(42)
+
 
 def parse_chunk(chunk):
     '''
     '''
     events = chunk['event']
+    #dwell = chunk['dwell']
     distances = chunk['distances']
     
     events = np.array([np.array(xi) for xi in events])
+    #dwell = np.array([np.array(xi) for xi in dwell])
     distances = np.array([np.array(xi) for xi in distances])
 
     combined = np.concatenate((events,
+                               #dwell,
                               distances), 
                               axis=1)
     
@@ -61,33 +63,17 @@ def parse_chunk(chunk):
 
 if __name__ == '__main__':
     
-    
-    train_path = sys.argv[1]
-    test_path =  sys.argv[2]
-    OUT_FOLDER = sys.argv[3]
-    
-    if not os.path.exists(OUT_FOLDER):
-        os.makedirs(OUT_FOLDER)
-        
-    
-    # parse the testing files
-    test = pd.read_csv(test_path, sep='\t', converters={'event': eval,
-                                                        'distances': eval})
-    X_test = parse_chunk(test)
-    y_test = test['label']
-    
     # Define model Inout
-    inputs = Input(shape=(100, 2))
-    output = build_Jasper(inputs,Deep=True)
+    #inputs = Input(shape=(100, 2))
+    
+    #output = build_Jasper(inputs, Deep=True)
+    #output = build_deepbinner(inputs, 1)
+    
+    # For TCN
+    inputs = Input(batch_shape=(None, 100, 2))
+    output = build_TCN_cc(inputs, 1)
+
     model = Model(inputs=inputs, outputs=output)
-    
-    # load pre-train weights
-    model.load_weights('/media/labuser/Data/nanopore/m6A_classifier/plots/doubleA/jasper2vectors/93600000model.h5')
-    
-    # freeze layers until the last 3 convolutions
-    for i in enumerate(model.layers[:-9]):
-        model.layers[i[0]].trainable = False
-    
     
     model.compile(optimizer='adam',
                   loss='binary_crossentropy',
@@ -95,7 +81,22 @@ if __name__ == '__main__':
                            keras_metrics.recall(),
                            keras_metrics.precision(),
                            ])
-    model.summary()
+    
+    train_path = sys.argv[1]
+    test_path = sys.argv[2]
+    OUT_FOLDER = sys.argv[3]
+
+    if not os.path.exists(OUT_FOLDER):
+        os.makedirs(OUT_FOLDER)
+    
+    #model.summary()
+    
+    # parse the testing files
+    test = pd.read_csv(test_path, sep='\t', converters={'event': eval,
+                                                        #'dwell': eval,
+                                                        'distances': eval})
+    X_test = parse_chunk(test)
+    y_test = test['label']
     
     
     epochs = 10
@@ -103,12 +104,10 @@ if __name__ == '__main__':
     
     for e in range(1,epochs+1):
         
-        print("Epoch %d" %e)    
-        
-        batch_size = 100000
+        print("Epoch %d" %e)
         
         for chunk in pd.read_csv(train_path, chunksize=200000, sep='\t', converters={'event': eval,
-                                                                                     'dwell': eval,
+                                                                                     #'dwell': eval,
                                                                                      'distances': eval}):
             X_train = parse_chunk(chunk)
             
@@ -145,7 +144,7 @@ if __name__ == '__main__':
         val_recall.append(i.history['val_recall'][0])
     
     
-    # summarize history for accuracy
+    # summarize history for accuracy 
     f, ax = plt.subplots( figsize=(13,9))
     sns.lineplot(x=np.arange(len(acc)), y=np.array(acc), palette="tab10", linewidth=2.5, label='Accuracy')
     sns.lineplot(x=np.arange(len(acc)), y=np.array(val_acc), palette="tab10", linewidth=2.5, label='Val accuracy')
@@ -213,5 +212,4 @@ if __name__ == '__main__':
                 bbox_inches='tight', pad_inches=0)
     
     
-    
-    
+

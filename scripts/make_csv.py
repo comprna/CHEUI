@@ -16,19 +16,17 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 from matplotlib.lines import Line2D
-
+from sklearn.utils import shuffle
 from math import floor
 
 import sys
 
 #@ray.remote
-def load_data_smooth(directory, model_kmer_dict, lenght_event):
+def load_data_smooth(directory, model_kmer_dict, lenght_event, label, df):
     '''
     '''
     files = os.listdir(directory)
-    dic_signal = {} # dictionary of signal event values
-    dic_dwell = {} # dictionary of dwelling time values
-    dic_distance = {} # dictionary of distance from the non-modified to the signal
+ 
     for file in files:
         counter = 0
         file_raw = pickle.load(open(directory+file,"rb"))
@@ -45,10 +43,10 @@ def load_data_smooth(directory, model_kmer_dict, lenght_event):
                 signal_smoothed += event_smoothed  # add the event to the signal
             
             expected_smoothed = make_expected(model_kmer_dict, 
-                                              file.split('_')[-1],
+                                              file.split('_')[-2],
                                               lenght_event)
             
-            sequence = file.split('_')[-1]
+            sequence = file.split('_')[-2]
             
             sequence_smothed = make_sequences(sequence, lenght_event)
             
@@ -59,21 +57,18 @@ def load_data_smooth(directory, model_kmer_dict, lenght_event):
             except:
                 break
             
-            with open(directory[:-1]+'event_30.npy', "ab") as f:
-                pickle.dump(signal_smoothed, f)
-
-            with open(directory[:-1]+'distances_euclidean_30.npy', "ab") as f:
-                pickle.dump(distance_vector, f)
-
-            with open(directory[:-1]+'dwell_30.npy', "ab") as f:
-                pickle.dump(dwell_smoothed, f)
+            df_temp = pd.DataFrame({'event': [signal_smoothed],
+                                        'distances': [distance_vector],
+                                        'dwell': [dwell_smoothed],
+                                        'sequences': [sequence_smothed],
+                                        'label':label \
+                                        })
+            df = df.append(df_temp)
             
-            with open(directory[:-1]+'sequences_30.npy', "ab") as f:
-                pickle.dump(sequence_smothed, f)
-            
-            if counter == 30: # if there is already that many signal go to the next file
+            if counter == 100: # if there is already that many signal go to the next file
                 break
                 #return [dic_signal, dic_dwell, dic_distance]
+    return df
 
 
 def make_expected(model_kmer_dict, kmer, event_lenght):
@@ -245,8 +240,7 @@ def load_local_stored(file_path):
 
 if __name__ == '__main__':
     
-    directory = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/singleA/no_mod_rep2_eventalign_numpy_sites/'
-    #directory = sys.argv[1]
+    directory = sys.argv[1]
     
     model_kmer = pd.read_csv('/media/labuser/Data/nanopore/m6A_classifier/data/model_kmer.csv',
                              sep=',')
@@ -259,12 +253,29 @@ if __name__ == '__main__':
     
     tokenizer = dict(zip(model_kmer['model_kmer'], model_kmer['number']))
     
+    df = pd.DataFrame({'event':[],
+                       'distances':[],
+                       'dwell':[],
+                       'sequences':[],
+                       'label':[]})
+    
     # start the load the raw signal files and preprocess the signals
     # also creating the vectors for distances, sequences and dwelling time
-    ret_id1 = load_data_smooth(directory, model_kmer_dict, 20)
+    df = load_data_smooth(directory, model_kmer_dict, 20, 1, df)
     
-
-
+    #directory = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/doubleAA/no_mod_rep2_eventalign_numpy_sites_AA/'
+    directory = sys.argv[2]
+    
+    df = load_data_smooth(directory, model_kmer_dict, 20, 0, df)
+    
+    path_csv = '/'.join(directory.split('/')[:-2])
+    
+    df = shuffle(df)
+    
+    df.round(3).to_csv(path_csv+'/test_s.csv',
+               mode='w', 
+               sep='\t',
+               index=None)
 
 
 
