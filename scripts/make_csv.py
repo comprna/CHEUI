@@ -258,7 +258,7 @@ if __name__ == '__main__':
                        'dwell':[],
                        'sequences':[],
                        'label':[]})
-    
+
     # start the load the raw signal files and preprocess the signals
     # also creating the vectors for distances, sequences and dwelling time
     df = load_data_smooth(directory, model_kmer_dict, 20, 1, df)

@@ -181,6 +181,7 @@ out_counter = eventalign[:-4]+'_numpy_sites_AA/counter.txt'
 if not os.path.exists(out_folder):
     os.makedirs(out_folder)
 
+start = ''
 
 # read pandas in chunks
 for chunk in pd.read_csv(eventalign, chunksize=500000, sep='\t'):
@@ -203,6 +204,8 @@ for chunk in pd.read_csv(eventalign, chunksize=500000, sep='\t'):
             for row in chunk_read_A.itertuples():
                 if re.findall('A$', row[3]):
                     if row[2] in pos_5:
+                        continue
+                    if row[2] == start: # check that the new position is different from the last one, or it will create duplicates
                         continue
                     start = row[2]
                     pos_5 = [start, start+1, start+2, start+3, start+4]

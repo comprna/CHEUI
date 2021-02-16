@@ -196,16 +196,8 @@ for chunk in pd.read_csv(eventalign, chunksize=1000, sep='\t'):
 
 if not os.path.exists(out_folder):
     os.makedirs(out_folder)
-'''
-for site in dic_site.keys():
-    site_array = []
-    for indiv_signal in dic_site[site]:
-        indiv_signal_entire = ','.join(indiv_signal)
-        float_signal = [float(i) for i in indiv_signal_entire.split(',')]
-        site_array.append(float_signal)
-    with open(out_folder+'/'+site, "wb") as f:
-        pickle.dump(site_array, f)
-'''
+
+
 for site in dic_site.keys():
     with open(out_folder+'/'+site, "wb") as f:
         pickle.dump(dic_site[site], f)

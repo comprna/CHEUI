@@ -45,9 +45,9 @@ for kmer in diffmod_f['kmer'].unique():
     temp = diffmod_f[diffmod_f['kmer'] == kmer]
     if len(temp) == 1:
         diffmod_f_grouped = pd.concat([diffmod_f_grouped, temp])
-    elif len(temp[temp['mod_assignment'] == 'lower']) == len(temp[temp['mod_assignment'] == 'higher']):
+    elif len(temp[temp['mod_assignment'] == 'lower']) > len(temp[temp['mod_assignment'] == 'higher']):
         diffmod_f_grouped = pd.concat([diffmod_f_grouped, temp[temp['mod_assignment'] == 'lower']])
-    else:
+    elif len(temp[temp['mod_assignment'] == 'lower']) < len(temp[temp['mod_assignment'] == 'higher']):
         diffmod_f_grouped = pd.concat([diffmod_f_grouped, temp[temp['mod_assignment'] == 'higher']])
 
 diffmod_r_grouped = pd.DataFrame()
@@ -55,21 +55,14 @@ for kmer in diffmod_r['kmer'].unique():
     temp = diffmod_r[diffmod_r['kmer'] == kmer]
     if len(temp) == 1:
         diffmod_r_grouped = pd.concat([diffmod_r_grouped, temp])
-    elif len(temp[temp['mod_assignment'] == 'lower']) == len(temp[temp['mod_assignment'] == 'higher']):
+    elif len(temp[temp['mod_assignment'] == 'lower']) > len(temp[temp['mod_assignment'] == 'higher']):
         diffmod_r_grouped = pd.concat([diffmod_r_grouped, temp[temp['mod_assignment'] == 'lower']])
-    else:
+    elif len(temp[temp['mod_assignment'] == 'lower']) < len(temp[temp['mod_assignment'] == 'higher']):
         diffmod_r_grouped = pd.concat([diffmod_r_grouped, temp[temp['mod_assignment'] == 'higher']])
 
+print(diffmod_f_grouped.shape)
+print(diffmod_r_grouped.shape)
 
-#diffmod_r.to_csv('/media/labuser/Data/nanopore/m6A_classifier/data/xpore_results/diffmod_r.csv',
-#                 sep='\t', index=False)
-
-#diffmod_f.to_csv('/media/labuser/Data/nanopore/m6A_classifier/data/xpore_results/diffmod_f.csv',
-#                 sep='\t', index=False)
-
-
-#diffmod_f = pd.read_csv('/media/labuser/Data/nanopore/m6A_classifier/data/xpore_results/diffmod_r_pval.csv', sep=',',
-#                        )
 
 ## positive strand
 m6A_seq = pd.read_csv('/media/labuser/Data/nanopore/m6A_classifier/data/orthogonal_sites/m6A_Schwartz.csv', sep='\t')
@@ -145,10 +138,8 @@ print(len(intersection_diffmod_mazter))
 
 m6A_seq = m6A_seq[m6A_seq['confGroup'] >=1]
 
-
 m6A_seq_intersect_r = pd.DataFrame()
 diffmod_r_TGT_intersect = pd.DataFrame()
-
 
 intersection_diffmod_mazter = []
 for chromosome in m6A_seq['chr'].unique():
@@ -157,6 +148,7 @@ for chromosome in m6A_seq['chr'].unique():
     overlap = set(m6A_seq_pos) & set([int(i) for i in diffmod_r_chr])
     intersection_diffmod_mazter += list(overlap)
     m6A_seq_intersect_r = pd.concat([m6A_seq_intersect_r, m6A_seq[(m6A_seq['chr'] == chromosome) & (m6A_seq['position'].isin(list(overlap)))]])
+    print(m6A_seq[m6A_seq['position'].isin(list(overlap))]['stoichiometryModelFit'])
     diffmod_r_TGT_intersect =  pd.concat([diffmod_r_TGT_intersect, diffmod_r_TGT[(diffmod_r_TGT['id'] == chromosome) & (diffmod_r_TGT['position'].isin(list(overlap)))]])
 
 print(len(intersection_diffmod_mazter))
@@ -179,7 +171,7 @@ mmc1.columns
 mmc1['position'] = mmc1['Peak genomic coordinate'] - 1
 
 mmc1_intersect_f = pd.DataFrame()
-diffmod_f_TGT_intersect_mmc1 = pd.DataFrame()
+diffmod_f_ACA_intersect_mmc1 = pd.DataFrame()
 
 intersection_diffmod_mazter = []
 for chromosome in mmc1['Peak chr'].unique():
@@ -188,7 +180,7 @@ for chromosome in mmc1['Peak chr'].unique():
     overlap = set(mmc1_pos) & set(diffmod_f_chr)
     intersection_diffmod_mazter += list(overlap)
     mmc1_intersect_f = pd.concat([mmc1_intersect_f, mmc1[(mmc1['Peak chr'] == chromosome) & (mmc1['position'].isin(list(overlap)))]])
-    diffmod_f_TGT_intersect_mmc1 =  pd.concat([diffmod_f_TGT_intersect_mmc1, diffmod_f_grouped[(diffmod_f_grouped['id'] == chromosome) &\
+    diffmod_f_ACA_intersect_mmc1 =  pd.concat([diffmod_f_ACA_intersect_mmc1, diffmod_f_grouped[(diffmod_f_grouped['id'] == chromosome) &\
                                                                                                (diffmod_f_grouped['position'].isin(list(overlap)))]])
     
 print(len(intersection_diffmod_mazter))
@@ -196,7 +188,7 @@ print(len(intersection_diffmod_mazter))
 mmc1_intersect_f.to_csv('/media/labuser/Data/nanopore/m6A_classifier/data/xpore_results/mmc1_intersect_f.csv',
                            sep='\t', index=False)
 
-diffmod_f_TGT_intersect_mmc1.to_csv('/media/labuser/Data/nanopore/m6A_classifier/data/xpore_results/diffmod_f_TGT_intersect_mmc1.csv',
+diffmod_f_ACA_intersect_mmc1.to_csv('/media/labuser/Data/nanopore/m6A_classifier/data/xpore_results/diffmod_f_ACA_intersect_mmc1.csv',
                  sep='\t', index=False)
 
 
@@ -226,7 +218,7 @@ diffmod_r_TGT_intersect_mmc1.to_csv('/media/labuser/Data/nanopore/m6A_classifier
 
 
 #################### concatenate all of the diffmod sites #####################
-pd.concat([diffmod_f_ACA_intersect, diffmod_f_TGT_intersect_mmc1]).drop_duplicates().to_csv('/media/labuser/Data/nanopore/m6A_classifier/data/xpore_results/all_intersection_f.csv',
+pd.concat([diffmod_f_ACA_intersect, diffmod_f_ACA_intersect_mmc1]).drop_duplicates().to_csv('/media/labuser/Data/nanopore/m6A_classifier/data/xpore_results/all_intersection_f.csv',
                  sep='\t', index=False)
 
 pd.concat([diffmod_r_TGT_intersect, diffmod_r_TGT_intersect_mmc1]).drop_duplicates().to_csv('/media/labuser/Data/nanopore/m6A_classifier/data/xpore_results/all_intersection_r.csv',
