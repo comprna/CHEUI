@@ -51,20 +51,15 @@ def _parse_kmers(checked_line,
     if new_parsed_kmers:
         kmer_lines = new_parsed_kmers
         position_1 = sorted(new_parsed_kmers)[0]
-        positions = [position_1, 
-                     position_1+1,
-                     position_1+2,
-                     position_1+3,
-                     position_1+4]
-    
     else:
         kmer_lines = {}
         position_1 = int(checked_line[position_idx])
-        positions = [position_1, 
-                     position_1+1,
-                     position_1+2,
-                     position_1+3,
-                     position_1+4]
+
+    positions = [position_1, 
+                 position_1+1,
+                 position_1+2,
+                 position_1+3,
+                 position_1+4]
 
     while len(kmer_lines.keys()) < 5:
         
@@ -92,6 +87,7 @@ def _parse_kmers(checked_line,
     if list(kmer_lines.keys()) == positions:
         return kmer_lines
     else:
+        #print('fail', list(kmer_lines.keys()),positions )
         return False
 
 
@@ -237,6 +233,7 @@ def parse_nanopolish(filepath, model_kmer_dict, lenght_event, directory_out):
             if checked_line:
                 # If the kmer 
                 if checked_line[model_kmer_idx][-1] == 'A' or new_parsed_kmers:
+                    
                     parsed_kmer = _parse_kmers(checked_line,
                                                contig_idx,
                                                position_idx,
@@ -245,6 +242,8 @@ def parse_nanopolish(filepath, model_kmer_dict, lenght_event, directory_out):
                                                samples_idx,
                                                file_object,
                                                new_parsed_kmers)
+                    
+                    ### if parsed kmer fail the below code does not get executed and new_parser_kmers never get recycle
                     
                     if parsed_kmer:
                         smooth_signal, smooth_distance, ID = _smooth_kmer(parsed_kmer,
@@ -271,7 +270,8 @@ def parse_nanopolish(filepath, model_kmer_dict, lenght_event, directory_out):
                             for j in parsed_kmer:
                                 if parsed_kmer[j][0] in use_kmers:
                                     new_parsed_kmers[j] = parsed_kmer[j]
-                            print(len(new_parsed_kmers))
+                            print(parsed_kmer)
+                            print(new_parsed_kmers.keys())
                         except:
                             new_parsed_kmers = {}
                             parsed_kmer = {}
@@ -310,8 +310,8 @@ if __name__ == '__main__':
     
     
     ### load IDs from file
-    with open(directory_out+'/'+'signals2.P', 'rb') as signal_in:
-        with open(directory_out+'/'+'IDs2.P', 'rb') as id_in:
+    with open(directory_out+'/'+'signals.P', 'rb') as signal_in:
+        with open(directory_out+'/'+'IDs.P', 'rb') as id_in:
             while True:
                 try:
                     event_id = cPickle.load(id_in)
