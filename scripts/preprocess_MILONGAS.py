@@ -44,16 +44,27 @@ def _parse_kmers(checked_line,
                  reference_kmer_idx,
                  model_kmer_idx,
                  samples_idx,
-                 file_object):
+                 file_object,
+                 new_parsed_kmers):
     """
     """
-    kmer_lines = {}
-    position_1 = int(checked_line[position_idx])
-    positions = [position_1, 
-                 position_1+1,
-                 position_1+2,
-                 position_1+3,
-                 position_1+4]
+    if new_parsed_kmers:
+        kmer_lines = new_parsed_kmers
+        position_1 = sorted(new_parsed_kmers)[0]
+        positions = [position_1, 
+                     position_1+1,
+                     position_1+2,
+                     position_1+3,
+                     position_1+4]
+    
+    else:
+        kmer_lines = {}
+        position_1 = int(checked_line[position_idx])
+        positions = [position_1, 
+                     position_1+1,
+                     position_1+2,
+                     position_1+3,
+                     position_1+4]
 
     while len(kmer_lines.keys()) < 5:
         
@@ -175,6 +186,9 @@ def _combine_vectors(smooth_signal,
                                axis=1)
     return combined
 
+def find(s, ch):
+    return [i for i, ltr in enumerate(s) if ltr == ch]
+
 
 def parse_nanopolish(filepath, model_kmer_dict, lenght_event, directory_out):
     """
@@ -190,9 +204,8 @@ def parse_nanopolish(filepath, model_kmer_dict, lenght_event, directory_out):
     data :
 
     """
-    # open the file and read through it line by line
-    grab_kmer = None
-    line_counter = 0
+
+    new_parsed_kmers ={}
     with open(filepath, 'r') as file_object:
         line = file_object.readline()
         # check the header
@@ -223,14 +236,15 @@ def parse_nanopolish(filepath, model_kmer_dict, lenght_event, directory_out):
                                        samples_idx)
             if checked_line:
                 # If the kmer 
-                if checked_line[model_kmer_idx][-1] == 'A':
+                if checked_line[model_kmer_idx][-1] == 'A' or new_parsed_kmers:
                     parsed_kmer = _parse_kmers(checked_line,
                                                contig_idx,
                                                position_idx,
                                                reference_kmer_idx,
                                                model_kmer_idx,
                                                samples_idx,
-                                               file_object)
+                                               file_object,
+                                               new_parsed_kmers)
                     
                     if parsed_kmer:
                         smooth_signal, smooth_distance, ID = _smooth_kmer(parsed_kmer,
@@ -241,19 +255,29 @@ def parse_nanopolish(filepath, model_kmer_dict, lenght_event, directory_out):
                                                             smooth_distance,
                                                             )
                         
-                        with open(directory_out+'/'+'signals.P', "ab") as sig_out:
+                        with open(directory_out+'/'+'signals2.P', "ab") as sig_out:
                             cPickle.dump(combined_signals, sig_out)
                             
-                        with open(directory_out+'/'+'IDs.P', "ab") as id_out:
+                        with open(directory_out+'/'+'IDs2.P', "ab") as id_out:
                             cPickle.dump(ID, id_out)
+                        
+                        # check if there is other As in the nine-mer
+                        try:
+                            index_ = find(ID.split('_')[-1][5:],'A')[0]+5
+                            use_kmers = []
+                            for i in range(index_,9):
+                                use_kmers.append(ID.split('_')[-1][i-4:i+1])
+                            new_parsed_kmers = {}
+                            for j in parsed_kmer:
+                                if parsed_kmer[j][0] in use_kmers:
+                                    new_parsed_kmers[j] = parsed_kmer[j]
+                            print(len(new_parsed_kmers))
+                        except:
+                            new_parsed_kmers = {}
+                            parsed_kmer = {}
+                            continue# recover the information with the kmers
                             
-                        
     return True
-                                                  
-                        
-                    
-                    
-                    
                     
                     
         
@@ -274,6 +298,7 @@ if __name__ == '__main__':
     lenght_event = 20
     
     directory_out = '/media/labuser/Data/nanopore/m6A_classifier/data/yeast/nanopolish_reads/test_MILOGNAS_preprocess'
+    
     # create directory if it does not exits
     if os.path.exists(directory_out) is False:
         os.makedirs(directory_out)
@@ -285,13 +310,13 @@ if __name__ == '__main__':
     
     
     ### load IDs from file
-    with open(directory_out+'/'+'signals.P', 'rb') as signal_in:
-        with open(directory_out+'/'+'IDs.P', 'rb') as id_in:
+    with open(directory_out+'/'+'signals2.P', 'rb') as signal_in:
+        with open(directory_out+'/'+'IDs2.P', 'rb') as id_in:
             while True:
                 try:
                     event_id = cPickle.load(id_in)
-                    event_signal = cPickle.load(signal_in)
-                    print(event_id, event_signal)
+                    #event_signal = cPickle.load(signal_in)
+                    print(event_id)#, event_signal)
                 except:
                     print('All signals have been processed')
                     break
