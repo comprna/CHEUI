@@ -64,7 +64,6 @@ def _parse_kmers(checked_line,
    
     while len(kmer_lines.keys()) < 5:
         if checked_line:
-            
             samples = [float(i) for i in checked_line[samples_idx].split(',')]
             
             if int(checked_line[position_idx]) in kmer_lines:
@@ -78,9 +77,10 @@ def _parse_kmers(checked_line,
                                                                checked_line[contig_idx]]
                 
             line = file_object.readline()
-
+            counter +=1
             if line == '':
-                break
+                sys.exit()
+
             checked_line = _check_line(line, 
                                        contig_idx,
                                        position_idx,
@@ -90,8 +90,10 @@ def _parse_kmers(checked_line,
 
         else:
             line = file_object.readline()
+            counter +=1
             if line == '':
-                break
+                sys.exit()
+
             checked_line = _check_line(line, 
                                        contig_idx,
                                        position_idx,
@@ -108,7 +110,6 @@ def _parse_kmers(checked_line,
         
         # grab the index of the mistmatch between the expected kmers and the 
         # ones extracted without fail
-        #print('fail', list(kmer_lines.keys()), positions)
         mistmatches =[]
         for i in enumerate(kmer_lines.keys()):
             if i[1] != positions[i[0]]:
@@ -127,7 +128,6 @@ def _smooth_kmer(parsed_kmer, model_kmer_dict, lenght_event):
     '''
     Smooth the signals to fix the lenght
     '''
-    print(parsed_kmer)
     kmer_name = sorted(parsed_kmer.items())[0][1][0]+\
                 sorted(parsed_kmer.items())[1][1][0][-1]+\
                 sorted(parsed_kmer.items())[2][1][0][-1]+\
@@ -258,7 +258,7 @@ def parse_nanopolish(nanopolish_path, model_kmer_dict, lenght_event, directory_o
                 line = file_object.readline()
                 counter +=1
                 if line == '':
-                    break
+                    sys.exit()
                 # check line is fordward and does not have NNNNN in the model
                 checked_line = _check_line(line, 
                                            contig_idx,
@@ -274,16 +274,19 @@ def parse_nanopolish(nanopolish_path, model_kmer_dict, lenght_event, directory_o
                 # If the kmer 
                 if checked_line[model_kmer_idx][-1] == 'A' or parsed_kmer:
                    
-                    parsed_kmer, file_object, counter, stored_line = _parse_kmers(checked_line,
-                                                                                   contig_idx,
-                                                                                   position_idx,
-                                                                                   reference_kmer_idx,
-                                                                                   model_kmer_idx,
-                                                                                   samples_idx,
-                                                                                   file_object,
-                                                                                   parsed_kmer,
-                                                                                   counter)
-                   
+                    parsed_kmer,\
+                    file_object, \
+                    counter, \
+                    stored_line = _parse_kmers(checked_line,
+                                               contig_idx,
+                                               position_idx,
+                                               reference_kmer_idx,
+                                               model_kmer_idx,
+                                               samples_idx,
+                                               file_object,
+                                               parsed_kmer,
+                                               counter)
+
                     ### if parsed kmer fail the below code does not get executed and new_parser_kmers never get recycle
                     
                     if parsed_kmer:
@@ -291,8 +294,6 @@ def parse_nanopolish(nanopolish_path, model_kmer_dict, lenght_event, directory_o
                         smooth_signal, smooth_distance, ID = _smooth_kmer(parsed_kmer,
                                                                           model_kmer_dict,
                                                                           lenght_event)
-                        #if ID == 'ENST00000469289.1|ENSG00000243485.5|OTTHUMG00000000959|OTTHUMT00000002841.1|MIR1302-2HG-201|MIR1302-2HG|535|lncRNA|_327_GGGGAGTTA':
-                        #    break
                         combined_signals = _combine_vectors(smooth_signal,
                                                             smooth_distance,
                                                             )
@@ -318,7 +319,7 @@ def parse_nanopolish(nanopolish_path, model_kmer_dict, lenght_event, directory_o
                         except:
                             parsed_kmer = {}
                             continue# recover the information with the kmers
-            if counter%100000==0:
+            if counter%10000==0:
                 print(counter, 'processed lines')
                             
     return True
@@ -353,8 +354,8 @@ if __name__ == '__main__':
                             model_kmer_dict, 
                             lenght_event, 
                             directory_out)
-    
-    ### load IDs from file
+    '''
+    ### load the stored data 
     counter = 0
     with open(directory_out+'/'+'signals_chr1.P', 'rb') as signal_in:
         with open(directory_out+'/'+'IDs_chr1.P', 'rb') as id_in:
@@ -364,11 +365,12 @@ if __name__ == '__main__':
                     event_id = cPickle.load(id_in)
                     event_signal = cPickle.load(signal_in)
                     print(event_id)
-                    if counter == 100:
-                        break
+                    #if counter == 3000:
+                    #    break
                 except:
                     print('All signals have been processed')
                     break
+    '''
     
     
     
