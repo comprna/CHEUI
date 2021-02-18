@@ -98,8 +98,7 @@ def _parse_kmers(checked_line,
                                        reference_kmer_idx,
                                        model_kmer_idx,
                                        samples_idx)
-           
-      
+              
     if list(kmer_lines.keys()) == positions:
         return kmer_lines, file_object, counter, checked_line
     else:
@@ -128,6 +127,7 @@ def _smooth_kmer(parsed_kmer, model_kmer_dict, lenght_event):
     '''
     Smooth the signals to fix the lenght
     '''
+    print(parsed_kmer)
     kmer_name = sorted(parsed_kmer.items())[0][1][0]+\
                 sorted(parsed_kmer.items())[1][1][0][-1]+\
                 sorted(parsed_kmer.items())[2][1][0][-1]+\
@@ -235,6 +235,7 @@ def parse_nanopolish(nanopolish_path, model_kmer_dict, lenght_event, directory_o
     """
     counter = 0
     parsed_kmer = {}
+    stored_line = None
     with open(nanopolish_path, 'r') as file_object:
         line = file_object.readline()
         # check the header
@@ -242,7 +243,7 @@ def parse_nanopolish(nanopolish_path, model_kmer_dict, lenght_event, directory_o
         if header[-1] != 'samples':
             print('nanopolish samples are not found, please run nanopolish with flag --samples')
             sys.exit()
-        # get the column
+        # get the column index
         try:
             contig_idx = header.index('contig')
             position_idx = header.index('position')
@@ -253,25 +254,27 @@ def parse_nanopolish(nanopolish_path, model_kmer_dict, lenght_event, directory_o
             print('Some nanopolish columns are not found')
     
         while line != '':  # The EOF char is an empty string
-        
-            line = file_object.readline()
-            counter +=1
-            if line == '':
-                break
-            # check line is fordward and does not have NNNNN in the model
-            checked_line = _check_line(line, 
-                                       contig_idx,
-                                       position_idx,
-                                       reference_kmer_idx,
-                                       model_kmer_idx,
-                                       samples_idx)
-            print(1, checked_line)
-           
+            if not stored_line:
+                line = file_object.readline()
+                counter +=1
+                if line == '':
+                    break
+                # check line is fordward and does not have NNNNN in the model
+                checked_line = _check_line(line, 
+                                           contig_idx,
+                                           position_idx,
+                                           reference_kmer_idx,
+                                           model_kmer_idx,
+                                           samples_idx)
+            else:
+                checked_line = stored_line
+                stored_line = None
+               
             if checked_line:
                 # If the kmer 
                 if checked_line[model_kmer_idx][-1] == 'A' or parsed_kmer:
                    
-                    parsed_kmer, file_object, counter, checked_line = _parse_kmers(checked_line,
+                    parsed_kmer, file_object, counter, stored_line = _parse_kmers(checked_line,
                                                                                    contig_idx,
                                                                                    position_idx,
                                                                                    reference_kmer_idx,
@@ -315,8 +318,7 @@ def parse_nanopolish(nanopolish_path, model_kmer_dict, lenght_event, directory_o
                         except:
                             parsed_kmer = {}
                             continue# recover the information with the kmers
-            if counter%50==0:
-                break
+            if counter%100000==0:
                 print(counter, 'processed lines')
                             
     return True
