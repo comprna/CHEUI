@@ -69,9 +69,8 @@ if __name__ == '__main__':
     #output = build_Jasper(inputs, Deep=True)
     #output = build_deepbinner(inputs, 1)
     
-    # For TCN
-    inputs = Input(batch_shape=(None, 100, 2))
-    output = build_TCN_cc(inputs, 1)
+    inputs = Input(shape=(100, 2))
+    output = build_Jasper(inputs, 1)
 
     model = Model(inputs=inputs, outputs=output)
     

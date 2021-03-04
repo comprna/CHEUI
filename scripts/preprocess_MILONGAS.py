@@ -329,12 +329,12 @@ def parse_nanopolish(nanopolish_path, model_kmer_dict, lenght_event, directory_o
 if __name__ == '__main__':
     
     
-    #nanopolish_path = sys.argv[1]
-    nanopolish_path = '/media/labuser/Data/nanopore/m6A_classifier/data/yeast/nanopolish_reads/chr1_human_ivt_subset.txt'
-                
+    nanopolish_path = sys.argv[1]
+    #nanopolish_path = '/media/labuser/Data/nanopore/m6A_classifier/data/yeast/nanopolish_reads/chr1_human_ivt_subset.txt'
+               
     
-    model_kmer_path = '/media/labuser/Data/nanopore/xpore/xpore/diffmod/model_kmer.csv'
-    #model_kmer_path = sys.argv[2]
+    #model_kmer_path = '/media/labuser/Data/nanopore/xpore/xpore/diffmod/model_kmer.csv'
+    model_kmer_path = sys.argv[2]
     
     model_kmer = pd.read_csv(model_kmer_path,
                              sep=',')
@@ -343,8 +343,8 @@ if __name__ == '__main__':
     model_kmer_dict = dict(zip(model_kmer['model_kmer'], model_kmer['model_mean']))
     lenght_event = 20
     
-    directory_out = '/media/labuser/Data/nanopore/m6A_classifier/data/yeast/nanopolish_reads/test_MILOGNAS_preprocess'
-    #directory_out = sys.argv[3]
+    #directory_out = '/media/labuser/Data/nanopore/m6A_classifier/data/yeast/nanopolish_reads/test_MILOGNAS_preprocess'
+    directory_out = sys.argv[3]
 
     # create directory if it does not exits
     if os.path.exists(directory_out) is False:
