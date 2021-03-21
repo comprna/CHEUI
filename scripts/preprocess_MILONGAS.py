@@ -3,12 +3,69 @@
 """
 Created on Tue Feb 16 16:43:33 2021
 
-@author: labuser
+@author: Pablo Acera
 """
+
+import argparse
+
+parser = argparse.ArgumentParser(prog='preprocess_MILONGAS v0.1', description=
+                                 """ 
+                                 This script takes a nanopolish file, parse it and extract 
+                                 information about signals and read iDs, creating two files. 
+                                 
+                                 """, usage='python preprocess_MILONGAS.py -i <nanopolish_file.txt> -m <kmer_model> -o <out_dir> \nversion: %(prog)s')
+
+OPTIONAL = parser._action_groups.pop()
+REQUIRED = parser.add_argument_group('required arguments')
+
+#Inputs
+## CHANGE -m  -t -l -f to OPTIONAL and CREATE RELATIVE PATHS FOR THESE FILES
+
+REQUIRED.add_argument("-i", "--input_nanopolish",
+                      help="Nanopolish file. Run nanopolish with the following flags: "\
+                          " nanopolish eventalign --reads <in.fasta>" \
+                         "--bam <in.bam> --genome <genome.fa> --print-read-names"\
+                         "--scale-events --samples  > <out.txt>",
+                      metavar='\b',
+                      required=True)
+
+REQUIRED.add_argument("-m", "--kmer_model",
+                      help="model with k-mers and expected means",
+                      metavar='\b',
+                      required=True)
+
+REQUIRED.add_argument("-o", "--out_dir",
+                      help="output directory",
+                      metavar='\b',
+                      required=True)
+
+OPTIONAL.add_argument('-v', '--version', 
+                        action='version', 
+                        version='%(prog)s')
+
+
+OPTIONAL.add_argument("-n", "--suffix_name",
+                      help='name to use for output files',
+                      metavar='<str>',
+                      )                      
+
+parser._action_groups.append(OPTIONAL)
+
+ARGS = parser.parse_args()
+
+# required arg
+nanopolish_path = ARGS.input_nanopolish
+model_kmer_path = ARGS.kmer_model
+directory_out = ARGS.out_dir
+
+
+# optional arg
+suffix_name = ARGS.suffix_name
+
+
 import sys
 import os
 from math import floor
-from numpy import savez_compressed
 import numpy as np
 import _pickle as cPickle
 import pandas as pd
@@ -219,7 +276,9 @@ def find(s, ch):
     return [i for i, ltr in enumerate(s) if ltr == ch]
 
 
-def parse_nanopolish(nanopolish_path, model_kmer_dict, lenght_event, directory_out):
+def parse_nanopolish(nanopolish_path, model_kmer_dict,
+                     lenght_event, directory_out,
+                     name_signal, name_ids):
     """
     Parse nanopolish
 
@@ -298,10 +357,10 @@ def parse_nanopolish(nanopolish_path, model_kmer_dict, lenght_event, directory_o
                                                             smooth_distance,
                                                             )
 
-                        with open(directory_out+'/'+os.path.split(nanopolish_path)[1][:-3]+'_signals_P', "ab") as sig_out:
+                        with open(name_signal, "ab") as sig_out:
                             cPickle.dump(combined_signals, sig_out)
                             
-                        with open(directory_out+'/'+os.path.split(nanopolish_path)[1][:-3]+'_IDs_P', "ab") as id_out:
+                        with open(name_ids, "ab") as id_out:
                             cPickle.dump(ID, id_out)
                         
                         # check if there is other As in the nine-mer to re-use lines
@@ -327,15 +386,7 @@ def parse_nanopolish(nanopolish_path, model_kmer_dict, lenght_event, directory_o
                     
         
 if __name__ == '__main__':
-    
-    
-    nanopolish_path = sys.argv[1]
-    #nanopolish_path = '/media/labuser/Data/nanopore/m6A_classifier/data/yeast/nanopolish_reads/chr1_human_ivt_subset.txt'
-               
-    
-    #model_kmer_path = '/media/labuser/Data/nanopore/xpore/xpore/diffmod/model_kmer.csv'
-    model_kmer_path = sys.argv[2]
-    
+                       
     model_kmer = pd.read_csv(model_kmer_path,
                              sep=',')
     
@@ -343,34 +394,31 @@ if __name__ == '__main__':
     model_kmer_dict = dict(zip(model_kmer['model_kmer'], model_kmer['model_mean']))
     lenght_event = 20
     
-    #directory_out = '/media/labuser/Data/nanopore/m6A_classifier/data/yeast/nanopolish_reads/test_MILOGNAS_preprocess'
-    directory_out = sys.argv[3]
-
     # create directory if it does not exits
     if os.path.exists(directory_out) is False:
         os.makedirs(directory_out)
-        
+    
+    if os.path.exists(directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_signals.p') is True:
+        print()
+        print('WARNING: Signal file already exist, delete the previous version.' )
+        print()
+    
+    
+    if suffix_name:
+        name_signal = directory_out+'/'+suffix_name+'_signals.p'
+        name_ids = directory_out+'/'+suffix_name+'_IDs.p'
+    else:
+        name_signal = directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_signals.p'
+        name_ids = directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_IDs.p'
+                                  
+    
     data = parse_nanopolish(nanopolish_path, 
                             model_kmer_dict, 
                             lenght_event, 
-                            directory_out)
-    '''
-    ### load the stored data 
-    counter = 0
-    with open(directory_out+'/'+'signals_chr1.P', 'rb') as signal_in:
-        with open(directory_out+'/'+'IDs_chr1.P', 'rb') as id_in:
-            while True:
-                try:
-                    counter +=1
-                    event_id = cPickle.load(id_in)
-                    event_signal = cPickle.load(signal_in)
-                    print(event_id)
-                    #if counter == 3000:
-                    #    break
-                except:
-                    print('All signals have been processed')
-                    break
-    '''
+                            directory_out,
+                            name_signal, 
+                            name_ids)
+
     
     
     
