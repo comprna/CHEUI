@@ -19,7 +19,6 @@ OPTIONAL = parser._action_groups.pop()
 REQUIRED = parser.add_argument_group('required arguments')
 
 #Inputs
-## CHANGE -m  -t -l -f to OPTIONAL and CREATE RELATIVE PATHS FOR THESE FILES
 
 REQUIRED.add_argument("-i", "--input_nanopolish",
                       help="Nanopolish file. Run nanopolish with the following flags: "\
