@@ -298,10 +298,10 @@ def parse_nanopolish(nanopolish_path, model_kmer_dict, lenght_event, directory_o
                                                             smooth_distance,
                                                             )
 
-                        with open(directory_out+'/'+'signals_chr1.P', "ab") as sig_out:
+                        with open(directory_out+'/'+os.path.split(nanopolish_path)[1][:-3]+'_signals_P', "ab") as sig_out:
                             cPickle.dump(combined_signals, sig_out)
                             
-                        with open(directory_out+'/'+'IDs_chr1.P', "ab") as id_out:
+                        with open(directory_out+'/'+os.path.split(nanopolish_path)[1][:-3]+'_IDs_P', "ab") as id_out:
                             cPickle.dump(ID, id_out)
                         
                         # check if there is other As in the nine-mer to re-use lines

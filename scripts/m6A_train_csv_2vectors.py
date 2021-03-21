@@ -63,12 +63,9 @@ def parse_chunk(chunk):
 
 if __name__ == '__main__':
     
-    # Define model Inout
+    # Define model Input
     #inputs = Input(shape=(100, 2))
-    
-    #output = build_Jasper(inputs, Deep=True)
-    #output = build_deepbinner(inputs, 1)
-    
+
     inputs = Input(shape=(100, 2))
     output = build_Jasper(inputs, 1)
 

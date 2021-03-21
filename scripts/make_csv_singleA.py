@@ -21,7 +21,7 @@ from math import floor
 import sys
 
 #@ray.remote
-def load_data_smooth(directory, model_kmer_dict, lenght_event, label, df):
+def load_data_smooth(directory, model_kmer_dict, lenght_event, label, df, directory_out, file_out):
     '''
     '''
     files = os.listdir(directory)
@@ -31,13 +31,7 @@ def load_data_smooth(directory, model_kmer_dict, lenght_event, label, df):
         file_raw = pickle.load(open(directory+file,"rb"))
         for signal_values in file_raw:
             signal_smoothed = []
-            dwell_smoothed = []
-            sequence_smothed = []
             for event in signal_values:
-                if len(event) > 1000: # maximun event lenght
-                    dwell_smoothed += [1000/1000]*lenght_event
-                else:
-                    dwell_smoothed += [len(event)/1000]*lenght_event # record the original dwelling time
                 event_smoothed = smooth_event(event, lenght_event) # smooth the event
                 signal_smoothed += event_smoothed  # add the event to the signal
             
@@ -45,9 +39,6 @@ def load_data_smooth(directory, model_kmer_dict, lenght_event, label, df):
                                               file.split('_')[-1],
                                               lenght_event)
             
-            sequence = file.split('_')[-1]
-            
-            sequence_smothed = make_sequences(sequence, lenght_event)
             
             try: # fix the equal kmers bug in script Epinano_site_parse_noA_all.py
                 distance_vector = distance_calculator(expected_smoothed,
@@ -57,14 +48,24 @@ def load_data_smooth(directory, model_kmer_dict, lenght_event, label, df):
                 break
             
             df_temp = pd.DataFrame({'event': [signal_smoothed],
-                                        'distances': [distance_vector],
-                                        'dwell': [dwell_smoothed],
-                                        'sequences': [sequence_smothed],
-                                        'label':label \
-                                        })
-            df = df.append(df_temp)
+                                    'distances': [distance_vector],
+                                    'label':label \
+                                    })
+             
+            if os.path.isfile(directory_out+'/'+file_out+'.csv'):
+                df_temp.to_csv(directory_out+'/'+file_out+'.csv',
+                               mode='a', 
+                               sep='\t',
+                               index=None,
+                               header=False)
+            else:
+                df_temp.to_csv(directory_out+'/'+file_out+'.csv',
+                               mode='a', 
+                               sep='\t',
+                               index=None,
+                               )
             
-            if counter == int(sys.argv[4]): # if there is already that many signal go to the next file
+            if counter == 2000: # if there is already that many signal go to the next file
                 break
     return df
 
@@ -240,8 +241,14 @@ if __name__ == '__main__':
     
     directory = sys.argv[1]
     
-    model_kmer = pd.read_csv('/g/data/xc17/pm1122/lib/xpore/xpore/diffmod/model_kmer.csv',
-                             sep=',')
+    directory = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/singleA/mod_rep2_eventalign_numpy_sites/'
+    directory = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/singleA/no_mod_rep2_eventalign_numpy_sites/'
+    directory = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/singleA/mod_rep1_eventalign_numpy_sites/'
+    directory = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/singleA/no_mod_rep1_eventalign_numpy_sites/'
+
+    
+    model_kmer = pd.read_csv('/media/labuser/Data/nanopore/nanoGAN/data/models/model_kmer_IVT_rep1.csv',
+                             sep='\t')
     
     # create a dictionary with each kmer and its current value
     model_kmer_dict = dict(zip(model_kmer['model_kmer'], model_kmer['model_mean']))
@@ -253,13 +260,14 @@ if __name__ == '__main__':
     
     df = pd.DataFrame({'event':[],
                        'distances':[],
-                       'dwell':[],
-                       'sequences':[],
                        'label':[]})
     
+    dir_out = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/doubleAA/new_kmer_model'
+
     # start the load the raw signal files and preprocess the signals
     # also creating the vectors for distances, sequences and dwelling time
-    df = load_data_smooth(directory, model_kmer_dict, 20, 1, df)
+    
+    df = load_data_smooth(directory, model_kmer_dict, 20, 0, df, dir_out, 'test_A_no_mod')
     
     #directory = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/doubleAA/no_mod_rep2_eventalign_numpy_sites_AA/'
     directory = sys.argv[2]
