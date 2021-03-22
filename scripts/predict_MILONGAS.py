@@ -10,45 +10,48 @@ import argparse
 
 parser = argparse.ArgumentParser(prog='predict_MILONGAS v0.1', description=
                                  """ 
-                                 This script takes a ID and signal files and generate predictions every A 
-                                 """, usage='python predict_MILONGAS.py -i <directory_input> -o <file_out> \nversion: %(prog)s')
+                                 This script takes a ID and signal files and generate predictions every motif with and A
+                                 
+                                 """, usage='python predict_MILONGAS.py -s <path_to_signals_file> -i <path_to_ID_file> '\
+                                            '-m <path_to_DL_model> -o <file_out> \nversion: %(prog)s')
 
 OPTIONAL = parser._action_groups.pop()
 REQUIRED = parser.add_argument_group('required arguments')
 
 
-REQUIRED.add_argument("-i", "--directory_input",
-                      help="directory input",
+REQUIRED.add_argument("-s", "--signals_input",
+                      help="path to the signal file",
+                      metavar='\b',
+                      required=True)
+
+REQUIRED.add_argument("-i", "--ids_input",
+                      help="path to the IDs file",
+                      metavar='\b',
+                      required=True)
+
+REQUIRED.add_argument("-m", "--DL_model",
+                      help="path to DL model",
                       metavar='\b',
                       required=True)
 
 REQUIRED.add_argument("-o", "--file_out",
-                      help="output file",
+                      help="Path to the output file",
                       metavar='\b',
                       required=True)
 
 OPTIONAL.add_argument('-v', '--version', 
                         action='version', 
-                        version='%(prog)s')
-
-
-OPTIONAL.add_argument("-n", "--suffix_name",
-                      help='name to use for output files',
-                      metavar='<str>',
-                      )                      
+                        version='%(prog)s')                  
 
 parser._action_groups.append(OPTIONAL)
 
 ARGS = parser.parse_args()
 
 # required arg
-nanopolish_path = ARGS.input_nanopolish
+signals_input = ARGS.signals_input
+ids_input = ARGS.ids_input
+DL_model = ARGS.DL_model
 file_out = ARGS.file_out
-directory_out = ARGS.out_dir
-
-
-# optional arg
-suffix_name = ARGS.suffix_name
 
 
 from tensorflow.keras import Input
@@ -57,7 +60,7 @@ import _pickle as cPickle
 from DL_models import build_Jasper
 import pandas as pd
 import numpy as np
-import sys
+
 
 # load the trainned model 
 inputs = Input(shape=(100, 2))
@@ -65,19 +68,14 @@ output = build_Jasper(inputs,Deep=True)
 model = Model(inputs=inputs, outputs=output)
     
 # test the NN trainned with only 1 A
-model.load_weights('/media/labuser/Data/nanopore/m6A_classifier/results/single+double/2vectors_all/103400000model.h5')
-
-directory_data = '/media/labuser/Data/nanopore/m6A_classifier/data/yeast/nanopolish_reads/test_MILOGNAS_preprocess'
-directory_data = sys.argv[1]
-directory_out = '/media/labuser/Data/nanopore/m6A_classifier/data/yeast/nanopolish_reads/test_MILOGNAS_preprocess'
-directory_out = sys.argv[2]
+model.load_weights(DL_model)
 
 ### load the stored data 
 counter = 0
 IDs = []
 signals = []
-with open(directory_data+'/'+'signals_chr1.P', 'rb') as signal_in:
-    with open(directory_data+'/'+'IDs_chr1.P', 'rb') as id_in:
+with open(signals_input, 'rb') as signal_in:
+    with open(ids_input, 'rb') as id_in:
         while True:
             try:
                 counter +=1
@@ -91,7 +89,7 @@ with open(directory_data+'/'+'signals_chr1.P', 'rb') as signal_in:
                                                             'Prediction': predictions.reshape(len(predictions)).tolist()}
                                                             )
                     
-                    predictions_df.to_csv(directory_out+'/'+file_out,
+                    predictions_df.to_csv(file_out,
                                           mode='a',
                                           header=False,
                                           sep='\t')
@@ -105,7 +103,7 @@ with open(directory_data+'/'+'signals_chr1.P', 'rb') as signal_in:
                                                             'Prediction': predictions.reshape(len(predictions)).tolist()}
                                                             )
                     
-                    predictions_df.to_csv(directory_out+'/'+file_out,
+                    predictions_df.to_csv(file_out,
                                           mode='a',
                                           header=False,
                                           sep='\t')
