@@ -92,7 +92,8 @@ with open(signals_input, 'rb') as signal_in:
                     predictions_df.to_csv(file_out,
                                           mode='a',
                                           header=False,
-                                          sep='\t')
+                                          sep='\t', 
+                                          index=False)
                     IDs = []
                     signals = []
                     predictions_df = pd.DataFrame({'KMER': [], 'Prediction': []})
@@ -106,7 +107,8 @@ with open(signals_input, 'rb') as signal_in:
                     predictions_df.to_csv(file_out,
                                           mode='a',
                                           header=False,
-                                          sep='\t')
+                                          sep='\t', 
+                                          index=False)
                     IDs = []
                     signals = []
                     predictions_df = pd.DataFrame({'KMER': [], 'Prediction': []})
