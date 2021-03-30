@@ -430,7 +430,7 @@ if __name__ == '__main__':
     
     model_kmer_path = '/media/labuser/Data/nanopore/m6A_classifier/KMER_models/model_kmer.csv'
     directory_out = '/media/labuser/Data/nanopore/m6A_classifier/test'
-    nanopolish_path = '/media/labuser/Data/nanopore/m6A_classifier/test/chr1_human_ivt_test_head2.txt'
+    nanopolish_path = '/media/labuser/Data/nanopore/m6A_classifier/test/chr1_human_ivt_test.txt'
     suffix_name = 'test2'
 
     

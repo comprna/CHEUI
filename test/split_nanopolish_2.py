@@ -339,23 +339,25 @@ def split_file(nanopolish_path,num_file):
         counter_reads=0
         chunk_size=line_count//num_file
         i=0
+        header=None
         for line in file_object:
             counter_reads=counter_reads+1
             if counter_reads<chunk_size:
                 with open(directory_out+'/temp_'+str(i)+'.tmp','a') as f:
+                    if header:
+                        f.write(headerline)
+                        f.write('\n')
                     f.write(line)
             else:
                 if 'A' in line.split('\t')[2]:
                     with open(directory_out+'/temp_'+str(i)+'.tmp','a') as f:
                         f.write(line)
                 else:
+                    with open(directory_out+'/temp_'+str(i)+'.tmp','a') as f:
+                       f.write(line)
                     i=i+1
                     counter_reads=0
-                    with open(directory_out+'/temp_'+str(i)+'.tmp','a') as f:
-                        f.write(headerline)
-                        f.write('\n')
-                        f.write(line)
-       
+                    header=True
 
 '''
 def write_temp_files(filelist):
@@ -406,10 +408,7 @@ def parse_nanopolish(file):
          
         
         while line != '':  # The EOF char is an empty string
-            if counter%10000==0:
-                    print('passando por el if')
-                    print(stored_line)
-        
+                
             if not stored_line:
                 
                  
@@ -418,8 +417,6 @@ def parse_nanopolish(file):
                 counter +=1
                 
                 if line == '':
-                    #sys.exit()
-                    print(3)
                     break
                 # check line is fordward and does not have NNNNN in the model
                 checked_line = _check_line(line, 
@@ -506,7 +503,7 @@ if __name__ == '__main__':
     lenght_event = 20
     '''
         
-    nanopolish_path='./chr1_human_ivt_test_head2.txt'
+    nanopolish_path='./chr1_human_ivt_test.txt'
     model_kmer_path = './model_kmer.csv'
     directory_out = '.'
     suffix_name =False
@@ -531,7 +528,7 @@ if __name__ == '__main__':
         name_signal = directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_signals.p'
         name_ids = directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_IDs.p'
     '''                              
-    split_file(nanopolish_path, 5)
+    split_file(nanopolish_path, cpu_count())
     
     pathlist=[i for i in os.listdir('./') if i[-4:]=='.tmp']
     
