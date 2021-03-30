@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Created on Tue Feb 16 16:43:33 2021
 
@@ -17,7 +19,6 @@ OPTIONAL = parser._action_groups.pop()
 REQUIRED = parser.add_argument_group('required arguments')
 
 #Inputs
-## CHANGE -m  -t -l -f to OPTIONAL and CREATE RELATIVE PATHS FOR THESE FILES
 
 REQUIRED.add_argument("-i", "--input_nanopolish",
                       help="Nanopolish file. Run nanopolish with the following flags: "\
@@ -60,12 +61,6 @@ directory_out = ARGS.out_dir
 # optional arg
 suffix_name = ARGS.suffix_name
 '''
-#%%
-nanopolish_path='./chr1_human_ivt_test.txt'
-model_kmer_path = './model_kmer.csv'
-directory_out = '.'
-suffix_name =False
-
 
 import sys
 import os
@@ -73,11 +68,6 @@ from math import floor
 import numpy as np
 import _pickle as cPickle
 import pandas as pd
-from multiprocessing import Pool, cpu_count
-
-
-model_kmer = pd.read_csv(model_kmer_path,sep=',')
-
 
 def _check_line(line,
                 contig_idx,
@@ -126,8 +116,6 @@ def _recycle_kmers(kmer_dict):
         
     return keep_kmers_dict
 
-
-
 def _parse_kmers(checked_line,
                  contig_idx,
                  position_idx,
@@ -139,6 +127,9 @@ def _parse_kmers(checked_line,
                  counter):
     """
     """
+    
+    # UPDATE add the read ids
+    
     if parsed_kmer:
         kmer_lines = parsed_kmer
         position_1 = sorted(parsed_kmer)[0]
@@ -151,25 +142,27 @@ def _parse_kmers(checked_line,
                  position_1+2,
                  position_1+3,
                  position_1+4]
-   
+        
     while len(kmer_lines.keys()) < 5:
         if checked_line:
             samples = [float(i) for i in checked_line[samples_idx].split(',')]
-            
             if int(checked_line[position_idx]) in kmer_lines:
                 kmer_lines[int(checked_line[position_idx])] = [checked_line[model_kmer_idx], 
                                                               kmer_lines[int(checked_line[position_idx])][1] +\
                                                               samples,
-                                                              checked_line[contig_idx],checked_line[3]]
+                                                              checked_line[contig_idx],
+                                                              checked_line[3]]
+                
             else:
                 kmer_lines[int(checked_line[position_idx])] = [checked_line[model_kmer_idx], 
                                                                samples,
-                                                               checked_line[contig_idx],checked_line[3]]
+                                                               checked_line[contig_idx],
+                                                               checked_line[3]]
                 
             line = file_object.readline()
             counter +=1
             if line == '':
-                return {}, file_object, counter, checked_line
+                sys.exit()
 
             checked_line = _check_line(line, 
                                        contig_idx,
@@ -182,7 +175,7 @@ def _parse_kmers(checked_line,
             line = file_object.readline()
             counter +=1
             if line == '':
-                return {}, file_object, counter, checked_line
+                sys.exit()
 
             checked_line = _check_line(line, 
                                        contig_idx,
@@ -222,12 +215,10 @@ def _parse_kmers(checked_line,
             return {}, file_object, counter, checked_line
 
 
-
-def _smooth_kmer(parsed_kmer):
+def _smooth_kmer(parsed_kmer, model_kmer_dict, lenght_event):
     '''
     Smooth the signals to fix the lenght
     '''
-    
     kmer_name = sorted(parsed_kmer.items())[0][1][0]+\
                 sorted(parsed_kmer.items())[1][1][0][-1]+\
                 sorted(parsed_kmer.items())[2][1][0][-1]+\
@@ -242,11 +233,13 @@ def _smooth_kmer(parsed_kmer):
     
     for pos in sorted(parsed_kmer):
         event = parsed_kmer[pos][1]
-        event_smoothed = smooth_event(event) # smooth the event
+        event_smoothed = smooth_event(event, lenght_event) # smooth the event
         signal_smoothed += event_smoothed  # add the event to the signal
-    # create an expected signal according to the kmer
-    expected_smoothed = make_expected(kmer_name)
     
+    # create an expected signal according to the kmer
+    expected_smoothed = make_expected(model_kmer_dict, 
+                                      kmer_name,
+                                      lenght_event)
     # claculate distance between expected and actual signal
     distance_vector = distance_calculator(expected_smoothed,
                                           signal_smoothed)
@@ -254,12 +247,12 @@ def _smooth_kmer(parsed_kmer):
     return signal_smoothed, distance_vector, id_kmer
     
 
-def make_expected(kmer):
-    # create a dictionary with each kmer and its current value
-    model_kmer_dict = dict(zip(model_kmer['model_kmer'], model_kmer['model_mean']))
+def make_expected(model_kmer_dict, kmer, event_lenght):
+    '''
+    '''
     expected_signal = []
     for i in range(5):
-        expected_signal += [model_kmer_dict[kmer[i:i+5]]]*20
+        expected_signal += [model_kmer_dict[kmer[i:i+5]]]*event_lenght
     return expected_signal
 
 
@@ -270,33 +263,33 @@ def distance_calculator(signal_expected, event_smoothed):
                                         np.array(event_smoothed)), 3))    
     return vector_distance
 
-def smooth_event(raw_signal):
+def smooth_event(raw_signal, lenght_events):
     '''
     smmoth the signal 
     '''
     raw_signal_events = []
     
-    if len(raw_signal) < 20:
-        event = top_median(raw_signal)
+    if len(raw_signal) < lenght_events:
+        event = top_median(raw_signal, lenght_events)
         raw_signal_events = [round(i, 3) for i in event]
         
     else:
-        division = floor(len(raw_signal)/20)
+        division = floor(len(raw_signal)/lenght_events)
         new_event = []
         for i in range(0, len(raw_signal), division):
             new_event.append(np.median(raw_signal[i:i+division]))
-            if len(new_event) == 20:
+            if len(new_event) == lenght_events:
                 break
-        if len(new_event) < 20:
-            new_event = top_median(new_event)
+        if len(new_event) < lenght_events:
+            new_event = top_median(new_event, lenght_events)
         raw_signal_events = [round(i, 3) for i in new_event]
     return raw_signal_events
 
-def top_median(array):
+def top_median(array, lenght):
     '''
     This function top an array until some specific lenght
     '''
-    extra_measure = [np.median(array)]*(20-len(array))
+    extra_measure = [np.median(array)]*(lenght-len(array))
     array += extra_measure
     return array
 
@@ -318,59 +311,10 @@ def _combine_vectors(smooth_signal,
 def find(s, ch):
     return [i for i, ltr in enumerate(s) if ltr == ch]
 
-def split_file(nanopolish_path,num_file):
-    with open(nanopolish_path, 'r') as file_object:
-        headerline = file_object.readline()
-        headerline=headerline.rstrip()
-        # check the header
-        header = headerline.split('\t')
-        if header[-1] != 'samples':
-            print('nanopolish samples are not found, please run nanopolish with flag --samples')
-            sys.exit()
-        # get the column index
-        
-        line_count = 0
-        for line in file_object:
-            if line != "\n":
-                line_count += 1
-        line_count=line_count+1
-        
-    with open(nanopolish_path, 'r') as file_object:    
-        counter=0
-        chunk_size=line_count//num_file
-        i=0
-        for line in file_object:
-            counter=counter+1
-            if counter<chunk_size:
-                with open(directory_out+'/temp_'+str(i)+'.tmp','a') as f:
-                    f.write(line)
-                #line.write(directory_out+'/temp_'+str(i),'a')
-                #print(line,file=directory_out+'/temp_'+str(i))
-            else:
-                if 'A' in line.split('\t')[2]:
-                    with open(directory_out+'/temp_'+str(i)+'.tmp','a') as f:
-                        f.write(line)
-                    #line.write(directory_out+'/temp_'+str(i),'a')
-                    #print(line,file=directory_out+'/temp_'+str(i))
-                else:
-                    i=i+1
-                    counter=0
-                    with open(directory_out+'/temp_'+str(i)+'.tmp','a') as f:
-                        f.write(headerline)
-                        f.write('\n')
-                        f.write(line)
-       
 
-'''
-def write_temp_files(filelist):
-    pathlist=[]
-    for i in range(len(filelist)):
-        with open(directory_out+'/temp_'+str(i), 'w') as fileobject:
-            fileobject.write(filelist[i])
-            pathlist.append(directory_out+'/temp_'+str(i))
-    return pathlist
-'''
-def parse_nanopolish(file):
+def parse_nanopolish(nanopolish_path, model_kmer_dict,
+                     lenght_event, directory_out,
+                     name_signal, name_ids):
     """
     Parse nanopolish
 
@@ -384,17 +328,11 @@ def parse_nanopolish(file):
     data :
 
     """
-    
-    
     counter = 0
     parsed_kmer = {}
     stored_line = None
-
-    
-    with open(file, 'r') as file_object:
-        
+    with open(nanopolish_path, 'r') as file_object:
         line = file_object.readline()
-        
         # check the header
         header = line.rstrip().split('\t')
         if header[-1] != 'samples':
@@ -409,32 +347,30 @@ def parse_nanopolish(file):
             samples_idx = header.index('samples')
         except:
             print('Some nanopolish columns are not found')
-
-         
-        
+    
         while line != '':  # The EOF char is an empty string
+           
             if not stored_line:
                 line = file_object.readline()
                 counter +=1
                 if line == '':
-                    #sys.exit()
-                    break
+                    sys.exit()
                 # check line is fordward and does not have NNNNN in the model
                 checked_line = _check_line(line, 
                                            contig_idx,
                                            position_idx,
                                            reference_kmer_idx,
                                            model_kmer_idx,
-                                           samples_idx)
+                                           samples_idx) 
             else:
                 checked_line = stored_line
                 stored_line = None
-
+               
             if checked_line:
-                
-           
+                # If the kmer 
                 if checked_line[model_kmer_idx][-1] == 'A' or parsed_kmer:
-                   
+                    
+                    
                     parsed_kmer,\
                     file_object, \
                     counter, \
@@ -447,25 +383,21 @@ def parse_nanopolish(file):
                                                file_object,
                                                parsed_kmer,
                                                counter)
-
+                    
                     ### if parsed kmer fail the below code does not get executed and new_parser_kmers never get recycle
+                    
                     if parsed_kmer:
                         
                         if len(parsed_kmer) < 5:
                             continue
-                        
-                        smooth_signal, smooth_distance, ID = _smooth_kmer(parsed_kmer)
+                      
+                        smooth_signal, smooth_distance, ID = _smooth_kmer(parsed_kmer,
+                                                                          model_kmer_dict,
+                                                                          lenght_event)
                         combined_signals = _combine_vectors(smooth_signal,
-                                                            smooth_distance
+                                                            smooth_distance,
                                                             )
-
-                        if suffix_name:
-                            name_signal = directory_out+'/'+suffix_name+'_signals.p'
-                            name_ids = directory_out+'/'+suffix_name+'_IDs.p'
-                        else:
-                            name_signal = directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_signals_parallel_map.p'
-                            name_ids = directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_IDs_parallel_map.p'
-        
+                        
                         with open(name_signal, "ab") as sig_out:
                             cPickle.dump(combined_signals, sig_out)
                             
@@ -475,7 +407,7 @@ def parse_nanopolish(file):
                         # check if there is other As in the nine-mer to re-use lines
                         try:
                             index_ = find(ID.split('_')[-2][5:],'A')[0]-4
-                            
+
                             use_positions = sorted(parsed_kmer.keys())[index_:]
                                 
                             # Delete elements in dictionary that have a different kmer
@@ -489,54 +421,86 @@ def parse_nanopolish(file):
                             continue# recover the information with the kmers
             if counter%10000==0:
                 print(counter, 'processed lines')
-     
-                     
-#    return True       
-
-#%%    
+                            
+    return True
+                    
+                    
+        
 if __name__ == '__main__':
     
-    '''
-    model_kmer = pd.read_csv(model_kmer_path,sep=',')
+    model_kmer_path = '/media/labuser/Data/nanopore/m6A_classifier/KMER_models/model_kmer.csv'
+    directory_out = '/media/labuser/Data/nanopore/m6A_classifier/test'
+    nanopolish_path = '/media/labuser/Data/nanopore/m6A_classifier/test/chr1_human_ivt_test.txt'
+    suffix_name = 'test2'
+
+    
+    model_kmer = pd.read_csv(model_kmer_path,
+                             sep=',')
     
     # create a dictionary with each kmer and its current value
     model_kmer_dict = dict(zip(model_kmer['model_kmer'], model_kmer['model_mean']))
     lenght_event = 20
-    '''
+    
     # create directory if it does not exits
     if os.path.exists(directory_out) is False:
         os.makedirs(directory_out)
     
-    '''
     if os.path.exists(directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_signals.p') is True:
         print()
         print('WARNING: Signal file already exist, delete the previous version.' )
         print()
-    '''
-    '''
+    
+    
     if suffix_name:
         name_signal = directory_out+'/'+suffix_name+'_signals.p'
         name_ids = directory_out+'/'+suffix_name+'_IDs.p'
     else:
         name_signal = directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_signals.p'
         name_ids = directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_IDs.p'
-    '''                              
-    split_file(nanopolish_path,10)
+                                  
     
-    pathlist=[i for i in os.listdir('./') if i[-4:]=='.tmp']
-    
-    
-    #pathlist=write_temp_files(filelist)
-    
-    #parse_nanopolish(pathlist[0])
-    
-    p=Pool(cpu_count())
-    p.map_async(parse_nanopolish,pathlist)
-    
-    #p.map(parse_nanopolish,pathlist)
-                
+    data = parse_nanopolish(nanopolish_path, 
+                            model_kmer_dict, 
+                            lenght_event, 
+                            directory_out,
+                            name_signal, 
+                            name_ids)
     
     
-        
-        
-
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
