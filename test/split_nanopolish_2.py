@@ -60,11 +60,6 @@ directory_out = ARGS.out_dir
 # optional arg
 suffix_name = ARGS.suffix_name
 '''
-#%%
-nanopolish_path='./chr1_human_ivt_test.txt'
-model_kmer_path = './model_kmer.csv'
-directory_out = '.'
-suffix_name =False
 
 
 import sys
@@ -76,7 +71,6 @@ import pandas as pd
 from multiprocessing import Pool, cpu_count
 
 
-model_kmer = pd.read_csv(model_kmer_path,sep=',')
 
 
 def _check_line(line,
@@ -169,7 +163,7 @@ def _parse_kmers(checked_line,
             line = file_object.readline()
             counter +=1
             if line == '':
-                return {}, file_object, counter, checked_line
+                return {}, file_object, counter, None
 
             checked_line = _check_line(line, 
                                        contig_idx,
@@ -182,7 +176,7 @@ def _parse_kmers(checked_line,
             line = file_object.readline()
             counter +=1
             if line == '':
-                return {}, file_object, counter, checked_line
+                return {}, file_object, counter, None
 
             checked_line = _check_line(line, 
                                        contig_idx,
@@ -238,6 +232,7 @@ def _smooth_kmer(parsed_kmer):
               str(sorted(parsed_kmer)[0])+'_'+kmer_name+\
                   '_'+sorted(parsed_kmer.items())[0][1][-1]
     
+    
     signal_smoothed = []
     
     for pos in sorted(parsed_kmer):
@@ -245,6 +240,8 @@ def _smooth_kmer(parsed_kmer):
         event_smoothed = smooth_event(event) # smooth the event
         signal_smoothed += event_smoothed  # add the event to the signal
     # create an expected signal according to the kmer
+    
+    
     expected_smoothed = make_expected(kmer_name)
     
     # claculate distance between expected and actual signal
@@ -255,6 +252,9 @@ def _smooth_kmer(parsed_kmer):
     
 
 def make_expected(kmer):
+    
+    model_kmer = pd.read_csv(model_kmer_path,sep=',')
+
     # create a dictionary with each kmer and its current value
     model_kmer_dict = dict(zip(model_kmer['model_kmer'], model_kmer['model_mean']))
     expected_signal = []
@@ -336,25 +336,21 @@ def split_file(nanopolish_path,num_file):
         line_count=line_count+1
         
     with open(nanopolish_path, 'r') as file_object:    
-        counter=0
+        counter_reads=0
         chunk_size=line_count//num_file
         i=0
         for line in file_object:
-            counter=counter+1
-            if counter<chunk_size:
+            counter_reads=counter_reads+1
+            if counter_reads<chunk_size:
                 with open(directory_out+'/temp_'+str(i)+'.tmp','a') as f:
                     f.write(line)
-                #line.write(directory_out+'/temp_'+str(i),'a')
-                #print(line,file=directory_out+'/temp_'+str(i))
             else:
                 if 'A' in line.split('\t')[2]:
                     with open(directory_out+'/temp_'+str(i)+'.tmp','a') as f:
                         f.write(line)
-                    #line.write(directory_out+'/temp_'+str(i),'a')
-                    #print(line,file=directory_out+'/temp_'+str(i))
                 else:
                     i=i+1
-                    counter=0
+                    counter_reads=0
                     with open(directory_out+'/temp_'+str(i)+'.tmp','a') as f:
                         f.write(headerline)
                         f.write('\n')
@@ -385,12 +381,9 @@ def parse_nanopolish(file):
 
     """
     
-    
     counter = 0
     parsed_kmer = {}
     stored_line = None
-
-    
     with open(file, 'r') as file_object:
         
         line = file_object.readline()
@@ -413,11 +406,20 @@ def parse_nanopolish(file):
          
         
         while line != '':  # The EOF char is an empty string
+            if counter%10000==0:
+                    print('passando por el if')
+                    print(stored_line)
+        
             if not stored_line:
+                
+                 
+                    
                 line = file_object.readline()
                 counter +=1
+                
                 if line == '':
                     #sys.exit()
+                    print(3)
                     break
                 # check line is fordward and does not have NNNNN in the model
                 checked_line = _check_line(line, 
@@ -429,9 +431,8 @@ def parse_nanopolish(file):
             else:
                 checked_line = stored_line
                 stored_line = None
-
+               
             if checked_line:
-                
            
                 if checked_line[model_kmer_idx][-1] == 'A' or parsed_kmer:
                    
@@ -453,7 +454,7 @@ def parse_nanopolish(file):
                         
                         if len(parsed_kmer) < 5:
                             continue
-                        
+
                         smooth_signal, smooth_distance, ID = _smooth_kmer(parsed_kmer)
                         combined_signals = _combine_vectors(smooth_signal,
                                                             smooth_distance
@@ -487,13 +488,14 @@ def parse_nanopolish(file):
                         except:
                             parsed_kmer = {}
                             continue# recover the information with the kmers
+                            
             if counter%10000==0:
                 print(counter, 'processed lines')
      
                      
 #    return True       
 
-#%%    
+    
 if __name__ == '__main__':
     
     '''
@@ -503,6 +505,14 @@ if __name__ == '__main__':
     model_kmer_dict = dict(zip(model_kmer['model_kmer'], model_kmer['model_mean']))
     lenght_event = 20
     '''
+        
+    nanopolish_path='./chr1_human_ivt_test_head2.txt'
+    model_kmer_path = './model_kmer.csv'
+    directory_out = '.'
+    suffix_name =False
+    
+    model_kmer = pd.read_csv(model_kmer_path,sep=',')
+
     # create directory if it does not exits
     if os.path.exists(directory_out) is False:
         os.makedirs(directory_out)
@@ -521,7 +531,7 @@ if __name__ == '__main__':
         name_signal = directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_signals.p'
         name_ids = directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_IDs.p'
     '''                              
-    split_file(nanopolish_path,10)
+    split_file(nanopolish_path, 5)
     
     pathlist=[i for i in os.listdir('./') if i[-4:]=='.tmp']
     
