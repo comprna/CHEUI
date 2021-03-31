@@ -144,7 +144,9 @@ def _parse_kmers(checked_line,
                  position_1+4]
         
     while len(kmer_lines.keys()) < 5:
+        
         if checked_line:
+           
             samples = [float(i) for i in checked_line[samples_idx].split(',')]
             if int(checked_line[position_idx]) in kmer_lines:
                 kmer_lines[int(checked_line[position_idx])] = [checked_line[model_kmer_idx], 
@@ -170,7 +172,11 @@ def _parse_kmers(checked_line,
                                        reference_kmer_idx,
                                        model_kmer_idx,
                                        samples_idx)
-
+            try:
+                if int(checked_line[1]) > max(positions):
+                    break
+            except:
+                continue
         else:
             line = file_object.readline()
             counter +=1
@@ -183,6 +189,11 @@ def _parse_kmers(checked_line,
                                        reference_kmer_idx,
                                        model_kmer_idx,
                                        samples_idx)
+            try:
+                if int(checked_line[1]) > max(positions):
+                    break
+            except:
+                continue 
               
     if list(kmer_lines.keys()) == positions:
         return kmer_lines, file_object, counter, checked_line
@@ -349,22 +360,25 @@ def parse_nanopolish(nanopolish_path, model_kmer_dict,
             print('Some nanopolish columns are not found')
     
         while line != '':  # The EOF char is an empty string
-           
+               
             if not stored_line:
                 line = file_object.readline()
                 counter +=1
                 if line == '':
                     sys.exit()
                 # check line is fordward and does not have NNNNN in the model
+                
                 checked_line = _check_line(line, 
                                            contig_idx,
                                            position_idx,
                                            reference_kmer_idx,
                                            model_kmer_idx,
                                            samples_idx) 
+                
             else:
                 checked_line = stored_line
                 stored_line = None
+                
                
             if checked_line:
                 # If the kmer 
@@ -387,6 +401,9 @@ def parse_nanopolish(nanopolish_path, model_kmer_dict,
                     ### if parsed kmer fail the below code does not get executed and new_parser_kmers never get recycle
                     
                     if parsed_kmer:
+                        
+                        #print(parsed_kmer)
+                        #print()
                         
                         if len(parsed_kmer) < 5:
                             continue
@@ -430,7 +447,7 @@ if __name__ == '__main__':
     
     model_kmer_path = '/media/labuser/Data/nanopore/m6A_classifier/KMER_models/model_kmer.csv'
     directory_out = '/media/labuser/Data/nanopore/m6A_classifier/test'
-    nanopolish_path = '/media/labuser/Data/nanopore/m6A_classifier/test/chr1_human_ivt_test.txt'
+    nanopolish_path = '/media/labuser/Data/nanopore/m6A_classifier/test/chr1_human_ivt_test_head.txt'
     suffix_name = 'test2'
 
     
@@ -455,8 +472,8 @@ if __name__ == '__main__':
         name_signal = directory_out+'/'+suffix_name+'_signals.p'
         name_ids = directory_out+'/'+suffix_name+'_IDs.p'
     else:
-        name_signal = directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_signals.p'
-        name_ids = directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_IDs.p'
+        name_signal = directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_signals2.p'
+        name_ids = directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_IDs2.p'
                                   
     
     data = parse_nanopolish(nanopolish_path, 
