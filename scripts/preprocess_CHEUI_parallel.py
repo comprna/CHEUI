@@ -529,7 +529,7 @@ if __name__ == '__main__':
     
     model_kmer = pd.read_csv(model_kmer_path,sep=',')
     
-    if directory_out[0] != '.' or directory_out[0] != '/':
+    if directory_out[0] != '.' and directory_out[0] != '/':
         directory_out = './'+directory_out
     
     # create directory if it does not exits
