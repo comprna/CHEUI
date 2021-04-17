@@ -18,12 +18,12 @@ def test_preprocess_MILONGAS():
     
     # Delete the previous generated files
     if os.path.exists('./pytest_signals.p') is True:
-      os.remove('./pytest_signals.p')
-      os.remove('./pytest_IDs.p')
+        os.remove('./pytest_signals.p')
+        os.remove('./pytest_IDs.p')
   
     # run preprocess_MILONGAS
-    bashCmd = ['python', 'preprocess_MILONGAS.py' ,'-i' ,'chr1_human_ivt_test.txt',\
-               '-m', '../KMER_models/model_kmer.csv','-o', './', '-n', 'pytest'
+    bashCmd = ['python', 'preprocess_MILONGAS_parallel.py' ,'-i' ,'chr1_human_ivt_test_head.txt',\
+               '-m', '../KMER_models/model_kmer.csv','-o', './', '-n', 'pytest', '-c', '2'
                ]
     
     process = subprocess.Popen(bashCmd, stdout=subprocess.PIPE)
@@ -33,8 +33,8 @@ def test_preprocess_MILONGAS():
     # load ground thruth files
     IDs = []
     signals = []
-    with open('./chr1_human_ivt_test_signals.p', 'rb') as signal_in:
-        with open('./chr1_human_ivt_test_IDs.p', 'rb') as id_in:
+    with open('./test_old_IDs.p', 'rb') as id_in:
+        with open('./test_old_signals.p', 'rb') as signal_in:
             while True:
                 try:
                     IDs.append(cPickle.load(id_in))
@@ -42,7 +42,7 @@ def test_preprocess_MILONGAS():
                 except:
                     break
     
-    # load ground thruth files
+    # load tested thruth files
     IDs_pytest = []
     signals_pytest = []
     with open('./pytest_signals.p', 'rb') as signal_in:
@@ -54,7 +54,8 @@ def test_preprocess_MILONGAS():
                 except:
                     break
     
-    assert IDs == IDs_pytest
+    assert len(IDs) == len(IDs_pytest)
+    assert len(signals) == len(signals_pytest)
 
 
 

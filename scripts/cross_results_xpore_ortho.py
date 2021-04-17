@@ -8,6 +8,7 @@ Created on Thu Sep 17 08:52:32 2020
 This will check the number of reads in the positions in samfiles, eventalign 
 diffmod and diffmod significant
 """
+
 import pandas as pd
 import numpy as np
 import os 
@@ -103,7 +104,6 @@ for chromosome in m6A_seq['chr'].unique():
     diffmod_f_ACA_intersect =  pd.concat([diffmod_f_ACA_intersect, diffmod_f_ACA[(diffmod_f_ACA['id'] == chromosome) & (diffmod_f_ACA['position'].isin(list(overlap)))]])
     
 print(len(intersection_diffmod_mazter))
-
 
 # save the intersection sites
 m6A_seq_intersect_f.to_csv('/media/labuser/Data/nanopore/m6A_classifier/data/xpore_results/m6A_seq_intersect_f.csv',

@@ -20,13 +20,14 @@ import pandas as pd
 
 from sklearn.metrics import roc_curve
 from sklearn.metrics import roc_auc_score
+from sklearn.metrics import accuracy_score, recall_score, precision_score
 
 import tensorflow as tf
 
 from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import InteractiveSession
 
-from DL_models import build_Jasper, build_deepbinner, build_TCN_cc
+from DL_models import build_Jasper, build_deepbinner
 import sys
 import os
 
@@ -63,12 +64,16 @@ def parse_chunk(chunk):
 
 if __name__ == '__main__':
     
-    # Define model Input
-    #inputs = Input(shape=(100, 2))
-
+    # Define model Inout
     inputs = Input(shape=(100, 2))
-    output = build_Jasper(inputs, 1)
-
+    
+    output = build_Jasper(inputs, Deep=True)
+    #output = build_deepbinner(inputs, 1)
+    
+    # For TCN
+    # inputs = Input(batch_shape=(None, 100, 3))
+    # output = buildTCN(inputs, 1)
+    
     model = Model(inputs=inputs, outputs=output)
     
     model.compile(optimizer='adam',
@@ -77,10 +82,12 @@ if __name__ == '__main__':
                            keras_metrics.recall(),
                            keras_metrics.precision(),
                            ])
-    
+
     train_path = sys.argv[1]
     test_path = sys.argv[2]
     OUT_FOLDER = sys.argv[3]
+
+    test_path = '/media/labuser/Data/nanopore/m6A_classifier/data/Epinano/test_singleA.csv'
 
     if not os.path.exists(OUT_FOLDER):
         os.makedirs(OUT_FOLDER)
@@ -115,10 +122,11 @@ if __name__ == '__main__':
                                 batch_size=125,
                                 validation_data=(X_test,
                                                  y_test),
-                                validation_batch_size=125)
+                                validation_batch_size=125,
+                                class_weight={0: 2, 1: 1})
             
             histories.append(history)
-            model.save(OUT_FOLDER+str(e)+str(chunk.index[0])+"model.h5")
+            model.save(OUT_FOLDER+str(e)+str(chunk.index[0])+'_'+str(history.history['val_accuracy'])+'_'+"model.h5")
     
     acc = []
     val_acc = []
@@ -208,4 +216,5 @@ if __name__ == '__main__':
                 bbox_inches='tight', pad_inches=0)
     
     
-
+    
+    
