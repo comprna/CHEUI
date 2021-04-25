@@ -348,8 +348,7 @@ def split_file(nanopolish_path, num_file):
             if line != "\n":
                 line_count += 1
         line_count=line_count+1
-    import time
-    start = time.time()
+   
     with open(nanopolish_path, 'r') as file_object:    
         counter_reads=0
         chunk_size=line_count//num_file
@@ -393,10 +392,10 @@ def split_file(nanopolish_path, num_file):
         with open(directory_out+'/temp_'+str(i)+'.tmp','a') as f:
             for row in N_lines_print:
                 f.write(row)
-            N_lines_print = []   
+            N_lines_print = []
+    return True
 
-    print('time', time.time() - start)
-    
+
 def parse_nanopolish(file):
     """
     Parse nanopolish
