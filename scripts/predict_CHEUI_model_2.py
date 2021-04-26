@@ -85,12 +85,6 @@ def convert_p_to_vector_faster(probs):
     return(prob_dist)
 
 
-### load the stored data 
-counter = 0
-IDs = []
-signals = []
-
-
 # Load CNN weights
 inputs = Input(shape=(99, 1))   
 output = build_Jasper(inputs, 1)
@@ -98,16 +92,18 @@ model = Model(inputs=inputs, outputs=output)
 secondML_path = DL_model
 model.load_weights(secondML_path)
 
-input_df = '/media/labuser/Data/nanopore/m6A_classifier/data/ELIGOS/predictions_modifications/normalA_singleRead_predictions.txt_sorted.txt'
+input_df = '/media/labuser/Data/nanopore/m6A_classifier/data/ELIGOS/predictions_modifications/m7G_singleRead_predictions.sorted.txt'
+input_df = '/home/pablo/lib/CHEUI/m7G_singleRead_predictions.sorted.txt'
 
 
-start = time.time()
 ID = ''
 predictions_site = []
 predictions_dic = {}
 stoichiometry_dic = {}
 coverage_dic = {}
 counter = 0
+
+# code the last one
 
 with open(input_df, 'r') as input_file:
     for line in input_file:
@@ -120,13 +116,15 @@ with open(input_df, 'r') as input_file:
         
         if ID != '_'.join(line[0].split('_')[:-1]):
             # if the coverage if smaller than 10 
+
             if len(predictions_site) < 10:
                 # store the info. from the current read
                 predictions_site = [float(line[1])]
                 ID = '_'.join(line[0].split('_')[:-1])
-                continue
+                counter +=1
+                
             else:
-                vector_prob = convert_p_to_vector_faster(predictions_site)
+                vector_prob = convert_p_to_vector(predictions_site)
                 #lr_probs = model.predict(np.array(vector_prob).reshape(1,99,1))
                 predictions_dic[ID] = vector_prob
                 # calculate stoichiometry         
@@ -134,17 +132,16 @@ with open(input_df, 'r') as input_file:
                 no_mod = [i for i in predictions_site if i < 0.3]
                 stoichiometry_dic[ID] = len(mod)/(len(mod)+len(no_mod))
                 coverage_dic[ID] = len(predictions_site)
-                break
+                predictions_site = [float(line[1])]
+                ID = '_'.join(line[0].split('_')[:-1])
+                counter +=1
         else:
             predictions_site.append(float(line[1]))
             ID = '_'.join(line[0].split('_')[:-1])
-        counter +=1
-        if counter % 500 == 0:
+        
+        if counter % 1000 == 0:
             print(counter,'number of lines processed')
-
-print(time.time()-start)
-
-
+            print(ID)
 
 
 
