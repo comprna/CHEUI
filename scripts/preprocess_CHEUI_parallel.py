@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Fri May  7 09:21:05 2021
+
+@author: labuser
+"""
 """
 Created on Tue Feb 16 16:43:33 2021
 
@@ -43,12 +50,12 @@ OPTIONAL.add_argument('-v', '--version',
                         action='version', 
                         version='%(prog)s')
 
-OPTIONAL.add_argument("-n", "--suffix_name",
+OPTIONAL.add_argument("-s", "--suffix_name",
                       help='name to use for output files',
                       metavar='<str>',
                       )
 
-OPTIONAL.add_argument("-c", "--cpu",
+OPTIONAL.add_argument("-n", "--cpu",
                       help='Number of cores to use',
                       type=int,
                       default=1
@@ -306,6 +313,7 @@ def smooth_event(raw_signal):
         raw_signal_events = [round(i, 3) for i in new_event]
     return raw_signal_events
 
+
 def top_median(array):
     '''
     This function top an array until some specific lenght
@@ -333,6 +341,7 @@ def find(s, ch):
     return [i for i, ltr in enumerate(s) if ltr == ch]
 
 def split_file(nanopolish_path, num_file):
+    
     with open(nanopolish_path, 'r') as file_object:
         headerline = file_object.readline()
         headerline=headerline.rstrip()
@@ -349,7 +358,8 @@ def split_file(nanopolish_path, num_file):
                 line_count += 1
         line_count=line_count+1
    
-    with open(nanopolish_path, 'r') as file_object:    
+    
+    with open(nanopolish_path, 'r') as file_object:
         counter_reads=0
         chunk_size=line_count//num_file
         i=0
@@ -482,14 +492,10 @@ def parse_nanopolish(file):
                         combined_signals = _combine_vectors(smooth_signal,
                                                             smooth_distance
                                                             )
-
-                        if suffix_name:
-                            name_signal = directory_out+'/'+suffix_name+'_signals.p'
-                            name_ids = directory_out+'/'+suffix_name+'_IDs.p'
-                        else:
-                            name_signal = directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_signals.p'
-                            name_ids = directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_IDs.p'
-        
+                        
+                        name_signal = directory_out+'/'+os.path.split(file)[1]+'.TEMP_'+os.path.split(nanopolish_path)[1][:-4]+'_signals.p'
+                        name_ids = directory_out+'/'+os.path.split(file)[1]+'.TEMP_'+os.path.split(nanopolish_path)[1][:-4]+'_IDs.p'
+    
                         with open(name_signal, "ab") as sig_out:
                             cPickle.dump(combined_signals, sig_out)
                             
@@ -531,6 +537,9 @@ if __name__ == '__main__':
     if directory_out[0] != '.' and directory_out[0] != '/':
         directory_out = './'+directory_out
     
+    if directory_out[-1] == '/':
+        directory_out = directory_out[:-1]
+    
     # create directory if it does not exits
     if os.path.exists(directory_out) is False:
         os.makedirs(directory_out)
@@ -566,9 +575,48 @@ if __name__ == '__main__':
         if cpu_number > 1:
             for i in pathlist:
                 os.remove(i)
-                
     
+    file_list = os.listdir(directory_out)
+    file_list_filter = [i for i in file_list if '.TEMP' in i]
     
-        
+    # take pair of files
+    for item in [i for i in file_list_filter if '_IDs.p' in i]:
+        counter = 0
+        IDs = []
+        signals = []
+        with open(directory_out+'/'+'_'.join(item.split('_')[:-1])+'_signals.p', 'rb') as signal_in:
+            with open(directory_out+'/'+item, 'rb') as id_in:
+                while True:
+                    try:
+                        with open(name_signal, "ab") as sig_out:
+                            with open(name_ids, "ab") as id_out: 
+                                cPickle.dump(cPickle.load(signal_in), sig_out)
+                                cPickle.dump(cPickle.load(id_in), id_out)
+                    except:
+                        break
+                    
+    # delete all the temporary files
+    for i in file_list_filter:
+        os.remove(directory_out+'/'+i)
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         
 
