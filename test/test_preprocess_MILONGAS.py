@@ -22,8 +22,8 @@ def test_preprocess_MILONGAS():
         os.remove('./pytest_IDs.p')
   
     # run preprocess_MILONGAS
-    bashCmd = ['python', 'preprocess_MILONGAS_parallel.py' ,'-i' ,'chr1_human_ivt_test_head.txt',\
-               '-m', '../KMER_models/model_kmer.csv','-o', './', '-n', 'pytest', '-c', '2'
+    bashCmd = ['python', 'preprocess_CHEUI_parallel.py' ,'-i' ,'chr1_human_ivt_test_head.txt',\
+               '-m', '../KMER_models/model_kmer.csv','-o', './', '-n', '2', '-s', 'pytest'
                ]
     
     process = subprocess.Popen(bashCmd, stdout=subprocess.PIPE)
