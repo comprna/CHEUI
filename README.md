@@ -1,1 +1,1 @@
-# Methylation estimation using electrical current (CHUEI) ![picture](msc/CHEUI_logo.png){:height="50%" width="50%"}
+# Methylation estimation using electrical current (CHUEI) <img src="https://github.com/pabloacera/CHEUI/blob/master/msc/CHEUI_logo.png" width="48" height="48">
