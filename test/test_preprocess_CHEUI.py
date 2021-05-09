@@ -33,8 +33,8 @@ def test_preprocess_MILONGAS():
     # load ground thruth files
     IDs = []
     signals = []
-    with open('./test_old_IDs.p', 'rb') as id_in:
-        with open('./test_old_signals.p', 'rb') as signal_in:
+    with open('./test_GT_IDs.p', 'rb') as id_in:
+        with open('./test_GT_signals.p', 'rb') as signal_in:
             while True:
                 try:
                     IDs.append(cPickle.load(id_in))
