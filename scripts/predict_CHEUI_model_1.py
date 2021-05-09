@@ -62,7 +62,7 @@ import pandas as pd
 import numpy as np
 
 
-# load the trainned model 
+# load the trainned model
 inputs = Input(shape=(100, 2))
 output = build_Jasper(inputs,Deep=True)
 model = Model(inputs=inputs, outputs=output)
@@ -82,7 +82,7 @@ with open(signals_input, 'rb') as signal_in:
                 IDs.append(cPickle.load(id_in))
                 signals.append(cPickle.load(signal_in))
                 # to avoid loading everything predict every 10k singnals
-                if counter%10000 == 0:
+                if counter%20000 == 0:
                     print(counter, 'signals predicted')
                     predictions = model.predict(np.array(signals))
                     predictions_df = pd.DataFrame.from_dict({'KMER': IDs,
