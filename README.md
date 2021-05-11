@@ -10,7 +10,7 @@ CHEUI
 ------------------------------------------
 
 ## First run Guppy, minimap2 and nanopolish 
-
+```
 fasta=all_oligos.fasq.gz
 path=/g/data/xc17/pm1122/datasets/ELIGOS_data/m5C
 fast5_folder=IVT_m5C_fast5
@@ -38,5 +38,27 @@ ${path}/fastq/${fasta}
 --genome /g/data/xc17/pm1122/datasets/ELIGOS_data/IVT_references.txt \
 --scale-events --signal-index  --samples --print-read-names > \
 ${path}/${fasta}_${fast5_folder}_nanopolish.txt
+```
+
+## then run preprocess_CHEUI_parallel.py
+```python3 preprocess_CHEUI_parallel_faster.py \
+-i <Nanopolish_file.txt> \
+-m ./KMER_models/model_kmer.csv \
+-o test_signals_IDs.p \
+-n 20
+```
+## Now run CHEUI model 1 to get m6A methylation probability per 9-mer centered in Adenine
+```python predict_CHEUI_model_1_forfaster.py \
+-i test_signals_IDs.p \
+-m ./CHEUI_trainned_models/MILONGAS_model1_.2.1.h5 \
+-o ../test/new_faster/test_predict
+```
+
+## Now run CHEUI model 2 to get methylation status per site
+
+
+
+
+
 
 
