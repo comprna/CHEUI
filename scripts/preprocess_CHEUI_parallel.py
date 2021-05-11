@@ -424,6 +424,7 @@ def parse_nanopolish(file):
     counter = 0
     parsed_kmer = {}
     stored_line = None
+    signals_IDs = {}
 
     with open(file, 'r') as file_object:
         
@@ -492,16 +493,14 @@ def parse_nanopolish(file):
                         combined_signals = _combine_vectors(smooth_signal,
                                                             smooth_distance
                                                             )
+                                                
+                        signals_IDs[ID] = combined_signals
+                        if counter%50000==0:
                         
-                        name_signal = directory_out+'/'+os.path.split(file)[1]+'.TEMP_'+os.path.split(nanopolish_path)[1][:-4]+'_signals.p'
-                        name_ids = directory_out+'/'+os.path.split(file)[1]+'.TEMP_'+os.path.split(nanopolish_path)[1][:-4]+'_IDs.p'
-    
-                        with open(name_signal, "ab") as sig_out:
-                            cPickle.dump(combined_signals, sig_out)
-                            
-                        with open(name_ids, "ab") as id_out:
-                            cPickle.dump(ID, id_out)
-                        
+                            with open(name_out, "ab") as sig_out:
+                                cPickle.dump(signals_IDs, sig_out)
+                                signals_IDs = {}
+                          
                         # check if there is other As in the nine-mer to re-use lines
                         try:
                             index_ = find(ID.split('_')[-2][5:],'A')[0]-4
@@ -520,8 +519,12 @@ def parse_nanopolish(file):
                             
             if counter%500000==0:
                 print(counter, 'processed lines')
-     
-                     
+        
+        if signals_IDs:
+            with open(name_out, "ab") as sig_out:
+                cPickle.dump(signals_IDs, sig_out)
+                signals_IDs = {}
+
 #    return True       
 
     
@@ -545,23 +548,15 @@ if __name__ == '__main__':
         os.makedirs(directory_out)
     
     if suffix_name:
-        name_signal = directory_out+'/'+suffix_name+'_signals.p'
-        name_ids = directory_out+'/'+suffix_name+'_IDs.p'
+        name_out = directory_out+'/'+suffix_name+'_signals+IDS.p'
     else:
-        name_signal = directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_signals.p'
-        name_ids = directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_IDs.p'
-    
-    if os.path.exists(name_signal) is True:
-        print()
-        print('WARNING: Signal file already exist, deleting the previous generated signal files' )
-        print()
-        os.remove(name_signal)
+        name_out = directory_out+'/'+os.path.split(nanopolish_path)[1][:-4]+'_signals+IDS.p'
         
-    if os.path.exists(name_ids) is True:
+    if os.path.exists(name_out) is True:
         print()
-        print('WARNING: Signal file already exist, deleting the previous generated IDs files' )
+        print('WARNING: Signal file already exist, deleting the previous generated signals+IDs files' )
         print()
-        os.remove(name_ids)
+        os.remove(name_out)
 
     if cpu_number == 1:
         parse_nanopolish(nanopolish_path)
@@ -575,29 +570,6 @@ if __name__ == '__main__':
         if cpu_number > 1:
             for i in pathlist:
                 os.remove(i)
-    
-    file_list = os.listdir(directory_out)
-    file_list_filter = [i for i in file_list if '.TEMP' in i]
-    
-    # take pair of files
-    for item in [i for i in file_list_filter if '_IDs.p' in i]:
-        counter = 0
-        IDs = []
-        signals = []
-        with open(directory_out+'/'+'_'.join(item.split('_')[:-1])+'_signals.p', 'rb') as signal_in:
-            with open(directory_out+'/'+item, 'rb') as id_in:
-                while True:
-                    try:
-                        with open(name_signal, "ab") as sig_out:
-                            with open(name_ids, "ab") as id_out: 
-                                cPickle.dump(cPickle.load(signal_in), sig_out)
-                                cPickle.dump(cPickle.load(id_in), id_out)
-                    except:
-                        break
-                    
-    # delete all the temporary files
-    for i in file_list_filter:
-        os.remove(directory_out+'/'+i)
     
 
 

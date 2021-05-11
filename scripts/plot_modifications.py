@@ -131,19 +131,19 @@ with open(path+m1A_signal_f, 'rb') as signal_in:
 
 # try make df 
 
-IDs_ = ['_'.join(i.split('_')[:3]) for i in IDs]
-signals_ = [i[:,0] for i in signals]
+#IDs_ = ['_'.join(i.split('_')[:3]) for i in IDs]
+#signals_ = [i[:,0] for i in signals]
 
 # load other modification
-m1A_df = pd.DataFrame({'ID': IDs, 
-                       'signals': signals_})
+#m1A_df = pd.DataFrame({'ID': IDs, 
+#                       'signals': signals_})
 
-
+'''
 ### load the stored data from m1A
 IDs = []
 signals = []
-with open('/media/labuser/Data/nanopore/m6A_classifier/data/ELIGOS/m7G/all_oligos.fasq.gz_IVT_m7G_fast5_nanopolish_signals.p', 'rb') as signal_in:
-    with open('/media/labuser/Data/nanopore/m6A_classifier/data/ELIGOS/m7G/all_oligos.fasq.gz_IVT_m7G_fast5_nanopolish_IDs.p', 'rb') as id_in:
+with open('/media/labuser/Data/nanopore/m6A_classifier/data/ELIGOS/m1A/all_oligos.fasq.gz_IVT_m1A_fast5_nanopolish_signals.p', 'rb') as signal_in:
+    with open('/media/labuser/Data/nanopore/m6A_classifier/data/ELIGOS/m1A/all_oligos.fasq.gz_IVT_m1A_fast5_nanopolish_IDs.p', 'rb') as id_in:
         while True:
             try:
                 IDs.append(cPickle.load(id_in))
@@ -151,14 +151,14 @@ with open('/media/labuser/Data/nanopore/m6A_classifier/data/ELIGOS/m7G/all_oligo
                 # to avoid loading everything predict every 10k singnals
             except:
                 break
-            
-m7G = {}
+'''          
+m1A = {}
 # parse signals 
 for i in enumerate(IDs):
-    if '_'.join(i[1].split('_')[:3]) in m7G:
-        m7G['_'.join(i[1].split('_')[:3])] += [signals[i[0]][:,0]]
+    if '_'.join(i[1].split('_')[:3]) in m1A:
+        m1A['_'.join(i[1].split('_')[:3])] += [signals[i[0]][:,0]]
     else:
-        m7G['_'.join(i[1].split('_')[:3])] = [signals[i[0]][:,0]]
+        m1A['_'.join(i[1].split('_')[:3])] = [signals[i[0]][:,0]]
 
 
 # load m6A signals
@@ -185,12 +185,12 @@ for file in os.listdir(unmodify_dir_p):
 
 
 # check the key that have in commonn
-#m1A_keys = set(list(m1A.keys()))
+m1A_keys = set(list(m1A.keys()))
 m6A_keys = set(list(m6A.keys()))
 unmodify_keys =set(list(unmodify.keys()))
  
 # common IDs
-common_ids = m6A_keys & unmodify_keys
+common_ids = m6A_keys & unmodify_keys & m1A_keys
 
 def repeat(arr, count):
     return np.stack([arr for _ in range(count)], axis=0)
@@ -200,13 +200,11 @@ for i in common_ids:
     m6A_signals = np.array(m6A[i])
     m1A_signals = np.array(m1A[i])
     unmo_signals = np.array(unmodify[i])
-    m7G_signals = np.array(m7G['G1_1194_CGCGAACTC'])
     index = np.arange(1, 101)
     
     m1A_index = np.repeat(index, m1A_signals.shape[0])
     m6A_index = np.repeat(index, m6A_signals.shape[0])
     unmod_index = np.repeat(index, unmo_signals.shape[0]) 
-    m7G_index = np.repeat(index, m7G_signals.shape[0]) 
     
     m6A_df = pd.DataFrame({'signal' : m6A_signals.transpose().ravel(), 
                           'events' : m6A_index.tolist()})
@@ -217,25 +215,22 @@ for i in common_ids:
     unmod_df = pd.DataFrame({'signal' : unmo_signals.transpose().ravel(), 
                             'events' : unmod_index.tolist()})
     
-    m7G_df = pd.DataFrame({'signal' : m7G_signals.transpose().ravel(), 
-                            'events' : m7G_index.tolist()})
-    
     
     sns.set_context("talk")
     sns.set(font_scale = 3.5)
     sns.set_style("ticks", {"xtick.major.size": 50, "ytick.major.size": 50})
     f, ax = plt.subplots( figsize=(13,9))
     
-    #ax = sns.lineplot(x="events", y="signal", ci='sd', estimator=np.median, data=m6A_df, color='red')
-    #ax2 = sns.lineplot(x="events", y="signal", ci='sd', estimator=np.median, data=unmod_df, color='blue')
-    #ax3 = sns.lineplot(x="events", y="signal", ci='sd', estimator=np.median, data=m1A_df, color='green')
+    ax = sns.lineplot(x="events", y="signal", ci='sd', estimator=np.median, data=m6A_df, color='red')
+    ax2 = sns.lineplot(x="events", y="signal", ci='sd', estimator=np.median, data=unmod_df, color='blue')
+    ax3 = sns.lineplot(x="events", y="signal", ci='sd', estimator=np.median, data=m1A_df, color='green')
     
-    ax = sns.lineplot(x="events", y="signal", data=m7G_df, color='red')
-    ax = sns.lineplot(x="events", y="signal", data=m6A_df, color='red')
-    ax2 = sns.lineplot(x="events", y="signal", data=unmod_df, color='blue')
-    ax3 = sns.lineplot(x="events", y="signal",  data=m1A_df, color='green')
+    #ax = sns.lineplot(x="events", y="signal", data=m6A_df, color='red')
+    #ax2 = sns.lineplot(x="events", y="signal", data=unmod_df, color='blue')
+    #ax3 = sns.lineplot(x="events", y="signal",  data=m1A_df, color='green')
 
     ax2.lines[0].set_linestyle("--")
+    ax3.lines[0].set_linestyle("--")
     plt.xticks([])
     plt.yticks([])
     plt.ylabel('Signal intensity', fontsize=30)
@@ -276,13 +271,9 @@ for i in common_ids:
 counter = 0
 for i in common_ids:
     m6A_signals = np.array(m6A[i])
-    #m1A_signals = np.array(m1A[i])
+    m1A_signals = np.array(m1A[i])
     unmo_signals = np.array(unmodify[i])
-    #m7G_signals = np.array(m7G[i])
     index = np.arange(1, 101)
-    
-    temp_df_m1A = m1A_df[m1A_df['ID'].str.contains(i)].sample(50)
-    temp_df_m1A_sig = np.array(temp_df_m1A['signals'])
     
     sns.set_context("talk")
     sns.set(font_scale = 3.5)
@@ -295,15 +286,15 @@ for i in common_ids:
                 break
     '''     
     for j in enumerate(m6A_signals):     
-            ax = sns.lineplot(x=index, y=j[1], color='red')
-            if j[0] == 50:
-                break
-    '''
+        ax = sns.lineplot(x=index, y=j[1], color='red')
+        if j[0] == 50:
+            break
+    
     for j in enumerate(m1A_signals):     
         ax = sns.lineplot(x=index, y=j[1], color='green')
         if j[0] == 50:
             break
-    '''
+    
     
     for j in enumerate(unmo_signals):     
         ax = sns.lineplot(x=index, y=j[1], color='blue')
@@ -311,7 +302,7 @@ for i in common_ids:
             break
     
     
-    ax2.lines[0].set_linestyle("--")
+    #ax2.lines[0].set_linestyle("--")
     plt.xticks([])
     plt.yticks([])
     plt.ylabel('Signal intensity', fontsize=30)
@@ -393,6 +384,7 @@ counter = 0
 for i in common_ids:
     NormalA = np.array(normalA[i])
     unmo_signals = np.array(unmodify[i])
+    m1A_signals = np.array(m1A[i])
     index = np.arange(1, 101)
     
     sns.set_context("talk")
@@ -409,12 +401,12 @@ for i in common_ids:
             ax = sns.lineplot(x=index, y=j[1], color='blue')
             if j[0] == 50:
                 break
-    '''
+    
     for j in enumerate(m1A_signals):     
         ax = sns.lineplot(x=index, y=j[1], color='green')
         if j[0] == 50:
             break
-    
+    '''
     for j in enumerate(unmo_signals):     
         ax = sns.lineplot(x=index, y=j[1], color='blue')
         if j[0] == 50:
