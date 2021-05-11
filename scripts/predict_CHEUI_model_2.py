@@ -92,9 +92,6 @@ model = Model(inputs=inputs, outputs=output)
 secondML_path = DL_model
 model.load_weights(secondML_path)
 
-input_df = '/media/labuser/Data/nanopore/m6A_classifier/data/ELIGOS/predictions_modifications/m7G_singleRead_predictions.sorted.txt'
-input_df = '/home/pablo/lib/CHEUI/m7G_singleRead_predictions.sorted.txt'
-
 
 ID = ''
 predictions_site = []
@@ -139,9 +136,8 @@ with open(input_df, 'r') as input_file:
             predictions_site.append(float(line[1]))
             ID = '_'.join(line[0].split('_')[:-1])
         
-        if counter % 1000 == 0:
+        if counter % 50000 == 0:
             print(counter,'number of lines processed')
-            print(ID)
 
 
 
