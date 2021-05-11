@@ -51,8 +51,11 @@ ${path}/${fasta}_${fast5_folder}_nanopolish.txt
 ```python predict_CHEUI_model_1_forfaster.py \
 -i test_signals_IDs.p \
 -m ./CHEUI_trainned_models/MILONGAS_model1_.2.1.h5 \
--o ../test/new_faster/test_predict
+-o ./test_predict_model1.txt
 ```
+
+## We have to sort the prediction file to group all the signals from the same site
+```sort -k1  --parallel=15  ./test_predict_model1.txt > ./test_predict_model1_sorted.txt ```
 
 ## Now run CHEUI model 2 to get methylation status per site
 
