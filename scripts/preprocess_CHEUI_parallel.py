@@ -124,9 +124,9 @@ def _recycle_kmers(kmer_dict):
     
     keep_kmers_dict = {k: v for k, v in kmer_dict.items() if k in keep_kmers}
     
-    # now check if the first item has an A at the end if not, delete item
+    # now check if the first item has an C at the end if not, delete item
     for i in enumerate(sorted(keep_kmers_dict.keys())):
-        if keep_kmers_dict[i[1]][0][-1] != 'A':
+        if keep_kmers_dict[i[1]][0][-1] != 'C':
             del keep_kmers_dict[i[1]]
         
     return keep_kmers_dict
@@ -467,7 +467,7 @@ def parse_nanopolish(file):
                
             if checked_line:
            
-                if checked_line[model_kmer_idx][-1] == 'A' or parsed_kmer:
+                if checked_line[model_kmer_idx][-1] == 'C' or parsed_kmer:
                    
                     parsed_kmer,\
                     file_object, \
@@ -503,7 +503,7 @@ def parse_nanopolish(file):
                           
                         # check if there is other As in the nine-mer to re-use lines
                         try:
-                            index_ = find(ID.split('_')[-2][5:],'A')[0]-4
+                            index_ = find(ID.split('_')[-2][5:],'C')[0]-4
                             
                             use_positions = sorted(parsed_kmer.keys())[index_:]
                                 
