@@ -41,14 +41,16 @@ ${path}/${fasta}_${fast5_folder}_nanopolish.txt
 ```
 
 ## then run preprocess_CHEUI_parallel.py
-```python3 preprocess_CHEUI_parallel_faster.py \
+```
+python3 preprocess_CHEUI_parallel_faster.py \
 -i <Nanopolish_file.txt> \
 -m ./KMER_models/model_kmer.csv \
 -o test_signals_IDs.p \
 -n 20
 ```
 ## Now run CHEUI model 1 to get m6A methylation probability per 9-mer centered in Adenine
-```python predict_CHEUI_model_1_forfaster.py \
+```
+python predict_CHEUI_model_1_forfaster.py \
 -i test_signals_IDs.p \
 -m ./CHEUI_trainned_models/MILONGAS_model1_.2.1.h5 \
 -o ./test_predict_model1.txt
