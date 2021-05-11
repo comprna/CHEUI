@@ -103,7 +103,7 @@ def _check_line(line,
     if line_split[model_kmer_idx] == 'NNNNN':
         return None
     # check if there is any A in the model
-    if 'A' not in line_split[model_kmer_idx]:
+    if 'C' not in line_split[model_kmer_idx]:
         return None
     
     return line_split
@@ -388,7 +388,7 @@ def split_file(nanopolish_path, num_file):
                             f.write(row)
                         N_lines_print = []          
                             
-                if 'A' in line.split('\t')[2]:
+                if 'C' in line.split('\t')[2]:
                     with open(directory_out+'/temp_'+str(i)+'.tmp','a') as f:
                         f.write(line)
                 else:
