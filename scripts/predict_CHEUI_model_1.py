@@ -74,7 +74,7 @@ with open(signals_input, 'rb') as signal_in:
             counter +=1
             IDs_signals.update(cPickle.load(signal_in))
             # to avoid loading everything predict every 10k singnals
-            if counter%20000 == 0:
+            if counter%1000 == 0:
                 predictions = model.predict(np.array(list(IDs_signals.values())))
                 
                 predictions_df = pd.DataFrame.from_dict({'KMER': IDs_signals.keys(),

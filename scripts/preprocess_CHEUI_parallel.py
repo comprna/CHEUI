@@ -495,7 +495,7 @@ def parse_nanopolish(file):
                                                             )
                                                 
                         signals_IDs[ID] = combined_signals
-                        if counter%50000==0:
+                        if counter%10000==0:
                         
                             with open(name_out, "ab") as sig_out:
                                 cPickle.dump(signals_IDs, sig_out)

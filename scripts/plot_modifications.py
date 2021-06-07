@@ -122,12 +122,24 @@ with open(path+m1A_signal_f, 'rb') as signal_in:
                 break
 
 
+### load the stored data from m1A
+IDs_new_para = {}
+with open(path+'all_oligos.fasq.gz_IVT_m1A_fast5_nanopolish_signals+IDS.p', 'rb') as signal_in:
+    while True:
+        try:
+            IDs_new_para.update(cPickle.load(signal_in))
+            # to avoid loading everything predict every 10k singnals
+        except:
+            break
+
+
+m1A = {}
 # parse signals 
-#for i in enumerate(IDs):
-#    if '_'.join(i[1].split('_')[:3]) in m1A:
-#        m1A['_'.join(i[1].split('_')[:3])] += [signals[i[0]][:,0]]
-#    else:
-#        m1A['_'.join(i[1].split('_')[:3])] = [signals[i[0]][:,0]]
+for i in enumerate(IDs_new_para.keys()):
+    if '_'.join(i[1].split('_')[:3]) in m1A:
+        m1A['_'.join(i[1].split('_')[:3])] += [IDs_new_para[i[1]][:,0]]
+    else:
+        m1A['_'.join(i[1].split('_')[:3])] = [IDs_new_para[i[1]][:,0]]
 
 # try make df 
 
@@ -455,11 +467,6 @@ for i in common_ids:
 
 
 
-
-
-
-
-
 ### load the stored data from m1A
 signals_counter = 0
 signals = []
@@ -514,14 +521,124 @@ for list_signal in LOL_normal:
 
 
 
+#############################################3
+
+### ######################################### AJ 
+
+
+### load the stored data from m1A
+IDs_new_para = {}
+counter = 0
+with open('/media/labuser/project_NSUN2/AJ/NX_signals+IDS.p', 'rb') as signal_in:
+    while True:
+        try:
+            counter +=1
+            if counter == 10000:
+                break
+            IDs_new_para.update(cPickle.load(signal_in))
+            # to avoid loading everything predict every 10k singnals
+        except:
+            break
+
+NX = {}
+# parse signals 
+for i in enumerate(IDs_new_para.keys()):
+    if '_'.join(i[1].split('_')[:3]) in NX:
+        NX['_'.join(i[1].split('_')[:3])] += [IDs_new_para[i[1]][:,0]]
+    else:
+        NX['_'.join(i[1].split('_')[:3])] = [IDs_new_para[i[1]][:,0]]
 
 
 
 
 
+### load the stored data from m1A
+IDs_new_para = {}
+counter = 0
+with open('/media/labuser/project_NSUN2/AJ/SXL_signals+IDS.p', 'rb') as signal_in:
+    while True:
+        try:
+            counter +=1
+            if counter == 10000:
+                break
+            IDs_new_para.update(cPickle.load(signal_in))
+            # to avoid loading everything predict every 10k singnals
+        except:
+            break
 
 
+SXL = {}
+# parse signals 
+for i in enumerate(IDs_new_para.keys()):
+    if '_'.join(i[1].split('_')[:3]) in SXL:
+        SXL['_'.join(i[1].split('_')[:3])] += [IDs_new_para[i[1]][:,0]]
+    else:
+        SXL['_'.join(i[1].split('_')[:3])] = [IDs_new_para[i[1]][:,0]]
 
+
+# check the key that have in commonn
+NX_keys = set(list(NX.keys()))
+SXL_keys = set(list(SXL.keys()))
+ 
+# common IDs
+common_ids = NX_keys & SXL_keys
+
+
+counter = 0
+for i in common_ids:
+    SXL_signals = np.array(SXL[i])
+    NX_signals = np.array(NX[i])
+    index = np.arange(1, 101)
+    
+    index_SXL = np.repeat(index, SXL_signals.shape[0])
+    index_NX = np.repeat(index, NX_signals.shape[0])
+    
+    SXL_df = pd.DataFrame({'signal' : SXL_signals.transpose().ravel(), 
+                          'events' : index_SXL.tolist()})
+                        
+    NX_df = pd.DataFrame({'signal' : NX_signals.transpose().ravel(), 
+                          'events': index_NX.tolist()})
+    
+    sns.set_context("talk")
+    sns.set(font_scale = 3.5)
+    sns.set_style("ticks", {"xtick.major.size": 50, "ytick.major.size": 50})
+    f, ax = plt.subplots( figsize=(13,9))
+    
+    ax = sns.lineplot(x="events", y="signal", ci='sd', estimator=np.median, data=SXL_df, color='red')
+    ax2 = sns.lineplot(x="events", y="signal", ci='sd', estimator=np.median, data=NX_df, color='blue')
+
+    ax2.lines[0].set_linestyle("--")
+    plt.xticks([])
+    plt.yticks([])
+    plt.ylabel('Signal intensity', fontsize=30)
+    X = [0, 25, 50, 75, 100]
+    labels = list(i.split('_')[-1][2:-2])
+    # You can specify a rotation for the tick labels in degrees or with keywords.
+    plt.xticks(X, labels, fontsize=30)
+    
+    custom_lines = [Line2D([0], [0], color='blue', lw=4, markersize=40),
+                    Line2D([0], [0], color='red', lw=4, markersize=40, linestyle='--')
+                    ]
+    plt.legend(custom_lines,
+               ['SXL','NX'],
+               fancybox=True,
+               framealpha=1, 
+               shadow=True, 
+               borderpad=1,
+               fontsize=20
+               )
+    
+    plt.title('AJ intense guys please do not hear him')
+    plt.show()
+    plt.close('all')
+    
+    counter +=1
+    if counter == 5:
+        break
+    
+    
+    
+    
 
 
 
