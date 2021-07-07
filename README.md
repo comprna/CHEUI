@@ -50,16 +50,17 @@ python3 preprocess_CHEUI_parallel_faster.py \
 ```
 ## Now run CHEUI model 1 to get m6A methylation probability per 9-mer centered in Adenine
 ```
-python predict_CHEUI_model_1_forfaster.py \
+python predict_CHEUI_model_1.py \
 -i test_signals_IDs.p \
 -m ./CHEUI_trainned_models/MILONGAS_model1_.2.1.h5 \
--o ./test_predict_model1.txt
+-o ./read_level_predictions.txt
 ```
 
 ## We have to sort the prediction file to group all the signals from the same site
 ```sort -k1  --parallel=15  ./test_predict_model1.txt > ./test_predict_model1_sorted.txt ```
 
 ## Now run CHEUI model 2 to get methylation status per site
+```python3 predict_CHEUI_model_2.py -i test_predict_model1.txt -m  CHEUI_trainned_models/CHEUI_m6A_model2.h5 -o site_level_predictions.txt
 
 
 
