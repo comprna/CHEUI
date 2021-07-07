@@ -60,7 +60,7 @@ python predict_CHEUI_model_1.py \
 ```sort -k1  --parallel=15  ./test_predict_model1.txt > ./test_predict_model1_sorted.txt ```
 
 ## Now run CHEUI model 2 to get methylation status per site
-```python3 predict_CHEUI_model_2.py -i test_predict_model1.txt -m  CHEUI_trainned_models/CHEUI_m6A_model2.h5 -o site_level_predictions.txt
+```python3 predict_CHEUI_model_2.py -i test_predict_model1.txt -m  CHEUI_trainned_models/CHEUI_m6A_model2.h5 -o site_level_predictions.txt```
 
 
 
