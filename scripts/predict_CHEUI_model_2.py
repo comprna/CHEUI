@@ -128,6 +128,7 @@ with open(input_df, 'r') as input_file:
                 mod = [i for i in predictions_site if i > 0.7]
                 no_mod = [i for i in predictions_site if i < 0.3]
                 stoichiometry_dic[ID] = len(mod)/(len(mod)+len(no_mod))
+                # if there are more than 100 reads in a site run 11 times and get the meadian
                 coverage_dic[ID] = len(predictions_site)
                 predictions_site = [float(line[1])]
                 ID = '_'.join(line[0].split('_')[:-1])

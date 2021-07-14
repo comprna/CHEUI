@@ -18,7 +18,6 @@ import numpy as np
 from sklearn import preprocessing
 #from sklearn.utils import shuffle
 import itertools
-import umap
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -202,6 +201,8 @@ m6A_keys = set(list(m6A.keys()))
 unmodify_keys =set(list(unmodify.keys()))
  
 # common IDs
+common_ids = m6A_keys & unmodify_keys 
+
 common_ids = m6A_keys & unmodify_keys & m1A_keys
 
 def repeat(arr, count):
@@ -210,19 +211,19 @@ def repeat(arr, count):
 counter = 0
 for i in common_ids:
     m6A_signals = np.array(m6A[i])
-    m1A_signals = np.array(m1A[i])
+    #m1A_signals = np.array(m1A[i])
     unmo_signals = np.array(unmodify[i])
     index = np.arange(1, 101)
     
-    m1A_index = np.repeat(index, m1A_signals.shape[0])
+    #m1A_index = np.repeat(index, m1A_signals.shape[0])
     m6A_index = np.repeat(index, m6A_signals.shape[0])
     unmod_index = np.repeat(index, unmo_signals.shape[0]) 
     
     m6A_df = pd.DataFrame({'signal' : m6A_signals.transpose().ravel(), 
                           'events' : m6A_index.tolist()})
                         
-    m1A_df = pd.DataFrame({'signal' : m1A_signals.transpose().ravel(), 
-                          'events': m1A_index.tolist()})
+    #m1A_df = pd.DataFrame({'signal' : m1A_signals.transpose().ravel(), 
+    #                      'events': m1A_index.tolist()})
                              
     unmod_df = pd.DataFrame({'signal' : unmo_signals.transpose().ravel(), 
                             'events' : unmod_index.tolist()})
@@ -235,14 +236,14 @@ for i in common_ids:
     
     ax = sns.lineplot(x="events", y="signal", ci='sd', estimator=np.median, data=m6A_df, color='red')
     ax2 = sns.lineplot(x="events", y="signal", ci='sd', estimator=np.median, data=unmod_df, color='blue')
-    ax3 = sns.lineplot(x="events", y="signal", ci='sd', estimator=np.median, data=m1A_df, color='green')
+    #ax3 = sns.lineplot(x="events", y="signal", ci='sd', estimator=np.median, data=m1A_df, color='green')
     
     #ax = sns.lineplot(x="events", y="signal", data=m6A_df, color='red')
     #ax2 = sns.lineplot(x="events", y="signal", data=unmod_df, color='blue')
     #ax3 = sns.lineplot(x="events", y="signal",  data=m1A_df, color='green')
 
     ax2.lines[0].set_linestyle("--")
-    ax3.lines[0].set_linestyle("--")
+    #ax3.lines[0].set_linestyle("--")
     plt.xticks([])
     plt.yticks([])
     plt.ylabel('Signal intensity', fontsize=30)
@@ -252,11 +253,11 @@ for i in common_ids:
     plt.xticks(X, labels, fontsize=30)
     
     custom_lines = [Line2D([0], [0], color='blue', lw=4, markersize=40),
-                    Line2D([0], [0], color='red', lw=4, markersize=40, linestyle='--'),
-                    Line2D([0], [0], color='green', lw=4, markersize=40, linestyle='--')]
+                    Line2D([0], [0], color='red', lw=4, markersize=40, linestyle='--')]
+     #               Line2D([0], [0], color='green', lw=4, markersize=40, linestyle='--')]
     
     plt.legend(custom_lines,
-               ['UNMOD','M6A','M1A'],
+               ['Unmod','m6A'],
                fancybox=True,
                framealpha=1, 
                shadow=True, 
@@ -264,7 +265,7 @@ for i in common_ids:
                fontsize=20
                )
     
-    plt.title('Signal RNA IVT')
+    plt.title('Signal RNA IVT m6A')
     plt.show()
     plt.savefig(out+i+'.pdf',
                 format='pdf',
@@ -637,8 +638,158 @@ for i in common_ids:
         break
     
     
+def load_signals_keys(path_signals_keys):
+    '''
+    '''
+    ### load the stored data from m1A
+    IDs_new_para = {}
+    counter = 0
+    with open(path_signals_keys, 'rb') as signal_in:
+        while True:
+            try:
+                counter +=1
+                if counter == 10000:
+                    break
+                IDs_new_para.update(cPickle.load(signal_in))
+                # to avoid loading everything predict every 10k singnals
+            except:
+                break
     
-    
+    NX = {}
+    # parse signals 
+    for i in enumerate(IDs_new_para.keys()):
+        if '_'.join(i[1].split('_')[:3]) in NX:
+            NX['_'.join(i[1].split('_')[:3])] += [IDs_new_para[i[1]][:,0]]
+        else:
+            NX['_'.join(i[1].split('_')[:3])] = [IDs_new_para[i[1]][:,0]]
+    return NX
+
+
+# plot modifications using UMAP
+import umap
+import seaborn as sns
+from matplotlib import pyplot 
+
+path = '/media/labuser/Data/nanopore/m6A_classifier/data/ELIGOS/'
+OUT_FOLDER = '/media/labuser/Data/nanopore/m6A_classifier/data/ELIGOS/UMAP_signals'
+
+test_formylC = load_signals_keys(path+'all.fastq.gz_IVT_FormylC_fast5_nanopolish_signals+IDS.p_testing_data.p')
+test_psdeudo = load_signals_keys(path+'all.fastq.gz_IVT_pseudoU_fast5_nanopolish_signals+IDS.p_testing_data.p')
+test_h5C = load_signals_keys(path+'all_oligos.fasq.gz_IVT_h5C_fast5_nanopolish_signals+IDS.p_testing_data.p')
+test_inosine = load_signals_keys(path+'all_oligos.fasq.gz_IVT_Inosine_fast5_nanopolish_signals+IDS.p_testing_data.p')
+test_m1A = load_signals_keys(path+'all_oligos.fasq.gz_IVT_m1A_fast5_nanopolish_signals+IDS.p_testing_data.p')
+test_m7G = load_signals_keys(path+'all_oligos.fasq.gz_IVT_m7G_fast5_nanopolish_signals+IDS.p_testing_data.p')
+test_m6A = load_signals_keys(path+'IVT_m6A_Eligos_signals+IDS.p_testing_data.p')
+test_normalA = load_signals_keys(path+'IVT_normalA_Eligos_signals+IDS.p_testing_data.p')
+test_m5C = load_signals_keys(path+'all_oligos.fasq.gz_IVT_m5C_fast5_nanopolish_signals+IDS.p_testing_data.p')
+
+formyl = np.array(test_formylC['C2_1139_TGAGACCTC'][:100])
+h5C = np.array(test_h5C['C2_1139_TGAGACCTC'][:100])
+m5C = np.array(test_m5C['C2_1139_TGAGACCTC'][:100])
+pseudo = np.array(test_psdeudo['U2_692_CCTTATCCG'][:100])
+m1A = np.array(test_m1A['A2_881_TTGCAGTTG'][:100])
+normalA = np.array(test_normalA['A2_881_TTGCAGTTG'][:100])
+m6A = np.array(test_m6A['A2_881_TTGCAGTTG'][:100])
+m7G = np.array(test_m7G['G1_867_ATCCATACG'][:100])
+Inosine  = np.array(test_inosine['G1_867_ATCCATACG'][:100])
+
+args = (formyl, h5C, m5C, pseudo, m1A, normalA, m6A, m7G, Inosine)
+
+all_signals = np.concatenate(args)
+
+reducer = umap.UMAP()
+embedding = reducer.fit_transform(all_signals)
+
+
+# tsne
+from sklearn.manifold import TSNE
+X = all_signals
+embedding = TSNE(n_components=2).fit_transform(X)
+
+
+sns.set_context("talk")
+sns.set(font_scale = 3.5)
+sns.set_style("ticks", {"xtick.major.size": 50, "ytick.major.size": 50})
+f, ax = plt.subplots( figsize=(13,9))
+pyplot.scatter(embedding[0:100, 0], embedding[0:100, 1], marker="o", label='formyl', s=70, color='pink')
+pyplot.scatter(embedding[100:200, 0], embedding[100:200, 1], marker="o", label='h5C', s=70, color='orange')
+pyplot.scatter(embedding[200:300, 0], embedding[200:300, 1], marker="o", label='m5C', s=70, color='sienna')
+plt.legend(markerscale=2.5, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+plt.ylabel('Score', fontsize=35)
+plt.xlabel('Cutoff', fontsize=35)
+#plt.text(50, 0.6, 'AUC m5C: '+str(round(AUC_m5C, 3)), fontsize=20)
+#plt.text(50, 0.5, 'AUC No modify: '+str(round(AUC_epi, 3)), fontsize=20)
+plt.savefig(OUT_FOLDER+'/UMAP_test_1kmer.pdf',
+            format='pdf',
+            dpi=1200,
+            bbox_inches='tight', pad_inches=0)
+
+
+sns.set_context("talk")
+sns.set(font_scale = 3.5)
+sns.set_style("ticks", {"xtick.major.size": 50, "ytick.major.size": 50})
+f, ax = plt.subplots( figsize=(13,9))
+pyplot.scatter(embedding[800:900, 0],  embedding[800:900, 1], marker="o", label='Inosine', s=70,color='green')
+pyplot.scatter(embedding[700:800, 0],  embedding[700:800, 1], marker="o", label='m7G', s=70, color='blueviolet')
+pyplot.scatter(embedding[300:400, 0],  embedding[300:400, 1], marker="o", label='pseudo', s=70, color='c')
+plt.legend(markerscale=2.5, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+plt.ylabel('Score', fontsize=35)
+plt.xlabel('Cutoff', fontsize=35)
+#plt.text(50, 0.6, 'AUC m5C: '+str(round(AUC_m5C, 3)), fontsize=20)
+#plt.text(50, 0.5, 'AUC No modify: '+str(round(AUC_epi, 3)), fontsize=20)
+plt.savefig(OUT_FOLDER+'/UMAP_test_2kmer.pdf',
+            format='pdf',
+            dpi=1200,
+            bbox_inches='tight', pad_inches=0)
+
+
+sns.set_context("talk")
+sns.set(font_scale = 3.5)
+sns.set_style("ticks", {"xtick.major.size": 50, "ytick.major.size": 50})
+f, ax = plt.subplots( figsize=(13,9))
+plt.ylim(-20, 11)
+plt.xlim(22, 50)
+pyplot.scatter(embedding[500:600, 0],  embedding[500:600, 1], marker='o', label='normalA', s=70, color='royalblue')
+pyplot.scatter(embedding[600:700, 0],  embedding[600:700, 1], marker="o", label='m6A', s=70, color='grey')
+plt.legend(markerscale=2.5, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+plt.ylabel('Score', fontsize=35)
+plt.xlabel('Cutoff', fontsize=35)
+#plt.text(50, 0.6, 'AUC m5C: '+str(round(AUC_m5C, 3)), fontsize=20)
+#plt.text(50, 0.5, 'AUC No modify: '+str(round(AUC_epi, 3)), fontsize=20)
+plt.savefig(OUT_FOLDER+'/UMAP_test_0kmer.pdf',
+            format='pdf',
+            dpi=1200,
+            bbox_inches='tight', pad_inches=0)
+
+
+
+sns.set_context("talk")
+sns.set(font_scale = 3.5)
+sns.set_style("ticks", {"xtick.major.size": 50, "ytick.major.size": 50})
+f, ax = plt.subplots( figsize=(13,9))
+plt.ylim(-20, 11)
+plt.xlim(22, 50)
+pyplot.scatter(embedding[500:600, 0],  embedding[500:600, 1], marker='o', label='normalA', s=70,color='royalblue')
+pyplot.scatter(embedding[600:700, 0],  embedding[600:700, 1], marker="o", label='m6A', s=70, color='grey')
+pyplot.scatter(embedding[400:500, 0],  embedding[400:500, 1], marker="o", label='m1A', s=70, color='r')
+plt.legend(markerscale=2.5, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+plt.ylabel('Score', fontsize=35)
+plt.xlabel('Cutoff', fontsize=35)
+#plt.text(50, 0.6, 'AUC m5C: '+str(round(AUC_m5C, 3)), fontsize=20)
+#plt.text(50, 0.5, 'AUC No modify: '+str(round(AUC_epi, 3)), fontsize=20)
+plt.savefig(OUT_FOLDER+'/UMAP_test_3kmer.pdf',
+            format='pdf',
+            dpi=1200,
+            bbox_inches='tight', pad_inches=0)
+
+
+
+
+
+
+
+
+
 
 
 

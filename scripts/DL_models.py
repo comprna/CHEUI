@@ -21,7 +21,7 @@ If not, see <http://www.gnu.org/licenses/>.
 
 from tensorflow.keras.layers import Conv1D, MaxPooling1D, AveragePooling1D, Dropout, concatenate,\
     BatchNormalization, GaussianNoise, GlobalAveragePooling1D, Softmax, Add, Dense, Activation,\
-    Attention, Flatten, MultiHeadAttention, LayerNormalization
+    Attention, Flatten, LayerNormalization
 
 from tensorflow.keras.activations import relu
 import keras.backend as K
@@ -595,7 +595,6 @@ def build_Jasper_2inputs(input1, input2, Deep=None):
 
 
     
-from tcn import TCN
     
 def build_TCN(inputs, output):
     '''

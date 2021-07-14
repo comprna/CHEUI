@@ -55,13 +55,12 @@ from DL_models import build_Jasper
 import pandas as pd
 import numpy as np
 
-
 # load the trainned model
 inputs = Input(shape=(100, 2))
 output = build_Jasper(inputs,Deep=True)
 model = Model(inputs=inputs, outputs=output)
-    
-# test the NN trainned with only 1 A
+
+
 model.load_weights(DL_model)
 
 ### load the stored data 
@@ -74,24 +73,25 @@ with open(signals_input, 'rb') as signal_in:
             counter +=1
             IDs_signals.update(cPickle.load(signal_in))
             # to avoid loading everything predict every 10k singnals
-            if counter%1000 == 0:
-                predictions = model.predict(np.array(list(IDs_signals.values())))
-                
-                predictions_df = pd.DataFrame.from_dict({'KMER': IDs_signals.keys(),
-                                                        'Prediction': predictions.reshape(len(predictions)).tolist()}
-                                                        )
-                
-                predictions_df.to_csv(file_out,
-                                      mode='a',
-                                      header=False,
-                                      sep='\t', 
-                                      index=False)
-                IDs_signals = {}
-
-                predictions_df = pd.DataFrame({'KMER': [], 'Prediction': []})
+            if counter%100 == 0:
+                if IDs_signals:
+                    predictions = model.predict(np.array(list(IDs_signals.values())))
+                    
+                    predictions_df = pd.DataFrame.from_dict({'KMER': IDs_signals.keys(),
+                                                            'Prediction': predictions.reshape(len(predictions)).tolist()}
+                                                            )
+                    
+                    predictions_df.to_csv(file_out,
+                                          mode='a',
+                                          header=False,
+                                          sep='\t', 
+                                          index=False)
+                    IDs_signals = {}
+                    predictions_df = pd.DataFrame({'KMER': [], 'Prediction': []})
+                else:
+                    continue
         except:
             if IDs_signals:
-               
                 predictions = model.predict(np.array(list(IDs_signals.values())))
                 predictions_df = pd.DataFrame.from_dict({'KMER': IDs_signals.keys(),
                                                         'Prediction': predictions.reshape(len(predictions)).tolist()}
@@ -105,6 +105,7 @@ with open(signals_input, 'rb') as signal_in:
                 IDs_signals = {}
 
                 predictions_df = pd.DataFrame({'KMER': [], 'Prediction': []})
+            print(file_out)
             print('All signals have been processed')
             break
 

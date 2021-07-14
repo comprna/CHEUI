@@ -495,12 +495,11 @@ def parse_nanopolish(file):
                                                             )
                                                 
                         signals_IDs[ID] = combined_signals
-                        if counter%10000==0:
                         
-                            with open(name_out, "ab") as sig_out:
-                                cPickle.dump(signals_IDs, sig_out)
-                                signals_IDs = {}
-                          
+                        with open(name_out, "ab") as sig_out:
+                            cPickle.dump(signals_IDs, sig_out)
+                            signals_IDs = {}
+                      
                         # check if there is other As in the nine-mer to re-use lines
                         try:
                             index_ = find(ID.split('_')[-2][5:],'A')[0]-4
@@ -519,13 +518,8 @@ def parse_nanopolish(file):
                             
             if counter%500000==0:
                 print(counter, 'processed lines')
-        
-        if signals_IDs:
-            with open(name_out, "ab") as sig_out:
-                cPickle.dump(signals_IDs, sig_out)
-                signals_IDs = {}
 
-#    return True       
+    return True
 
     
 if __name__ == '__main__':
