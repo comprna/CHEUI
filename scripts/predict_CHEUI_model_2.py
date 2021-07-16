@@ -44,30 +44,16 @@ ARGS = parser.parse_args()
 # required arg
 input_df = ARGS.input
 DL_model = ARGS.DL_model
-file_out = ARGS.file_out
-
+file_out_path = ARGS.file_out
 
 from tensorflow.keras import Input
 from tensorflow.keras.models import Model
-import _pickle as cPickle
 from DL_models import build_Jasper
-import pandas as pd
 import numpy as np
 from numba import jit
+import random
+random.seed(42)
 
-
-def convert_p_to_vector(probs):
-    '''
-    '''
-    probs = sorted(probs)
-    prob_dist = []
-    for i in range(1, 100):
-        count = 0
-        for j in probs:
-            if j>=i/100 and j<(i+1)/100:
-                count += 1
-        prob_dist.append(count)
-    return(prob_dist)
 
 
 @jit(nopython=True)
@@ -85,63 +71,95 @@ def convert_p_to_vector_faster(probs):
     return(prob_dist)
 
 
+def biggerThan100(prob_list):
+    '''
+    '''
+    all_probs = []
+    for i in range(16):
+        random_reads = random.sample(prob_list, 75)
+        vector_prob = convert_p_to_vector_faster(random_reads)
+        all_probs.append(model.predict(np.array(vector_prob).reshape(1,99,1)))
+    high_conf_times = [i for i in all_probs if i > 0.99]
+    return high_conf_times
+
+
 # Load CNN weights
-inputs = Input(shape=(99, 1))   
+inputs = Input(shape=(99, 1))
 output = build_Jasper(inputs, 1)
 model = Model(inputs=inputs, outputs=output)
 secondML_path = DL_model
 model.load_weights(secondML_path)
 
 
-ID = ''
 predictions_site = []
-predictions_dic = {}
-stoichiometry_dic = {}
-coverage_dic = {}
 counter = 0
 
 # code the last one
-
-with open(input_df, 'r') as input_file:
-    for line in input_file:
-        line = line.strip().split('\t')
-        if counter == 0:
-            predictions_site.append(float(line[1]))
-            ID = '_'.join(line[0].split('_')[:-1])
-            counter +=1
-            continue
+with open(file_out_path, 'w') as file_out:
+    
+    print('contig'+'\t'+'position'+'\t'+'site'+'\t'+'coverage'+\
+          '\t'+'stoichiometry'+'\t'+'probability', file=file_out)
         
-        if ID != '_'.join(line[0].split('_')[:-1]):
-            # if the coverage if smaller than 10 
-
-            if len(predictions_site) < 10:
-                # store the info. from the current read
-                predictions_site = [float(line[1])]
+    with open(input_df, 'r') as input_file:
+        for line in input_file:
+            line = line.strip().split('\t')
+            if counter == 0:
+                predictions_site.append(float(line[1]))
                 ID = '_'.join(line[0].split('_')[:-1])
                 counter +=1
-                
+                continue
+            
+            if ID != '_'.join(line[0].split('_')[:-1]):
+                # if the coverage if smaller than 10 
+    
+                if len(predictions_site) < 10:
+                    # do not make predictions for this site
+                    # store the info. from the current read
+                    predictions_site = [float(line[1])]
+                    ID = '_'.join(line[0].split('_')[:-1])
+                    counter +=1
+                    
+                else:
+                    # calculate stoichiometry
+                    mod = [i for i in predictions_site if i > 0.7]
+                    no_mod = [i for i in predictions_site if i < 0.3]
+                    stoichiometry = len(mod)/(len(mod)+len(no_mod))
+                    
+                    if len(predictions_site) > 100 and stoichiometry > 0.1:
+                        lr_probs = biggerThan100(predictions_site)
+                        if len(lr_probs) >= 8:
+                            lr_probs = 0.99
+                        
+                        else:
+                            predictions_site = [float(line[1])]
+                            ID = '_'.join(line[0].split('_')[:-1])
+                            counter +=1
+                            continue
+                    else:
+                        vector_prob = convert_p_to_vector_faster(predictions_site)
+                        lr_probs = float(model.predict(np.array(vector_prob).reshape(1,99,1)))
+                        if lr_probs < 0.99:
+                            predictions_site = [float(line[1])]
+                            ID = '_'.join(line[0].split('_')[:-1])
+                            counter +=1
+                            continue
+
+                    # if there are more than 100 reads in a site run 11 times and get the meadian
+                    coverage = len(predictions_site)
+                    ID_colums = ID.split('_')
+                    
+                    # write results to output file
+                    print(ID_colums[0]+'\t'+ID_colums[1]+'\t'+ID_colums[2]+'\t'+ \
+                                   str(coverage)+'\t'+str(stoichiometry)+'\t'+ \
+                                   str(lr_probs), file=file_out)
+                    
+                    predictions_site = [float(line[1])]
+                    ID = '_'.join(line[0].split('_')[:-1])
+                    counter +=1
             else:
-                vector_prob = convert_p_to_vector(predictions_site)
-                #lr_probs = model.predict(np.array(vector_prob).reshape(1,99,1))
-                predictions_dic[ID] = vector_prob
-                # calculate stoichiometry         
-                mod = [i for i in predictions_site if i > 0.7]
-                no_mod = [i for i in predictions_site if i < 0.3]
-                stoichiometry_dic[ID] = len(mod)/(len(mod)+len(no_mod))
-                # if there are more than 100 reads in a site run 11 times and get the meadian
-                coverage_dic[ID] = len(predictions_site)
-                predictions_site = [float(line[1])]
+                predictions_site.append(float(line[1]))
                 ID = '_'.join(line[0].split('_')[:-1])
-                counter +=1
-        else:
-            predictions_site.append(float(line[1]))
-            ID = '_'.join(line[0].split('_')[:-1])
-        
-        if counter % 50000 == 0:
-            print(counter,'number of lines processed')
-
-
-
-
-
+            
+            if counter % 50000 == 0:
+                print(counter,'number of lines processed')
 
