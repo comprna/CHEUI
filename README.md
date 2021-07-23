@@ -43,13 +43,11 @@ nanopolish_out.txt
 git clone https://github.com/comprna/CHEUI.git
 cd CHEUI/test
 ```
-
 ## Prepare signals to detect m6A RNA modifications
 ```
 python3 ../script/CHEUI_preprocess_m6A.py \
 -i nanopolish_output_test.txt -m ./kmer_models/model_kmer.csv -o out_test_signals+IDs.p -n 15
 ```
-
 ## Run CHEUI model 1 to obtain m6A methylation probability per read per 9-mer
 ```
 python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_output_test_signals+IDS.p \
@@ -66,11 +64,22 @@ python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt 
 ```
 
 ## Run CHEUI to detect m5C
+To run CHEUI to detect m5C modifications, first parse the signals centred in C
 ```
-python3 ../script/CHEUI_preprocess_m6A.py \
+python3 ../script/CHEUI_preprocess_m5C.py \
 -i nanopolish_output_test.txt -m ./kmer_models/model_kmer.csv -o out_test_signals+IDs.p -n 15
 ```
+## Then run the same steps changing the neural network models
+```
+python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_output_test_signals+IDS.p \
+-m ../CHEUI_trainned_models/CHEUI_m5C_model1.h5 -o ./read_level_predictions.txt
+```
+```sort -k1  --parallel=15  ./read_level_predictions.txt > ./read_level_predictions_sorted.txt```
 
+```
+python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt \
+-m  ../CHEUI_trainned_models/CHEUI_m5C_model2.h5 -o site_level_predictions.txt
+```
 
 
 
