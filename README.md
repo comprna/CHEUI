@@ -12,8 +12,9 @@ CHEUI (Methylation (CH3) Estimation Using Ionic Current) is a two-stage deep lea
 ```
 numpy==1.19.2
 pandas==1.2.2
-import pandas as pd
-from multiprocessing import Pool
+tensorflow==2.4.1
+keras==2.4.3
+numba==0.53.1
 ```
 
 ------------------------------------------
