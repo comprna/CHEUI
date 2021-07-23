@@ -12,7 +12,8 @@ CHEUI (Methylation (CH3) Estimation Using Ionic Current) is a two-stage deep lea
 
 ## Preprocessing
 
-A sorted and indexed bamfile with samtools is needed to run Nanopolish (https://nanopolish.readthedocs.io/en/latest/). 
+CHEUI starting point is a Nanopolish output file (https://nanopolish.readthedocs.io/en/latest/).
+First, a sorted and indexed bamfile with samtools is needed to run Nanopolish. 
 We provide an example of how to run Nanopolish with the right flags:  
 
 ```
