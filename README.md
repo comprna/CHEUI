@@ -44,7 +44,7 @@ git clone https://github.com/comprna/CHEUI.git
 cd CHEUI/test
 ```
 
-## Prepare signals to detect m6A
+## Prepare signals to detect m6A RNA modifications
 ```
 python3 ../script/CHEUI_preprocess_m6A.py \
 -i nanopolish_output_test.txt -m ./kmer_models/model_kmer.csv -o out_test_signals+IDs.p -n 15
