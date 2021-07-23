@@ -127,7 +127,7 @@ with open(file_out_path, 'w') as file_out:
                     
                     if len(predictions_site) > 100 and stoichiometry > 0.1:
                         lr_probs = biggerThan100(predictions_site)
-                        if len(lr_probs) >= 8:
+                        if len(lr_probs) > 8:
                             lr_probs = 0.99
                         
                         else:
