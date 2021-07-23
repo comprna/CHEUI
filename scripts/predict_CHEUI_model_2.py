@@ -112,7 +112,7 @@ with open(file_out_path, 'w') as file_out:
             if ID != '_'.join(line[0].split('_')[:-1]):
                 # if the coverage if smaller than 10 
     
-                if len(predictions_site) < 10:
+                if len(predictions_site) < 15:
                     # do not make predictions for this site
                     # store the info. from the current read
                     predictions_site = [float(line[1])]
