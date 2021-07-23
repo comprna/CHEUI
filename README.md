@@ -1,4 +1,4 @@
-# Methylation estimation using electrical current (CHUEI) <img src="https://github.com/comprna/CHEUI/blob/master/msc/CHEUI_logo.png" width="280" height="250">
+# Methylation estimation using electrical current (CHUEI) <img src="https://github.com/comprna/CHEUI/blob/master/misc/CHEUI_logo.png" width="280" height="250">
 
 
 **About CHEUI**
@@ -8,7 +8,7 @@ CHEUI (Methylation (CH3) Estimation Using Ionic Current) is a two-stage deep lea
 ------------------------------------------
 # Outline of CHEUI scripts 
 ------------------------------------------
- <img src="https://github.com/comprna/CHEUI/blob/master/msc/pipeline_CHEUI_github.png" width="560" height="500">
+ <img src="https://github.com/comprna/CHEUI/blob/master/misc/pipeline_CHEUI_github.png" width="560" height="500">
 
 ## Preprocessing
 
@@ -34,25 +34,21 @@ cd CHEUI/test
 ## Prepare signals to detect m6A
 ```
 python3 ../script/CHEUI_preprocess_m6A.py \
--i <Nanopolish_file.txt> \
--m ./KMER_models/model_kmer.csv \
--o out_signals+IDs.p \
--n 20
+-i nanopolish_output_test.txt -m ./kmer_models/model_kmer.csv -o out_test_signals+IDs.p -n 15
 ```
 
 ## Run CHEUI model 1 to obtain m6A methylation probability per read per 9-mer
 ```
-python CHEUI_predict_model1.py \
--i test_signals_IDs.p \
--m ./CHEUI_trainned_models/MILONGAS_model1_.2.1.h5 \
--o ./read_level_predictions.txt
+python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_output_test_signals+IDS.p \
+-m ../CHEUI_trainned_models/CHEUI_m6A_model1.h5 -o ./read_level_predictions.txt
 ```
 
 ## We have to sort the prediction file to group all the signals from the same site
-```sort -k1  --parallel=15  ./test_predict_model1.txt > ./test_predict_model1_sorted.txt ```
+```sort -k1  --parallel=15  ./read_level_predictions.txt > ./read_level_predictions_sorted.txt```
 
 ## Now run CHEUI model 2 to get methylation status per site
-```python3 predict_CHEUI_model_2.py -i test_predict_model1.txt -m  CHEUI_trainned_models/CHEUI_m6A_model2.h5 -o site_level_predictions.txt```
+```python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt \
+-m  ../CHEUI_trainned_models/CHEUI_m6A_model2.h5 -o site_level_predictions.txt```
 
 
 
