@@ -8,11 +8,11 @@ Created on Wed Feb 24 10:16:37 2021
 
 import argparse
 
-parser = argparse.ArgumentParser(prog='predict_MILONGAS v0.1', description=
+parser = argparse.ArgumentParser(prog='CHEUI_predict_model2 v0.1', description=
                                  """ 
-                                 This script takes predictions from model 1 generate predictions per site
+                                 This script takes predictions from model 1 and generate RNA modification predictions per site
                                  
-                                 """, usage='python predict_CHEUI_model2.py -i <path_to_predictions_model_1> '\
+                                 """, usage='python CHEUI_predict_model2.py -i <path_to_predictions_model_1> '\
                                             '-m <path_to_DL_model> -o <file_out> \nversion: %(prog)s')
 
 OPTIONAL = parser._action_groups.pop()
@@ -24,7 +24,7 @@ REQUIRED.add_argument("-i", "--input",
                       required=True)
 
 REQUIRED.add_argument("-m", "--DL_model",
-                      help="path to DL model",
+                      help="path to pretrainned DL model 2",
                       metavar='\b',
                       required=True)
 

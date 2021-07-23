@@ -8,11 +8,11 @@ Created on Wed Feb 24 10:16:37 2021
 
 import argparse
 
-parser = argparse.ArgumentParser(prog='predict_MILONGAS v0.1', description=
+parser = argparse.ArgumentParser(prog='CHEUI_predict_model1 v0.1', description=
                                  """ 
                                  This script takes a ID and signal files and generate predictions every motif with and A
                                  
-                                 """, usage='python predict_MILONGAS.py  -i <path_to_signlas_IDs_file> '\
+                                 """, usage='python CHEUI_predict_model1.py -i <path_to_signlas+IDs_file> '\
                                             '-m <path_to_DL_model> -o <file_out> \nversion: %(prog)s')
 
 OPTIONAL = parser._action_groups.pop()
@@ -25,7 +25,7 @@ REQUIRED.add_argument("-i", "--signals_input",
                       required=True)
 
 REQUIRED.add_argument("-m", "--DL_model",
-                      help="path to DL model",
+                      help="path to trainned model 1 DL model",
                       metavar='\b',
                       required=True)
 
