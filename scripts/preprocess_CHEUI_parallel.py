@@ -13,11 +13,10 @@ Created on Tue Feb 16 16:43:33 2021
 
 import argparse
 
-parser = argparse.ArgumentParser(prog='preprocess_MILONGAS v0.1', description=
+parser = argparse.ArgumentParser(prog='preprocess_CHEUI v0.1', description=
                                  """ 
                                  This script takes a nanopolish file, parse it and extract 
-                                 information about signals and read iDs, creating two files. 
-                                 
+                                 information about signals and read ids. Then it creates a file that will be the input of predict_model_1.py 
                                  """, usage='python preprocess_MILONGAS.py -i <nanopolish_file.txt> '\
                                      '-m <kmer_model> -o <out_dir> \nversion: %(prog)s')
 
