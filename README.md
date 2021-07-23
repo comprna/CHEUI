@@ -43,7 +43,9 @@ nanopolish_out.txt
 git clone https://github.com/comprna/CHEUI.git
 cd CHEUI/test
 ```
-## Prepare signals to detect m6A RNA modifications
+**Detect m6A RNA modifications**
+
+## Parse signals from nanopolish file
 ```
 python3 ../script/CHEUI_preprocess_m6A.py \
 -i nanopolish_output_test.txt -m ./kmer_models/model_kmer.csv -o out_test_signals+IDs.p -n 15
@@ -63,7 +65,8 @@ python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt 
 -m  ../CHEUI_trainned_models/CHEUI_m6A_model2.h5 -o site_level_predictions.txt
 ```
 
-## Run CHEUI to detect m5C
+**Detect m5C RNA modifications**
+
 To run CHEUI to detect m5C modifications, first parse the signals centred in C
 ```
 python3 ../script/CHEUI_preprocess_m5C.py \
