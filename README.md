@@ -8,6 +8,7 @@ CHEUI (Methylation (CH3) Estimation Using Ionic Current) is a two-stage deep lea
 ------------------------------------------
 # Tutorial 
 ------------------------------------------
+ <img src="https://github.com/comprna/CHEUI/blob/master/msc/pipeline_CHEUI_github.png" width="560" height="500">
 
 ## First run Guppy, minimap2 and nanopolish 
 ```
