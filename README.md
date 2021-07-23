@@ -19,10 +19,10 @@ We provide an example of how to run Nanopolish with the right flags:
 ```
 nanopolish index -s <sequencing_summary.txt> -d <fast5_folder> <fastq>
 
-/g/data/xc17/pm1122/lib/nanopolish/nanopolish eventalign -t 20 \
---reads ${path}/fastq/${fasta} \
---bam ${path}/${fasta}_${fast5_folder}_sorted.bam \
---genome /g/data/xc17/pm1122/datasets/ELIGOS_data/IVT_references.txt \
+nanopolish eventalign -t 20 \
+--reads <fastq> \
+--bam <sorted.bam> \
+--genome <references.fasta> \
 --scale-events --signal-index  --samples --print-read-names > \
 nanopolish_out.txt
 ```
@@ -48,8 +48,10 @@ python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_o
 ```sort -k1  --parallel=15  ./read_level_predictions.txt > ./read_level_predictions_sorted.txt```
 
 ## Now run CHEUI model 2 to get methylation status per site
-```python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt \
--m  ../CHEUI_trainned_models/CHEUI_m6A_model2.h5 -o site_level_predictions.txt```
+```
+python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt \
+-m  ../CHEUI_trainned_models/CHEUI_m6A_model2.h5 -o site_level_predictions.txt
+```
 
 
 
