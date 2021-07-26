@@ -67,7 +67,6 @@ from tensorflow.keras import Input
 from tensorflow.keras.models import Model
 from DL_models import build_Jasper
 import numpy as np
-from numba import jit
 import random
 random.seed(42)
 
@@ -208,8 +207,6 @@ with open(file_out_path, 'w') as file_out:
             for i in enumerate(lr_probs):
                 if i[1] > cutoff:
                     print(ID_vectors[i[0]]+'\t'+str(i[1][0]), file=file_out)
-
-           
 
 
 
