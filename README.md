@@ -90,6 +90,7 @@ python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt 
 ----------------------------
 Output file examples
 ----------------------------
+
 An example of the read-level prediction file can be found in test/read_level_predictions.txt.
 It contains 2 columns, the first column contains information about chromosome_location_k-mer_readID.
 Second column contains the probability of the middle A/C of the k-mer is methylated.
@@ -114,7 +115,8 @@ chr12   839646  ATTGCTATT       25      1.0     0.9903585
 chr12   839756  AACTCGGCT       31      0.95    0.99048686
 ```
 
-
-
-
+----------------------------
+WARNINGS
+----------------------------
+Please follow the instructions carefully. Notice that to detect m6A or m5C a different preprocessing script is needed (CHEUI_preprocess_m6A.py/CHEUI_preprocess_m5C.py), and then the appropriate matching trained models for m6A or m5C (CHEUI_m5C_model1.h5/CHEUI_m6A_model1.h5...etc).
 
