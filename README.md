@@ -91,7 +91,7 @@ python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt 
 Output file examples
 ----------------------------
 An example of the read-level prediction file can be found in test/read_level_predictions.txt.
-First column contain chromosome_location_k-mer_readID.
+It contains 2 columns, the first column contains information about chromosome_location_k-mer_readID.
 Second column contains the probability of the middle A/C of the k-mer is methylated.
 ```
 chr10_343786_AGTACTAAG_06685ba0-c2f9-4540-9805-3e1746df432f     0.8907145261764526
@@ -106,7 +106,7 @@ An example of the site-level prediction file can be found in test/site_level_pre
 This file is a tab separated file containing; contig, position, site, coverage, stoichiometry of the site and probability of the site being methylated.
 ```
 contig  position        site    coverage        stoichiometry   probability
-chr14   571401  TGGGCCTCC       189     0.832258064516129       0.9988387
+chr14   571401  TGGGCCTCC       189     0.83    0.9988387
 chr12   366758  TTAACAAGA       34      1.0     0.9977418
 chr12   366878  AAAACAAGA       35      1.0     0.99779636
 chr12   839596  TGCACACCG       26      1.0     0.9992101
