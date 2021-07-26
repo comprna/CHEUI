@@ -28,6 +28,18 @@ REQUIRED.add_argument("-m", "--DL_model",
                       metavar='\b',
                       required=True)
 
+REQUIRED.add_argument("-c", "--cutoff",
+                      help="model 2 probability cutoff for printing sites",
+                      metavar='\b',
+                      default='0.99'
+                      )
+
+REQUIRED.add_argument("-d", "--double_cutoff",
+                      help="Model 1 probability cutoffs used to calculate the stoichiometry",
+                      metavar='\b',
+                      default='0.3,0.7',
+                      )
+
 REQUIRED.add_argument("-o", "--file_out",
                       help="Path to the output file",
                       metavar='\b',
@@ -44,7 +56,12 @@ ARGS = parser.parse_args()
 # required arg
 input_df = ARGS.input
 DL_model = ARGS.DL_model
+cutoff = float(ARGS.cutoff)
+double_cutoff = ARGS.double_cutoff
+lower_cutoff = float(double_cutoff.split(',')[0])
+upper_cutoff = float(double_cutoff.split(',')[1])
 file_out_path = ARGS.file_out
+
 
 from tensorflow.keras import Input
 from tensorflow.keras.models import Model
@@ -55,9 +72,7 @@ import random
 random.seed(42)
 
 
-
-@jit(nopython=True)
-def convert_p_to_vector_faster(probs):
+def convert_p_to_vector(probs):
     '''
     '''
     probs = sorted(probs)
@@ -77,9 +92,9 @@ def biggerThan100(prob_list):
     all_probs = []
     for i in range(16):
         random_reads = random.sample(prob_list, 75)
-        vector_prob = convert_p_to_vector_faster(random_reads)
+        vector_prob = convert_p_to_vector(random_reads)
         all_probs.append(model.predict(np.array(vector_prob).reshape(1,99,1)))
-    high_conf_times = [i for i in all_probs if i > 0.99]
+    high_conf_times = [i for i in all_probs if i > cutoff]
     return high_conf_times
 
 
@@ -93,6 +108,9 @@ model.load_weights(secondML_path)
 
 predictions_site = []
 counter = 0
+counter_predictions = 0
+
+predictions_dic = {}
 
 # code the last one
 with open(file_out_path, 'w') as file_out:
@@ -121,37 +139,56 @@ with open(file_out_path, 'w') as file_out:
                     
                 else:
                     # calculate stoichiometry
-                    mod = [i for i in predictions_site if i > 0.7]
-                    no_mod = [i for i in predictions_site if i < 0.3]
-                    stoichiometry = len(mod)/(len(mod)+len(no_mod))
-                    
+                    try:
+                        mod = [i for i in predictions_site if i > upper_cutoff]
+                        no_mod = [i for i in predictions_site if i < lower_cutoff]
+                        stoichiometry = len(mod)/(len(mod)+len(no_mod))
+                    except:
+                        print('Warning: Stoichiometry cannot compute, try less stringent double cutoff values')
+                        stoichiometry = 'None'
+                        
                     if len(predictions_site) > 100 and stoichiometry > 0.1:
                         lr_probs = biggerThan100(predictions_site)
                         if len(lr_probs) > 8:
-                            lr_probs = 0.99
-                        
+                            lr_probs = np.mean(lr_probs)
+                            coverage = len(predictions_site)
+                            ID_colums = ID.split('_')
+                            
+                            # write results to output file
+                            print(ID_colums[0]+'\t'+ID_colums[1]+'\t'+ID_colums[2]+'\t'+ \
+                                           str(coverage)+'\t'+str(stoichiometry)+'\t'+ \
+                                           str(lr_probs), file=file_out)
+                            
+                            predictions_site = [float(line[1])]
+                            ID = '_'.join(line[0].split('_')[:-1])
+                            counter +=1
+                            continue
+                            
                         else:
                             predictions_site = [float(line[1])]
                             ID = '_'.join(line[0].split('_')[:-1])
                             counter +=1
                             continue
                     else:
-                        vector_prob = convert_p_to_vector_faster(predictions_site)
-                        lr_probs = float(model.predict(np.array(vector_prob).reshape(1,99,1)))
-                        if lr_probs < 0.99:
-                            predictions_site = [float(line[1])]
-                            ID = '_'.join(line[0].split('_')[:-1])
-                            counter +=1
-                            continue
+                        vector_prob = convert_p_to_vector(predictions_site)
+                        # if there are more than 100 reads in a site run 11 times and get the meadian
+                        coverage = len(predictions_site)
+                        ID_colums = ID.split('_')
+                        predictions_dic[ID_colums[0]+'\t'+ID_colums[1]+'\t'+ID_colums[2]+'\t'+ \
+                                       str(coverage)+'\t'+str(stoichiometry)] = vector_prob
+                                        
+                        counter_predictions += 1
 
-                    # if there are more than 100 reads in a site run 11 times and get the meadian
-                    coverage = len(predictions_site)
-                    ID_colums = ID.split('_')
-                    
-                    # write results to output file
-                    print(ID_colums[0]+'\t'+ID_colums[1]+'\t'+ID_colums[2]+'\t'+ \
-                                   str(coverage)+'\t'+str(stoichiometry)+'\t'+ \
-                                   str(lr_probs), file=file_out)
+                        if counter_predictions > 2000:
+                            prob_vectors = np.array(list(predictions_dic.values()))
+                            ID_vectors = list(predictions_dic.keys())
+                            lr_probs = model.predict(prob_vectors)
+                            
+                            for i in enumerate(lr_probs):
+                                if i[1] > cutoff:
+                                    print(ID_vectors[i[0]]+'\t'+str(i[1][0]), file=file_out)
+                            counter_predictions = 0
+                            predictions_dic = {}
                     
                     predictions_site = [float(line[1])]
                     ID = '_'.join(line[0].split('_')[:-1])
@@ -162,4 +199,19 @@ with open(file_out_path, 'w') as file_out:
             
             if counter % 50000 == 0:
                 print(counter,'number of lines processed')
+
+        if len(predictions_dic) > 0:
+            prob_vectors = np.array(list(predictions_dic.values()))
+            ID_vectors = list(predictions_dic.keys())
+            lr_probs = model.predict(prob_vectors)
+            
+            for i in enumerate(lr_probs):
+                if i[1] > cutoff:
+                    print(ID_vectors[i[0]]+'\t'+str(i[1][0]), file=file_out)
+
+           
+
+
+
+
 
