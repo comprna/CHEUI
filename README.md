@@ -49,7 +49,7 @@ cd CHEUI/test
 ## Parse signals from nanopolish file
 ```
 python3 ../scripts/CHEUI_preprocess_m6A.py \
--i nanopolish_output_test.txt -m ./kmer_models/model_kmer.csv -o out_test_signals+IDs.p -n 15
+-i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o out_test_signals+IDs.p -n 15
 ```
 ## Run CHEUI model 1 to obtain m6A methylation probability per read per 9-mer
 ```
@@ -71,7 +71,7 @@ python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt 
 To run CHEUI to detect m5C modifications, first parse the signals centred in C
 ```
 python3 ../scripts/CHEUI_preprocess_m5C.py \
--i nanopolish_output_test.txt -m ./kmer_models/model_kmer.csv -o out_test_signals+IDs.p -n 15
+-i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o out_test_signals+IDs.p -n 15
 ```
 ## Then run the same steps changing the neural network models
 ```
