@@ -54,7 +54,7 @@ python3 ../scripts/CHEUI_preprocess_m6A.py \
 ## Run CHEUI model 1 to obtain m6A methylation probability per read per 9-mer
 ```
 python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_output_test_signals+IDS.p \
--m ../CHEUI_trainned_models/CHEUI_m6A_model1.h5 -o ./read_level_predictions.txt
+-m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o ./read_level_predictions.txt
 ```
 
 ## We have to sort the prediction file to group all the signals from the same site
@@ -63,7 +63,7 @@ python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_o
 ## Now run CHEUI model 2 to get methylation status per site
 ```
 python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt \
--m  ../CHEUI_trainned_models/CHEUI_m6A_model2.h5 -o site_level_predictions.txt
+-m  ../CHEUI_trained_models/CHEUI_m6A_model2.h5 -o site_level_predictions.txt
 ```
 
 # Detect m5C RNA modifications
@@ -76,13 +76,13 @@ python3 ../scripts/CHEUI_preprocess_m5C.py \
 ## Then run the same steps changing the neural network models
 ```
 python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_output_test_signals+IDS.p \
--m ../CHEUI_trainned_models/CHEUI_m5C_model1.h5 -o ./read_level_predictions.txt
+-m ../CHEUI_trained_models/CHEUI_m5C_model1.h5 -o ./read_level_predictions.txt
 ```
 ```sort -k1  --parallel=15  ./read_level_predictions.txt > ./read_level_predictions_sorted.txt```
 
 ```
 python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt \
--m  ../CHEUI_trainned_models/CHEUI_m5C_model2.h5 -o site_level_predictions.txt
+-m  ../CHEUI_trained_models/CHEUI_m5C_model2.h5 -o site_level_predictions.txt
 ```
 
 
