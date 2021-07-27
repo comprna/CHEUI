@@ -62,7 +62,7 @@ python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_o
 
 ## Now run CHEUI model 2 for m6A to get the methylation status per site
 ```
-python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt -m  ../CHEUI_trained_models/CHEUI_m6A_model2.h5 -o site_level_predictions.txt
+python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt -m  ../CHEUI_trained_models/CHEUI_m6A_model2.h5 -o site_level_predictions.txt -c 0.5
 ```
 ----------------------------
 # Detect m5C RNA modifications
@@ -89,28 +89,29 @@ python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt 
 Example data files
 ----------------------------
 
-An example of the read-level prediction file can be found in test/read_level_predictions.txt.
+An example of the read-level prediction for m6A file can be found in test/read_level_predictions.txt.
 It contains 2 columns, the first column contains information about chromosome_location_k-mer_readID.
 Second column contains the probability of the middle A/C of the k-mer is methylated.
 ```
-chr10_343786_AGTACTAAG_06685ba0-c2f9-4540-9805-3e1746df432f     0.8907145261764526
-chr10_343794_GAAACGGCG_06685ba0-c2f9-4540-9805-3e1746df432f     0.039006322622299194
-chr10_343797_ACGGCGATG_18dad7fd-796a-4f1a-a242-27e4c5226234     0.33043956756591797
-chr10_343797_ACGGCGATG_6a96d4a8-4fea-4117-b114-0e4b15537a65     0.28788983821868896
-chr10_343803_ATGACAATG_06685ba0-c2f9-4540-9805-3e1746df432f     0.010302156209945679
-chr10_343803_ATGACAATG_18dad7fd-796a-4f1a-a242-27e4c5226234     0.19777730107307434
-chr10_343803_ATGACAATG_2d1bb785-22d1-4eeb-945d-97a9b79247d4     0.7025286555290222
+chr10_444122_TTGTAGATG_3386eb53-8805-4c11-a721-02a23fc73cb4     0.39094510674476624
+chr10_445500_TTGCAGAAA_87b56740-d8db-4d17-8cd1-aa5019d4750b     0.58213871717453
+chr10_344399_TGTGAAGAA_06685ba0-c2f9-4540-9805-3e1746df432f     0.08152690529823303
+chr10_343799_GGCGATGAC_18dad7fd-796a-4f1a-a242-27e4c5226234     0.5041788816452026
+chr10_445260_TTTAAGAGT_a760a4ac-597e-4f57-892e-37eb0a6e1c56     0.19357600808143616
+chr10_444385_CTTTACGAG_397c1862-b29c-4dd1-93a7-753da410535b     0.42834094166755676
+chr10_444122_TTGTAGATG_5b66ec6a-1f4f-4638-bc69-63b54786cd6d     0.17935198545455933
 ```
-An example of the site-level prediction file can be found in test/site_level_predictions.txt
+An example of the site-level prediction file for m6A can be found in test/site_level_predictions.txt
 This file is a tab separated file containing; contig, position, site, coverage, stoichiometry of the site and probability of the site being methylated.
 ```
 contig  position        site    coverage        stoichiometry   probability
-chr14   571401  TGGGCCTCC       189     0.83    0.9988387
-chr12   366758  TTAACAAGA       34      1.0     0.9977418
-chr12   366878  AAAACAAGA       35      1.0     0.99779636
-chr12   839596  TGCACACCG       26      1.0     0.9992101
-chr12   839646  ATTGCTATT       25      1.0     0.9903585
-chr12   839756  AACTCGGCT       31      0.95    0.99048686
+chr10   344099  TGTTAATAA       15      0.3     0.6243764
+chr10   344100  GTTAATAAA       16      0.5     0.8859474
+chr10   344130  AATCATAAG       15      0.6     0.6003279
+chr10   344157  GAAGAGTAT       17      0.3571  0.8588939
+chr10   344160  GAGTATGGG       17      0.33    0.5015969
+chr10   344168  GGAAACAAC       16      0.214   0.80923474
+
 ```
 
 ----------------------------
