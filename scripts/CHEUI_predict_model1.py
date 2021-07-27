@@ -54,6 +54,8 @@ import _pickle as cPickle
 from DL_models import build_Jasper
 import pandas as pd
 import numpy as np
+import os
+import sys
 
 # load the trainned model
 inputs = Input(shape=(100, 2))
@@ -66,6 +68,12 @@ model.load_weights(DL_model)
 ### load the stored data 
 counter = 0
 IDs_signals = {}
+
+
+if os.path.isfile(file_out):
+    print('read level prediction file already exists, please delete it or change the output name')
+    sys.exit()
+
 
 with open(signals_input, 'rb') as signal_in:
     while True:

@@ -17,7 +17,7 @@ parser = argparse.ArgumentParser(prog='= CHEUI_preprocess_m5C v0.1', description
                                  """ 
                                  This script takes a nanopolish file, parse it and extract 
                                  signals from 9-mers centered in Citosines and read IDs. Then it creates a file that will be the input of predict_model_1.py 
-                                 """, usage='python CHEUI_preprocess_m6A.py -i <nanopolish_file.txt> '\
+                                 """, usage='python CHEUI_preprocess_m5C.py -i <nanopolish_file.txt> '\
                                      '-m <kmer_model> -o <out_dir> -n 10 \nversion: %(prog)s')
     
 OPTIONAL = parser._action_groups.pop()
@@ -79,7 +79,7 @@ from math import floor
 import numpy as np
 import _pickle as cPickle
 import pandas as pd
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool
 
 
 def _check_line(line,

@@ -40,6 +40,12 @@ REQUIRED.add_argument("-d", "--double_cutoff",
                       default='0.3,0.7',
                       )
 
+REQUIRED.add_argument("-n", "--min_reads",
+                      help="Minimun number of reads in a site to include in the analysis",
+                      metavar='\b',
+                      default=15
+                      )
+
 REQUIRED.add_argument("-o", "--file_out",
                       help="Path to the output file",
                       metavar='\b',
@@ -61,6 +67,7 @@ double_cutoff = ARGS.double_cutoff
 lower_cutoff = float(double_cutoff.split(',')[0])
 upper_cutoff = float(double_cutoff.split(',')[1])
 file_out_path = ARGS.file_out
+min_reads = int(ARGS.min_reads)
 
 
 from tensorflow.keras import Input
@@ -129,7 +136,7 @@ with open(file_out_path, 'w') as file_out:
             if ID != '_'.join(line[0].split('_')[:-1]):
                 # if the coverage if smaller than 10 
     
-                if len(predictions_site) < 15:
+                if len(predictions_site) < min_reads:
                     # do not make predictions for this site
                     # store the info. from the current read
                     predictions_site = [float(line[1])]
