@@ -91,7 +91,7 @@ python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt 
 ```
 
 ----------------------------
-Output file examples
+Example data files
 ----------------------------
 
 An example of the read-level prediction file can be found in test/read_level_predictions.txt.
@@ -119,7 +119,7 @@ chr12   839756  AACTCGGCT       31      0.95    0.99048686
 ```
 
 ----------------------------
-WARNINGS
+IMPORTANT
 ----------------------------
-Please follow the instructions carefully. Notice that to detect m6A or m5C a different preprocessing script is needed (CHEUI_preprocess_m6A.py/CHEUI_preprocess_m5C.py), and then the appropriate matching trained models for m6A or m5C (CHEUI_m5C_model1.h5/CHEUI_m6A_model1.h5...etc).
+Please follow the instructions carefully. Notice that to detect m6A or m5C a different preprocessing script is needed (CHEUI_preprocess_m6A.py and CHEUI_preprocess_m5C.py, respectively), and then the appropriate matching trained models for m6A or m5C must be used (CHEUI_m5C_model1.h5, CHEUI_m6A_model1.h5...etc).
 
