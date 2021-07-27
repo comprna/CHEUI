@@ -24,7 +24,7 @@ keras==2.4.3
 ## Preprocessing
 
 CHEUI starting point is a Nanopolish output file (https://nanopolish.readthedocs.io/en/latest/).
-First, a sorted and indexed bamfile with samtools is needed to run Nanopolish. 
+First, a bamfile sorted and indexed with samtools is needed to run Nanopolish. 
 We provide an example of how to run Nanopolish with the right flags:  
 
 ```
@@ -47,12 +47,12 @@ cd CHEUI/test
 # Detect m6A RNA modifications
 ----------------------------
 
-## Parse signals from nanopolish file
+## To run CHEUI to detect m6A modifications, first parse the signals centred in A nucleotides
 ```
 python3 ../scripts/CHEUI_preprocess_m6A.py \
 -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o out_test_signals+IDs.p -n 15
 ```
-## Run CHEUI model 1 to obtain m6A methylation probability per read per 9-mer
+## Run CHEUI model 1 for m6A to obtain m6A methylation probability per read and per 9-mer
 ```
 python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_output_test_signals+IDS.p \
 -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o ./read_level_predictions.txt
@@ -61,7 +61,7 @@ python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_o
 ## We have to sort the prediction file to group all the signals from the same site
 ```sort -k1  --parallel=15  ./read_level_predictions.txt > ./read_level_predictions_sorted.txt```
 
-## Now run CHEUI model 2 to get methylation status per site
+## Now run CHEUI model 2 for m6A to get the methylation status per site
 ```
 python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt \
 -m  ../CHEUI_trained_models/CHEUI_m6A_model2.h5 -o site_level_predictions.txt
@@ -70,18 +70,21 @@ python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt 
 # Detect m5C RNA modifications
 ----------------------------
 
-To run CHEUI to detect m5C modifications, first parse the signals centred in C
+To run CHEUI to detect m5C modifications, first parse the signals centred in C nucleotides
 ```
 python3 ../scripts/CHEUI_preprocess_m5C.py \
 -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o out_test_signals+IDs.p -n 15
 ```
-## Then run the same steps changing the neural network models
+##  Run CHEUI model 1 for m5C to obtain m5C methylation probability per read and per 9-mer
 ```
 python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_output_test_signals+IDS.p \
 -m ../CHEUI_trained_models/CHEUI_m5C_model1.h5 -o ./read_level_predictions.txt
 ```
+
+## We have to sort the prediction file to group all the signals from the same site
 ```sort -k1  --parallel=15  ./read_level_predictions.txt > ./read_level_predictions_sorted.txt```
 
+## Now run CHEUI model 2 for m5C to get the methylation status per site
 ```
 python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt \
 -m  ../CHEUI_trained_models/CHEUI_m5C_model2.h5 -o site_level_predictions.txt
