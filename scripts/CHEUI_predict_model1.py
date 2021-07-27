@@ -71,7 +71,7 @@ IDs_signals = {}
 
 
 if os.path.isfile(file_out):
-    print('read level prediction file already exists, please delete it or change the output name')
+    print('WARNING: read level prediction file already exists, please delete it or change the output name')
     sys.exit()
 
 

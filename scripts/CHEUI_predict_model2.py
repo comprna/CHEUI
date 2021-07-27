@@ -75,6 +75,8 @@ from tensorflow.keras.models import Model
 from DL_models import build_Jasper
 import numpy as np
 import random
+import sys
+import os
 random.seed(42)
 
 
@@ -117,6 +119,13 @@ counter = 0
 counter_predictions = 0
 
 predictions_dic = {}
+
+
+if os.path.isfile(file_out_path):
+    print('WARNING: site level prediction file already exists, please delete it or change the output name')
+    sys.exit()
+
+
 
 # code the last one
 with open(file_out_path, 'w') as file_out:
