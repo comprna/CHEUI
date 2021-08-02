@@ -10,7 +10,8 @@ import argparse
 
 parser = argparse.ArgumentParser(prog='CHEUI_predict_model2 v0.1', description=
                                  """ 
-                                 This script takes predictions from model 1 and generate RNA modification predictions per site
+                                 This script takes a per-read prediction file generated using CHEUI_predict_mode1.py \
+                                 and generate RNA modification predictions per-site
                                  
                                  """, usage='python CHEUI_predict_model2.py -i <path_to_predictions_model_1> '\
                                             '-m <path_to_DL_model> -o <file_out> \nversion: %(prog)s')
@@ -41,7 +42,7 @@ REQUIRED.add_argument("-d", "--double_cutoff",
                       )
 
 REQUIRED.add_argument("-n", "--min_reads",
-                      help="Minimun number of reads in a site to include in the analysis",
+                      help="Minimun number of reads in a site to include in the analysis, ",
                       metavar='\b',
                       default=15
                       )

@@ -10,7 +10,8 @@ import argparse
 
 parser = argparse.ArgumentParser(prog='CHEUI_predict_model1 v0.1', description=
                                  """ 
-                                 This script takes a ID and signal files and generate predictions every motif with and A
+                                 This script takes an ID+signal file generated using CHEUI_preprocess_* and predict methylation status \
+                                 per read and per 9-mer.
                                  
                                  """, usage='python CHEUI_predict_model1.py -i <path_to_signlas+IDs_file> '\
                                             '-m <path_to_DL_model> -o <file_out> \nversion: %(prog)s')
@@ -20,7 +21,7 @@ REQUIRED = parser.add_argument_group('required arguments')
 
 
 REQUIRED.add_argument("-i", "--signals_input",
-                      help="path to the IDs file",
+                      help="path to the ID+signal file",
                       metavar='\b',
                       required=True)
 
