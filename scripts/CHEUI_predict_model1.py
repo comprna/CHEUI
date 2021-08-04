@@ -82,7 +82,7 @@ with open(signals_input, 'rb') as signal_in:
             counter +=1
             IDs_signals.update(cPickle.load(signal_in))
             # to avoid loading everything predict every 10k singnals
-            if counter%100 == 0:
+            if counter%500 == 0:
                 if IDs_signals:
                     predictions = model.predict(np.array(list(IDs_signals.values())))
                     
