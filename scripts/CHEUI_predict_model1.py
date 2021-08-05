@@ -35,6 +35,11 @@ REQUIRED.add_argument("-o", "--file_out",
                       metavar='\b',
                       required=True)
 
+REQUIRED.add_argument("-r", "--resume", 
+                      action='store_true',
+                      help="Continue predictions from previous file",
+                      default=False)
+
 OPTIONAL.add_argument('-v', '--version', 
                         action='version', 
                         version='%(prog)s')                  
@@ -47,6 +52,7 @@ ARGS = parser.parse_args()
 signals_input = ARGS.signals_input
 DL_model = ARGS.DL_model
 file_out = ARGS.file_out
+resume = ARGS.resume
 
 
 from tensorflow.keras import Input
@@ -70,19 +76,34 @@ model.load_weights(DL_model)
 counter = 0
 IDs_signals = {}
 
+if resume is not True:
+    if os.path.isfile(file_out):
+        print('WARNING: read level prediction file already exists, please delete it or change the output name')
+        sys.exit()
 
-if os.path.isfile(file_out):
-    print('WARNING: read level prediction file already exists, please delete it or change the output name')
-    sys.exit()
+
+if resume is True:
+    try:
+        total_lines = sum(1 for i in open(file_out, 'rb'))
+        print('previous number of predictions ', total_lines)
+    except:
+        print('Not found previous existing file '+ file_out)
+        total_lines = 0
+else:
+    total_lines = 0
 
 
 with open(signals_input, 'rb') as signal_in:
     while True:
         try:
             counter +=1
+            if counter <= total_lines:
+                seen_signal = cPickle.load(signal_in)
+                continue
             IDs_signals.update(cPickle.load(signal_in))
+            
             # to avoid loading everything predict every 10k singnals
-            if counter%100 == 0:
+            if counter%50000 == 0:
                 if IDs_signals:
                     predictions = model.predict(np.array(list(IDs_signals.values())))
                     
