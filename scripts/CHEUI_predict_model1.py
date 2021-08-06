@@ -63,6 +63,7 @@ import pandas as pd
 import numpy as np
 import os
 import sys
+import subprocess
 
 # load the trainned model
 inputs = Input(shape=(100, 2))
@@ -84,7 +85,8 @@ if resume is not True:
 
 if resume is True:
     try:
-        total_lines = sum(1 for i in open(file_out, 'rb'))
+        result = subprocess.run(["wc", "-l", file_out], stdout=subprocess.PIPE, text=True)
+        total_lines = int(result.stdout.split(' ')[0])
         print('previous number of predictions ', total_lines)
     except:
         print('Not found previous existing file '+ file_out)
