@@ -71,6 +71,15 @@ file_out_path = ARGS.file_out
 min_reads = int(ARGS.min_reads)
 
 
+input_df ='/media/labuser/Data/nanopore/M5C/results/test_CHEUI_read_level_out_KO.txt_sorted.txt'
+DL_model = '/media/labuser/Data/nanopore/m6A_classifier/CHEUI_trained_models/CHEUI_m5C_model2.h5'
+cutoff = 0.5
+lower_cutoff = 0.3
+upper_cutoff = 0.7
+file_out_path = '/media/labuser/Data/nanopore/M5C/results/test_CHEUI_site_level_out_KO.txt_sorted.txt'
+min_reads = 15
+
+
 from tensorflow.keras import Input
 from tensorflow.keras.models import Model
 from DL_models import build_Jasper
@@ -168,7 +177,7 @@ with open(file_out_path, 'w') as file_out:
                         if len(lr_probs) > 8:
                             lr_probs = np.mean(lr_probs)
                             coverage = len(predictions_site)
-                            ID_colums = ID.split('_')
+                            ID_colums = ['_'.join(ID.split('_')[:-2])]+ID.split('_')[-2:]
                             
                             # write results to output file
                             print(ID_colums[0]+'\t'+ID_colums[1]+'\t'+ID_colums[2]+'\t'+ \
@@ -189,7 +198,8 @@ with open(file_out_path, 'w') as file_out:
                         vector_prob = convert_p_to_vector(predictions_site)
                         # if there are more than 100 reads in a site run 11 times and get the meadian
                         coverage = len(predictions_site)
-                        ID_colums = ID.split('_')
+                        ID_colums = ['_'.join(ID.split('_')[:-2])]+ID.split('_')[-2:]
+
                         predictions_dic[ID_colums[0]+'\t'+ID_colums[1]+'\t'+ID_colums[2]+'\t'+ \
                                        str(coverage)+'\t'+str(stoichiometry)] = vector_prob
                                         
