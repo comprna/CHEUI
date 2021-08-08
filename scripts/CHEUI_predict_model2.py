@@ -195,7 +195,7 @@ with open(file_out_path, 'w') as file_out:
                                         
                         counter_predictions += 1
 
-                        if counter_predictions > 5000:
+                        if counter_predictions > 2000:
                             prob_vectors = np.array(list(predictions_dic.values()))
                             ID_vectors = list(predictions_dic.keys())
                             lr_probs = model.predict(prob_vectors)
