@@ -114,6 +114,16 @@ chr10   344168  GGAAACAAC       16      0.214   0.80923474
 
 ```
 
+
+CHEUI differential RNA modification
+
+cat file_KO1 file_WT .... >> CHEUI_read_level_out_all.txt
+
+
+
+
+
+
 ----------------------------
 IMPORTANT
 ----------------------------
