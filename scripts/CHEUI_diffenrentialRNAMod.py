@@ -78,13 +78,23 @@ def run_tests(predictions_site):
     condition1_values_f = list(itertools.chain.from_iterable(condition1_values))
     condition2_values_f = list(itertools.chain.from_iterable(condition2_values))
     
+
     if len(condition1_values_f) > 20 and len(condition2_values_f) > 20:
         
-        mod1 = [i for i in condition1_values_f if i > upper_cutoff]
-        no_mod1 = [i for i in condition1_values_f if i < lower_cutoff]
-        
-        mod2 = [i for i in condition2_values_f if i > upper_cutoff]
-        mo_mod2 = [i for i in condition2_values_f if i < lower_cutoff]
+        try:
+            mod1 = [i for i in condition1_values_f if i > upper_cutoff]
+            no_mod1 = [i for i in condition1_values_f if i < lower_cutoff]
+            stoi1 = len(mod1)/(len(mod1)+len(no_mod1))
+        except:
+            stoi1 = 0
+
+        try:
+            mod2 = [i for i in condition2_values_f if i > upper_cutoff]
+            mo_mod2 = [i for i in condition2_values_f if i < lower_cutoff]
+            stoi2 = len(mod2)/(len(mod2)+len(mo_mod2))
+        except:
+            stoi2 = 0
+
         
         U1, p = ranksums(condition1_values_f,
                          condition2_values_f)
@@ -97,8 +107,7 @@ def run_tests(predictions_site):
         
         return [len(condition1_values_f), 
                 len(condition2_values_f),
-                len(mod1)/(len(mod1)+len(no_mod1)),
-                len(mod2)/(len(mod2)+len(mo_mod2)),
+                stoi1, stoi2,
                 U1,  np.mean([p, result.pvalues[0]])]
        
     else:
@@ -107,8 +116,9 @@ def run_tests(predictions_site):
 
 counter = 0
 predictions_site = {}
-with open(output_file, 'w') as file_out:
-    with open(input_file, 'r') as f:
+print('reading file')
+with open(input_file, 'r') as f:
+    with open(output_file, 'w') as file_out:
         
         print('ID'+'\t'+'coverage_1'+\
               '\t'+'coverage_2'+'\t'+'stoichiometry_1'+\
@@ -150,40 +160,5 @@ with open(output_file, 'w') as file_out:
             if results is not False:
                 print(ID+'\t'+'\t'.join(str(x) for x in results),
                       file=file_out)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
