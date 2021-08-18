@@ -1,0 +1,17 @@
+
+
+# All data with read level and site level
+input: /media/labuser/Data/nanopore/M5C/results/CHEUI_read_level_out_all.txt_head_sorted
+
+sample_lables:
+    condition1:
+        rep1: WT_rep1 
+    condition2:
+        rep1: KO_rep1
+
+upper_cutoff: 0.7
+
+lower_cutoff: 0.3
+
+out: /media/labuser/Data/nanopore/M5C/results/CHEUI_compare.txt
+
