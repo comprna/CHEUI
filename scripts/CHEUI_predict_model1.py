@@ -14,7 +14,7 @@ parser = argparse.ArgumentParser(prog='CHEUI_predict_model1 v0.1', description=
                                  per read and per 9-mer.
                                  
                                  """, usage='python CHEUI_predict_model1.py -i <path_to_signlas+IDs_file> '\
-                                            '-m <path_to_DL_model> -o <file_out> \nversion: %(prog)s')
+                                            '-m <path_to_DL_model> -l <label> -o <file_out> \nversion: %(prog)s')
 
 OPTIONAL = parser._action_groups.pop()
 REQUIRED = parser.add_argument_group('required arguments')
@@ -28,6 +28,10 @@ REQUIRED.add_argument("-i", "--signals_input",
 REQUIRED.add_argument("-m", "--DL_model",
                       help="path to trainned model 1 DL model",
                       metavar='\b',
+                      required=True)
+
+REQUIRED.add_argument("-l", "--label",
+                      help="label of the file: exmaple WT_rep1",
                       required=True)
 
 REQUIRED.add_argument("-o", "--file_out",
@@ -51,6 +55,7 @@ ARGS = parser.parse_args()
 # required arg
 signals_input = ARGS.signals_input
 DL_model = ARGS.DL_model
+label = ARGS.label
 file_out = ARGS.file_out
 resume = ARGS.resume
 
@@ -110,8 +115,8 @@ with open(signals_input, 'rb') as signal_in:
                     predictions = model.predict(np.array(list(IDs_signals.values())))
                     
                     predictions_df = pd.DataFrame.from_dict({'KMER': IDs_signals.keys(),
-                                                            'Prediction': predictions.reshape(len(predictions)).tolist()}
-                                                            )
+                                                            'Prediction': predictions.reshape(len(predictions)).tolist(),
+                                                            'label' : len(predictions)*[label]})
                     
                     predictions_df.to_csv(file_out,
                                           mode='a',
@@ -126,8 +131,9 @@ with open(signals_input, 'rb') as signal_in:
             if IDs_signals:
                 predictions = model.predict(np.array(list(IDs_signals.values())))
                 predictions_df = pd.DataFrame.from_dict({'KMER': IDs_signals.keys(),
-                                                        'Prediction': predictions.reshape(len(predictions)).tolist()}
-                                                        )
+                                                        'Prediction': predictions.reshape(len(predictions)).tolist(),
+                                                        'label' : len(predictions)*[label]})
+                                                        
                 
                 predictions_df.to_csv(file_out,
                                       mode='a',
@@ -140,22 +146,5 @@ with open(signals_input, 'rb') as signal_in:
             print(file_out)
             print('All signals have been processed')
             break
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
