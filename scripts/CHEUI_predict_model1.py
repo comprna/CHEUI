@@ -64,7 +64,6 @@ from tensorflow.keras import Input
 from tensorflow.keras.models import Model
 import _pickle as cPickle
 from DL_models import build_Jasper
-import pandas as pd
 import numpy as np
 import os
 import sys
@@ -78,9 +77,6 @@ model = Model(inputs=inputs, outputs=output)
 
 model.load_weights(DL_model)
 
-### load the stored data 
-counter = 0
-IDs_signals = {}
 
 if resume is not True:
     if os.path.isfile(file_out):
@@ -100,51 +96,55 @@ else:
     total_lines = 0
 
 
-with open(signals_input, 'rb') as signal_in:
-    while True:
-        try:
-            counter +=1
-            if counter <= total_lines:
-                seen_signal = cPickle.load(signal_in)
-                continue
-            IDs_signals.update(cPickle.load(signal_in))
+### load the stored data 
+counter = 0
+IDs_signals = {}
+
+with open(signals_input, 'rb') as signal_in:  
+    with open(file_out, 'a') as f_out:
             
-            # to avoid loading everything predict every 10k singnals
-            if counter%50000 == 0:
+        print('KMER'+'\t'+'Prediction'+'\t'+'label', 
+              file=f_out)
+        
+        while True:
+            try:
+                counter +=1
+                if counter <= total_lines:
+                    seen_signal = cPickle.load(signal_in)
+                    continue
+                IDs_signals.update(cPickle.load(signal_in))
+                
+                # to avoid loading everything predict every 10k singnals
+                if counter%20000 == 0:
+                    if IDs_signals:
+                       
+                        predictions = model.predict(np.array(list(IDs_signals.values())))
+                        keys = list(IDs_signals.keys())
+                        
+                        for indv_predit in enumerate(predictions.reshape(len(predictions))):
+                            print(keys[indv_predit[0]]+'\t'+ \
+                                  str(indv_predit[1])+'\t'+ \
+                                  label,
+                                  file=f_out)
+                   
+                        IDs_signals = {}
+                    else:
+                        continue
+            except Exception as ex:
+                print(ex)
+                
                 if IDs_signals:
                     predictions = model.predict(np.array(list(IDs_signals.values())))
+                    keys = list(IDs_signals.keys())
                     
-                    predictions_df = pd.DataFrame.from_dict({'KMER': IDs_signals.keys(),
-                                                            'Prediction': predictions.reshape(len(predictions)).tolist(),
-                                                            'label' : len(predictions)*[label]})
-                    
-                    predictions_df.to_csv(file_out,
-                                          mode='a',
-                                          header=False,
-                                          sep='\t', 
-                                          index=False)
+                    for indv_predit in enumerate(predictions.reshape(len(predictions))):
+                        
+                        print(keys[indv_predit[0]]+'\t'+ \
+                              str(indv_predit[1])+'\t'+ \
+                              label, 
+                              file=f_out)
+               
                     IDs_signals = {}
-                    predictions_df = pd.DataFrame({'KMER': [], 'Prediction': []})
-                else:
-                    continue
-        except:
-            if IDs_signals:
-                predictions = model.predict(np.array(list(IDs_signals.values())))
-                predictions_df = pd.DataFrame.from_dict({'KMER': IDs_signals.keys(),
-                                                        'Prediction': predictions.reshape(len(predictions)).tolist(),
-                                                        'label' : len(predictions)*[label]})
-                                                        
-                
-                predictions_df.to_csv(file_out,
-                                      mode='a',
-                                      header=False,
-                                      sep='\t', 
-                                      index=False)
-                IDs_signals = {}
-
-                predictions_df = pd.DataFrame({'KMER': [], 'Prediction': []})
-            print(file_out)
-            print('All signals have been processed')
-            break
-
-
+    
+                print('All signals have been processed', counter)
+                break
