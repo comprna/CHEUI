@@ -128,6 +128,8 @@ with open(input_file, 'r') as f:
                 ID = '_'.join(line_p[0].split('_')[:-1])
             else:
                 if ID != '_'.join(line_p[0].split('_')[:-1]):
+                    if line_p[1] == 'Prediction':
+                      continue
                     results = run_tests(predictions_site)
                     if results is not False:
                          print(ID+'\t'+'\t'.join(str(x) for x in results),
