@@ -10,8 +10,9 @@ import argparse
 import yaml
 from scipy.stats import ranksums
 import itertools
-import statsmodels.api as sm
 import numpy as np
+from scipy import stats
+
 
 parser = argparse.ArgumentParser(prog='CHEUI_compare v0.1', description=
                                  """ 
@@ -95,21 +96,13 @@ def run_tests(predictions_site):
         except:
             stoi2 = 0
 
-        
         U1, p = ranksums(condition1_values_f,
                          condition2_values_f)
         
-        y = len(condition1_values_f)*[1]+\
-             len(condition2_values_f)*[0]
-                                 
-        logit_model=sm.Logit(y,condition1_values_f+condition2_values_f)
-        result=logit_model.fit(disp=0)
-        
         return [len(condition1_values_f), 
                 len(condition2_values_f),
-                stoi1, stoi2,
-                U1,  np.mean([p, result.pvalues[0]])]
-       
+                stoi1, stoi2, stoi1 - stoi2,
+                U1,  p]
     else:
         return False
 
@@ -123,8 +116,9 @@ with open(input_file, 'r') as f:
         print('ID'+'\t'+'coverage_1'+\
               '\t'+'coverage_2'+'\t'+'stoichiometry_1'+\
               '\t'+'stoichiometry_2'+\
-              '\t'+'Z-sore'+
-              '\t'+'combined_pval', file=file_out)
+              '\t'+'stoichiometry_diff'+\
+              '\t'+'statistic'+\
+              '\t'+'pval_U', file=file_out)
         
         for line in f:
             counter +=1
@@ -160,5 +154,3 @@ with open(input_file, 'r') as f:
             if results is not False:
                 print(ID+'\t'+'\t'.join(str(x) for x in results),
                       file=file_out)
-
-
