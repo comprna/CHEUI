@@ -79,7 +79,6 @@ def run_tests(predictions_site):
     condition1_values_f = list(itertools.chain.from_iterable(condition1_values))
     condition2_values_f = list(itertools.chain.from_iterable(condition2_values))
     
-
     if len(condition1_values_f) > 20 and len(condition2_values_f) > 20:
         
         try:
@@ -129,14 +128,13 @@ with open(input_file, 'r') as f:
             else:
                 if ID != '_'.join(line_p[0].split('_')[:-1]):
                     if line_p[1] == 'Prediction':
-                         continue
+                        continue
                     results = run_tests(predictions_site)
                     if results is not False:
-                         print(ID+'\t'+'\t'.join(str(x) for x in results),
-                               file=file_out)
-                         # Empty dictionary
-                         predictions_site = {}
-                         
+                        print(ID+'\t'+'\t'.join(str(x) for x in results),
+                              file=file_out)
+                    # Empty dictionary
+                    predictions_site = {}
                     if line_p[-1] in predictions_site:
                         predictions_site[line_p[-1]] += [float(line_p[1])]
                     else:
