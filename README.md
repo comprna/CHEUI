@@ -45,7 +45,7 @@ cd CHEUI/test
 ```
 
 ----------------------------
-IMPORTANT
+# IMPORTANT
 ----------------------------
 Please follow the instructions below carefully. Notice that detecting m6A or m5C requires different preprocessing scripts, CHEUI_preprocess_m6A.py for m6A and CHEUI_preprocess_m5C.py for m5C, and then the appropriate matching trained models for m6A or m5C must be used (CHEUI_m5C_model1.h5, CHEUI_m6A_model1.h5...etc).
 
