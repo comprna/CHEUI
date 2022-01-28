@@ -20,7 +20,7 @@ OPTIONAL = parser._action_groups.pop()
 REQUIRED = parser.add_argument_group('required arguments')
 
 REQUIRED.add_argument("-i", "--input",
-                      help="path to the input prediction file",
+                      help="path to read-level prediction file from CHEUI_predict_model1.py",
                       metavar='\b',
                       required=True)
 
