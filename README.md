@@ -48,7 +48,7 @@ cd CHEUI/test
 # Detect m6A RNA modifications in one condition    
 ----------------------------
 
-### Run preprocessing step for m6A (#preprocessing_m6A)
+### [Run preprocessing step for m6A] (#preprocessing_m6A)
 This script takes the output of nanopolish and creates a file containing signals corresponding to 9-mers centered in As and IDs.  
 ```
 ../scripts/CHEUI_preprocess_m6A.py --help
