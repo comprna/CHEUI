@@ -35,7 +35,7 @@ REQUIRED.add_argument("-i", "--input_nanopolish",
                       required=True)
 
 REQUIRED.add_argument("-m", "--kmer_model",
-                      help="model with k-mers and expected means",
+                      help="file containing all the expected signal k-mer means",
                       metavar='\b',
                       required=True)
 
