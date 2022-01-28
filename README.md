@@ -84,12 +84,6 @@ python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_o
 ```
 python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt -m  ../CHEUI_trained_models/CHEUI_m5C_model2.h5 -o site_level_predictions.txt
 ```
-
-----------------------------
-# Detect differential m6A RNA modifications in one condition
-----------------------------
-
-
 ----------------------------
 Example data files
 ----------------------------
@@ -118,12 +112,20 @@ chr10   344160  GAGTATGGG       17      0.33    0.5015969
 chr10   344168  GGAAACAAC       16      0.214   0.80923474
 
 ```
+----------------------------
+# Detect differential m6A RNA modifications between two conditions
+----------------------------
+### First parse the signals centred in A nucleotides
+```
+python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o out_test_signals+IDs.p -n 15
+```
+### Run CHEUI model 1 for m6A to obtain m6A methylation probability per read and per 9-mer
+```
+python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o ./read_level_predictions.txt
+```
 
-
-CHEUI differential RNA modification
-
-cat file_KO1 file_WT .... >> CHEUI_read_level_out_all.txt
-
+### We have to sort the prediction file to group all the signals from the same site
+```sort -k1  --parallel=15  ./read_level_predictions.txt > ./read_level_predictions_sorted.txt```
 
 
 
