@@ -45,6 +45,12 @@ cd CHEUI/test
 ```
 
 ----------------------------
+IMPORTANT
+----------------------------
+Please follow the instructions below carefully. Notice that detecting m6A or m5C requires different preprocessing scripts, CHEUI_preprocess_m6A.py for m6A and CHEUI_preprocess_m5C.py for m5C, and then the appropriate matching trained models for m6A or m5C must be used (CHEUI_m5C_model1.h5, CHEUI_m6A_model1.h5...etc).
+
+
+----------------------------
 # Detect m6A RNA modifications in one condition    
 ----------------------------
 
@@ -269,8 +275,3 @@ lower_cutoff: 0.3
 ```
 python3 ../scripts/CHEUI_diffenrentialRNAMod.py -c config.yml
 ```
-
-----------------------------
-IMPORTANT
-----------------------------
-Please follow the instructions carefully. Notice that to detect m6A or m5C a different preprocessing script is needed (CHEUI_preprocess_m6A.py and CHEUI_preprocess_m5C.py, respectively), and then the appropriate matching trained models for m6A or m5C must be used (CHEUI_m5C_model1.h5, CHEUI_m6A_model1.h5...etc).
