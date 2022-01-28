@@ -3,7 +3,7 @@
 
 **About CHEUI**
 
-CHEUI (Methylation (CH3) Estimation Using Ionic Current) is a two-stage deep learning method able to detect m6A and m5C transcriptome-wide at the level of individual reads and individual sites. 
+CHEUI (Methylation (CH<sub>3</sub>) Estimation Using Ionic Current) is a two-stage deep learning method able to detect m6A and m5C transcriptome-wide at the level of individual reads and individual sites. 
 
 
 ------------------------------------------
