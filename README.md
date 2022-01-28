@@ -22,7 +22,7 @@ keras==2.4.3
 ------------------------------------------
  <img src="https://github.com/comprna/CHEUI/blob/master/misc/pipeline_CHEUI_github.png" width="560" height="500">
 
-## Preprocessing
+## Use Nanopolish for re-squiggling 
 
 CHEUI starting point is a Nanopolish output file (https://nanopolish.readthedocs.io/en/latest/).
 First, a bamfile sorted and indexed with samtools is needed to run Nanopolish. 
@@ -45,10 +45,10 @@ cd CHEUI/test
 ```
 
 ----------------------------
-# Detect m6A RNA modifications in one condition
+# Detect m6A RNA modifications in one condition    
 ----------------------------
 
-### Run preprocessing step
+### Run preprocessing step for m6A (#preprocessing_m6A)
 This script takes the output of nanopolish and creates a file containing signals corresponding to 9-mers centered in As and IDs.  
 ```
 ../scripts/CHEUI_preprocess_m6A.py --help
@@ -119,29 +119,83 @@ python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt 
 ```
 ----------------------------
 # Detect m5C RNA modifications in one condition
-----------------------------
+----
+### Run preprocessing step for m5C
 
-To run CHEUI to detect m5C modifications, first parse the signals centred in C nucleotides
+This script takes the output of nanopolish and creates a file containing signals corresponding to 9-mers centered in Cs and IDs.  
+```
+../scripts/CHEUI_preprocess_m5C.py --help
+
+required arguments:
+  -i, --input_nanopolish 
+                        Nanopolish file. Run nanopolish with the following
+                        flags: nanopolish eventalign --reads <in.fasta>--bam
+                        <in.bam> --genome <genome.fa> --print-read-names--
+                        scale-events --samples > <out.txt>
+  -m, --kmer_model  file containing all the expected signal k-mer means
+  -o, --out_dir     output directory
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --version         show program's version number and exit
+  -s <str>, --suffix_name <str>
+                        name to use for output files
+  -n CPU, --cpu CPU     Number of cores to use
+```
 ```
 python3 ../scripts/CHEUI_preprocess_m5C.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o out_test_signals+IDs.p -n 15
 ```
-###  Run CHEUI model 1 for m5C to obtain m5C methylation probability per read and per 9-mer
+### Run CHEUI_predict_model1 for m5C
+CHEUI m5C model 1 takes the previous preprocess signals and calculates m5C methylation probability per individual signal.
 ```
-python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m5C_model1.h5 -o ./read_level_predictions.txt -l 
+ ../scripts/CHEUI_preprocess_m5C.py --help 
+ required arguments:
+  -i, --signals_input 
+                        path to the ID+signal file
+  -m, --DL_model    path to the m6A trainned model 1 
+  -l LABEL, --label LABEL
+                        label of the condition of the sample, e.g. WT_rep1
+  -o, --file_out    Path to the output file
+  -r, --resume          Continue running predictions
+
+optional arguments:
+  -h, --help            show help message and exit
+  -v, --version         show program's version number and exit
+```
+```
+python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m5C_model1.h5 -o ./read_level_predictions.txt -l WT_rep1
 ```
 
-### We have to sort the prediction file to group all the signals from the same site
+### Sort the predictions to group all the predictions from the same site
 ```sort -k1  --parallel=15  ./read_level_predictions.txt > ./read_level_predictions_sorted.txt```
 
-### Now run CHEUI model 2 for m5C to get the methylation status per site
+### Run CHEUI_predict_model2 for m5C
+CHEUI model 2 for m5C calculates the methylation probability per site
 ```
-python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt -m  ../CHEUI_trained_models/CHEUI_m5C_model2.h5 -o site_level_predictions.txt
+ ../scripts/CHEUI_predict_model2.py
+ -i, --input       path to read-level prediction file from CHEUI_predict_model1.py 
+ -m, --DL_model    path to pretrainned model 2
+ -c, --cutoff      model 2 probability cutoff for printing sites
+ -d, --double_cutoff 
+                       Model 1 probability cutoffs used to calculate the
+                       stoichiometry
+ -n, --min_reads   Minimun number of reads in a site to include in the
+                       analysis,
+ -o, --file_out    Path to the output file
+
+optional arguments:
+ -h, --help            show this help message and exit
+ -v, --version         show program's version number and exit
+```
+```
+python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt -m  ../CHEUI_trained_models/CHEUI_m5C_model2.h5 -o site_level_predictions.txt -c 0.5
 ```
 ----------------------------
 Example data files
 ----------------------------
 
-An example of the read-level prediction for m6A file can be found in test/read_level_predictions.txt.
+An example of the read-level prediction for m6A file generated using ../scripts/CHEUI_predict_model1.py 
+can be found in test/read_level_predictions.txt.
 It contains 2 columns, the first column contains information about chromosome_location_k-mer_readID.
 Second column contains the probability of the middle A/C of the k-mer is methylated.
 ```
@@ -153,7 +207,7 @@ chr10_445260_TTTAAGAGT_a760a4ac-597e-4f57-892e-37eb0a6e1c56     0.19357600808143
 chr10_444385_CTTTACGAG_397c1862-b29c-4dd1-93a7-753da410535b     0.42834094166755676
 chr10_444122_TTGTAGATG_5b66ec6a-1f4f-4638-bc69-63b54786cd6d     0.17935198545455933
 ```
-An example of the site-level prediction file for m6A can be found in test/site_level_predictions.txt
+An example of the site-level prediction file for m6A generated using ../scripts/CHEUI_predict_model2.py can be found in test/site_level_predictions.txt
 This file is a tab separated file containing; contig, position, site, coverage, stoichiometry of the site and probability of the site being methylated.
 ```
 contig  position        site    coverage        stoichiometry   probability
@@ -166,23 +220,55 @@ chr10   344168  GGAAACAAC       16      0.214   0.80923474
 
 ```
 ----------------------------
-# Detect differential m6A RNA modifications between two conditions
+# Identify differential m6A RNA modifications between two conditions, A and B
 ----------------------------
-### First parse the signals centred in A nucleotides
+
+### Run CHEUI_predict_model1 for m6A, for both conditions
+
+First use [CHEUI_preprocess_m6A.py](#preprocessing_m6A) to preprocess signals centerd in A for both replicates.
+
+Run CHEUI m6A model 1, that takes the previous preprocess signals and calculates m6A methylation probability per individual signal. For the two conditions. 
+Please notice that the --label will be used later to run the differential m6A modification.
+
 ```
-python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o out_test_signals+IDs.p -n 15
+python ../scripts/CHEUI_predict_model1.py -i condition_A_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o  condition_A_read_level_predictions.txt -l A_rep1
 ```
-### Run CHEUI model 1 for m6A to obtain m6A methylation probability per read and per 9-mer
 ```
-python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o ./read_level_predictions.txt
+python ../scripts/CHEUI_predict_model1.py -i condition_B_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o  condition_B_read_level_predictions.txt -l B_rep1
 ```
 
-### We have to sort the prediction file to group all the signals from the same site
-```sort -k1  --parallel=15  ./read_level_predictions.txt > ./read_level_predictions_sorted.txt```
+### combine read-level probability results and sort them
+```
+cat condition_A_read_level_predictions.txt condition_B_read_level_predictions.txt > CHEUI_read_level_A_B.txt
 
+sort -k1 --parallel=20 CHEUI_read_level_A_B.txt > CHEUI_read_level_A_B.sorted.txt 
+```
 
+### Run CHEUI-diff
+First write a config.yml file to provide information about condition and replicates
 
+config.yml:
+```
+# path to input
+input: ./CHEUI_read_level_A_B.sorted.txt 
 
+# sample labels used to run /scripts/CHEUI_predict_model1.py
+sample_labels:
+    condition1:
+        rep1: A_rep1
+    condition2:
+        rep1: B_rep1
+
+# cutoff used to classify methylated reads
+upper_cutoff: 0.7
+
+# cutoff used to classify unmethylated reads
+lower_cutoff: 0.3
+```
+
+```
+python3 ../scripts/CHEUI_diffenrentialRNAMod.py -c config.yml
+```
 
 ----------------------------
 IMPORTANT
