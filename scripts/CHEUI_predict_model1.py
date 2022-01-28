@@ -31,7 +31,7 @@ REQUIRED.add_argument("-m", "--DL_model",
                       required=True)
 
 REQUIRED.add_argument("-l", "--label",
-                      help="label of the file: exmaple WT_rep1",
+                      help="label of the condition of the sample, e.g. WT_rep1",
                       required=True)
 
 REQUIRED.add_argument("-o", "--file_out",
