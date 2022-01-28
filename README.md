@@ -52,7 +52,7 @@ cd CHEUI/test
 This script takes the output of nanopolish and creates a file containing signals corresponding to 9-mers centered in As and IDs.  
 ```
 ../scripts/CHEUI_preprocess_m6A.py --help
-```
+
 required arguments:
   -i, --input_nanopolish 
                         Nanopolish file. Run nanopolish with the following
@@ -68,13 +68,13 @@ optional arguments:
   -s <str>, --suffix_name <str>
                         name to use for output files
   -n CPU, --cpu CPU     Number of cores to use
-
+```
 ```
 python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o out_test_signals+IDs.p -n 15
 ```
 ### Run CHEUI_predict_model1 for m6A
 CHEUI m6A model 1 takes the previous preprocess signals and calculates m6A methylation probability per individual signal.
-
+```
  ../scripts/CHEUI_preprocess_m6A.py --help 
  required arguments:
   -i, --signals_input 
@@ -88,7 +88,7 @@ CHEUI m6A model 1 takes the previous preprocess signals and calculates m6A methy
 optional arguments:
   -h, --help            show help message and exit
   -v, --version         show program's version number and exit
-
+```
 ```
 python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o ./read_level_predictions.txt -l WT_rep1
 ```
@@ -98,7 +98,7 @@ python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_o
 
 ### Run CHEUI_predict_model2 for m6A
 CHEUI model 2 for m6A calculates the methylation probability per site
-
+```
  ../scripts/CHEUI_predict_model2.py
  -i, --input       path to read-level prediction file from CHEUI_predict_model1.py 
  -m, --DL_model    path to pretrainned model 2
@@ -113,7 +113,7 @@ CHEUI model 2 for m6A calculates the methylation probability per site
 optional arguments:
  -h, --help            show this help message and exit
  -v, --version         show program's version number and exit
-
+```
 ```
 python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt -m  ../CHEUI_trained_models/CHEUI_m6A_model2.h5 -o site_level_predictions.txt -c 0.5
 ```
@@ -188,4 +188,3 @@ python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_o
 IMPORTANT
 ----------------------------
 Please follow the instructions carefully. Notice that to detect m6A or m5C a different preprocessing script is needed (CHEUI_preprocess_m6A.py and CHEUI_preprocess_m5C.py, respectively), and then the appropriate matching trained models for m6A or m5C must be used (CHEUI_m5C_model1.h5, CHEUI_m6A_model1.h5...etc).
-
