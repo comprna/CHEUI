@@ -1,4 +1,4 @@
-# Methylation (CH_3) Estimation Using Ionic current (CHUEI) <img src="https://github.com/comprna/CHEUI/blob/master/misc/CHEUI_logo.png" width="280" height="250">
+# Methylation (CH<sub>3</sub>) Estimation Using Ionic current (CHEUI) <img src="https://github.com/comprna/CHEUI/blob/master/misc/CHEUI_logo.png" width="280" height="250">
 
 
 **About CHEUI**
