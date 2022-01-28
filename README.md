@@ -1,9 +1,9 @@
-# Methylation (CH<sub>3</sub>) Estimation Using Ionic current (CHEUI) <img src="https://github.com/comprna/CHEUI/blob/master/misc/CHEUI_logo.png" width="280" height="250">
+# CHEUI: Methylation (CH<sub>3</sub>) Estimation Using Ionic current <img src="https://github.com/comprna/CHEUI/blob/master/misc/CHEUI_logo.png" width="280" height="250">
 
 
 **About CHEUI**
 
-CHEUI (Methylation (CH<sub>3</sub>) Estimation Using Ionic current) is a two-stage deep learning method able to detect m6A and m5C transcriptome-wide at the level of individual reads and individual sites. 
+CHEUI (Methylation (CH<sub>3</sub>) Estimation Using Ionic current) is a two-stage deep learning method capable of detecting m6A and m5C transcriptome-wide at nucleotide resolution, without any sequence constraint, at the level of individual reads and individual transcript sites, and in single conditions.
 
 
 ------------------------------------------
