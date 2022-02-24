@@ -18,7 +18,7 @@ keras==2.4.3
 ```
 
 ------------------------------------------
-# Outline of CHEUI-solo 
+# Outline of CHEUI-solo and CHEUI-diff
 ------------------------------------------
  <img src="https://github.com/comprna/CHEUI/blob/master/misc/pipeline_CHEUI-solo+diff_github.png" width="900" height="500">
 
@@ -259,7 +259,7 @@ python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../k
 ----------------------------
 Please when using ../scripts/CHEUI_predict_model1.py choose the correct --label for each condition. Later the label name will be used for the differential methylation config file.
 
-Run [Run CHEUI_predict_model1 for m6A](#model1_m6A), that takes the previous preprocess signals and calculates m6A methylation probability per individual signal. For the two conditions. 
+Run [CHEUI_predict_model1](#CHEUI_predict_model1), that takes the previous preprocess signals and calculates m6A methylation probability per individual signal. For the two conditions. 
 Please notice that the --label will be used later to run the differential m6A modification.
 
 ```
