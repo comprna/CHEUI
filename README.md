@@ -4,8 +4,7 @@
 
 **About CHEUI**
 
-CHEUI (Methylation (CH<sub>3</sub>) Estimation Using Ionic current) is a two-stage deep learning method capable of detecting m6A and m5C transcriptome-wide at nucleotide resolution, without any sequence constraint, at the level of individual reads and individual transcript sites, and in single conditions.
-
+CHEUI (Methylation (CH<sub>3</sub>) Estimation Using Ionic current) is an RNA modification detection software. CHEUI can be used to detect m6A/m5C in single conditions, or detect differential m6A/m5C between any two conditions. CHEUI uses a two-stage deep learning method to detect m6A and m5C transcriptome-wide at single-read and single-site resolution, without any sequence constrains.
 
 ------------------------------------------
 # Dependencies
@@ -109,12 +108,11 @@ CHEUI model 2 for m6A calculates the methylation probability per site
  ../scripts/CHEUI_predict_model2.py
  -i, --input       path to read-level prediction file from CHEUI_predict_model1.py 
  -m, --DL_model    path to pretrainned model 2
- -c, --cutoff      model 2 probability cutoff for printing sites
+ -c, --cutoff      model 2 probability cutoff for printing sites. Default value: 0
  -d, --double_cutoff 
                        Model 1 probability cutoffs used to calculate the
-                       stoichiometry
- -n, --min_reads   Minimun number of reads in a site to include in the
-                       analysis,
+                       stoichiometry. Default values: 0.3 and 0.7
+ -n, --min_reads   Minimun number of reads in a site to include in the analysis. Default value: 20
  -o, --file_out    Path to the output file
 
 optional arguments:
@@ -182,12 +180,11 @@ CHEUI model 2 for m5C calculates the methylation probability per site
  ../scripts/CHEUI_predict_model2.py
  -i, --input       path to read-level prediction file from CHEUI_predict_model1.py 
  -m, --DL_model    path to pretrainned model 2
- -c, --cutoff      model 2 probability cutoff for printing sites
+ -c, --cutoff      model 2 probability cutoff for printing sites. Default value: 0
  -d, --double_cutoff 
                        Model 1 probability cutoffs used to calculate the
-                       stoichiometry
- -n, --min_reads   Minimun number of reads in a site to include in the
-                       analysis,
+                       stoichiometry. Default values: 0.3 and 0.7
+ -n, --min_reads   Minimun number of reads in a site to include in the analysis. Default value: 20
  -o, --file_out    Path to the output file
 
 optional arguments:
@@ -198,7 +195,7 @@ optional arguments:
 python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt -m  ../CHEUI_trained_models/CHEUI_m5C_model2.h5 -o site_level_predictions.txt -c 0.5
 ```
 ----------------------------
-Example data files
+Example data files for CHEUI-solo
 ----------------------------
 
 An example of the read-level prediction for m6A file generated using ../scripts/CHEUI_predict_model1.py 
@@ -230,18 +227,25 @@ chr10   344168  GGAAACAAC       16      0.214   0.80923474
 # Identify differential m6A RNA modifications between two conditions, A and B
 ----------------------------
 
-### Run CHEUI_predict_model1 for m6A, for both conditions
+### Run CHEUI_predict_model1 for m6A, for both A and B conditions
 
 First use [CHEUI_preprocess_m6A.py](#preprocessing_m6A) to preprocess signals centerd in A for both replicates.
 
+```
+python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o condition_A_signals+IDs.p -n 15
+
+```
+```
+python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o condition_B_signals+IDs.p -n 15
+```
 Run CHEUI m6A model 1, that takes the previous preprocess signals and calculates m6A methylation probability per individual signal. For the two conditions. 
 Please notice that the --label will be used later to run the differential m6A modification.
 
 ```
-python ../scripts/CHEUI_predict_model1.py -i condition_A_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o  condition_A_read_level_predictions.txt -l A_rep1
+python ../scripts/CHEUI_predict_model1.py -i condition_A_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o  condition_A_read_level_predictions.txt -l A_rep1
 ```
 ```
-python ../scripts/CHEUI_predict_model1.py -i condition_B_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o  condition_B_read_level_predictions.txt -l B_rep1
+python ../scripts/CHEUI_predict_model1.py -i condition_B_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o  condition_B_read_level_predictions.txt -l B_rep1
 ```
 
 ### combine read-level probability results and sort them
@@ -276,3 +280,15 @@ lower_cutoff: 0.3
 ```
 python3 ../scripts/CHEUI_diffenrentialRNAMod.py -c config.yml
 ```
+
+----------------------------
+Example data files for CHEUI-diff
+----------------------------
+```
+ID      coverage_1      coverage_2      stoichiometry_1 stoichiometry_2 stoichiometry_diff      statistic       pval_U
+chr10_344212_TGGCAAATT  21      21      0.06666666666666667     0.06666666666666667     0.0     0.0     1.0
+chr10_344237_TGCTATGCC  24      24      0.0     0.0     0.0     0.0     1.0
+chr10_344255_CGGGACTTT  23      23      0.0     0.0     0.0     0.0     1.0
+chr10_344262_TTTGAAGAA  24      24      0.0     0.0     0.0     0.0     1.0
+```
+
