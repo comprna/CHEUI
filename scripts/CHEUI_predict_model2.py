@@ -169,9 +169,10 @@ with open(file_out_path, 'w') as file_out:
                         ID_colums = ['_'.join(ID.split('_')[:-2])]+ID.split('_')[-2:]
                         
                         # write results to output file
-                        print(ID_colums[0]+'\t'+ID_colums[1]+'\t'+ID_colums[2]+'\t'+ \
-                                       str(coverage)+'\t'+str(stoichiometry)+'\t'+ \
-                                       str(lr_probs), file=file_out)
+                        if lr_probs > cutoff:
+                            print(ID_colums[0]+'\t'+ID_colums[1]+'\t'+ID_colums[2]+'\t'+ \
+                                         str(coverage)+'\t'+str(stoichiometry)+'\t'+ \
+                                         str(lr_probs), file=file_out)
                         
                         predictions_site = [float(line[1])]
                         ID = '_'.join(line[0].split('_')[:-1])
