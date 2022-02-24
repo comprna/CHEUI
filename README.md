@@ -285,10 +285,10 @@ python3 ../scripts/CHEUI_diffenrentialRNAMod.py -c config.yml
 Example data files for CHEUI-diff
 ----------------------------
 ```
-ID      coverage_1      coverage_2      stoichiometry_1 stoichiometry_2 stoichiometry_diff      statistic       pval_U
-chr10_344212_TGGCAAATT  21      21      0.06666666666666667     0.06666666666666667     0.0     0.0     1.0
-chr10_344237_TGCTATGCC  24      24      0.0     0.0     0.0     0.0     1.0
-chr10_344255_CGGGACTTT  23      23      0.0     0.0     0.0     0.0     1.0
-chr10_344262_TTTGAAGAA  24      24      0.0     0.0     0.0     0.0     1.0
+ID                     coverage_1      coverage_2      stoichiometry_1        stoichiometry_2       stoichiometry_diff      statistic   pval_U
+chr10_344212_TGGCAAATT  21               21              0.06666666666666667     0.06666666666666667     0.0                    0.0     1.0
+chr10_344237_TGCTATGCC  24               24              0.0                     0.0                     0.0                    0.0     1.0
+chr10_344255_CGGGACTTT  23               23              0.0                     0.0                     0.0                    0.0     1.0
+chr10_344262_TTTGAAGAA  24               24              0.0                     0.0                     0.0                    0.0     1.0
 ```
 
