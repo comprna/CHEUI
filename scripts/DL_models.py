@@ -12,7 +12,6 @@ from tensorflow.keras.layers import Conv1D, MaxPooling1D, AveragePooling1D, Drop
     Attention, Flatten, LayerNormalization
 
 from tensorflow.keras.activations import relu
-import keras.backend as K
 import tensorflow as tf
 
 
