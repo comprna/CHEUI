@@ -238,6 +238,12 @@ python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../k
 ```
 python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o condition_B_signals+IDs.p -n 15
 ```
+
+----------------------------
+### IMPORTANT
+----------------------------
+Please when using ../scripts/CHEUI_predict_model1.py choose the correct --label for each condition. Later the label name will be used for the differential methylation config file.
+
 Run [Run CHEUI_predict_model1 for m6A](#model1_m6A), that takes the previous preprocess signals and calculates m6A methylation probability per individual signal. For the two conditions. 
 Please notice that the --label will be used later to run the differential m6A modification.
 
