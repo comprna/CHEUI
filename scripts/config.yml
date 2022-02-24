@@ -1,17 +1,18 @@
 
 
-# All data with read level and site level
-input: /media/labuser/Data/nanopore/M5C/results/CHEUI_read_level_out_all.txt_head_sorted
+input: ./CHEUI_read_level_A_B.sorted.txt 
 
-sample_lables:
+# sample labels used to run /scripts/CHEUI_predict_model1.py
+sample_labels:
     condition1:
-        rep1: WT_rep1 
+        rep1: A_rep1
     condition2:
-        rep1: KO_rep1
+        rep1: B_rep1
 
+# cutoff used to classify methylated reads
 upper_cutoff: 0.7
 
+# cutoff used to classify unmethylated reads
 lower_cutoff: 0.3
 
-out: /media/labuser/Data/nanopore/M5C/results/CHEUI_compare.txt
-
+out: ./CHEUI_differentialRNAMod_A_vs_B.txt
