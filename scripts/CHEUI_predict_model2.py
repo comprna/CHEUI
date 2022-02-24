@@ -32,7 +32,7 @@ REQUIRED.add_argument("-m", "--DL_model",
 REQUIRED.add_argument("-c", "--cutoff",
                       help="model 2 probability cutoff for printing sites",
                       metavar='\b',
-                      default='0.99'
+                      default='0'
                       )
 
 REQUIRED.add_argument("-d", "--double_cutoff",
@@ -44,7 +44,7 @@ REQUIRED.add_argument("-d", "--double_cutoff",
 REQUIRED.add_argument("-n", "--min_reads",
                       help="Minimun number of reads in a site to include in the analysis, ",
                       metavar='\b',
-                      default=15
+                      default=20
                       )
 
 REQUIRED.add_argument("-o", "--file_out",
