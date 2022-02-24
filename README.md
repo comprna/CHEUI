@@ -55,7 +55,7 @@ Please follow the instructions below carefully. Notice that detecting m6A or m5C
 ----------------------------
 
 ----------------------------
-# CHEUI_preprocess_m6A
+## CHEUI_preprocess_m6A
 ----------------------------
 
 This script takes the output of nanopolish and creates a file containing signals corresponding to 9-mers centered in As and IDs.  
@@ -82,7 +82,7 @@ optional arguments:
 python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o out_test_signals+IDs.p -n 15
 ```
 ----------------------------
-# CHEUI_predict_model1
+## CHEUI_predict_model1
 ----------------------------
 CHEUI m6A model 1 takes the previous preprocess signals and calculates m6A methylation probability per individual signal.
 ```
@@ -108,7 +108,7 @@ python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_o
 ```sort -k1  --parallel=15  ./read_level_predictions.txt > ./read_level_predictions_sorted.txt```
 
 ----------------------------
-# CHEUI_predict_model2
+## CHEUI_predict_model2
 ----------------------------
 CHEUI model 2 for m6A calculates the methylation probability per site
 ```
@@ -134,7 +134,7 @@ python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt 
 ----
 
 ----------------------------
-# CHEUI_preprocess_m6A
+## CHEUI_preprocess_m6A
 ----------------------------
 This script takes the output of nanopolish and creates a file containing signals corresponding to 9-mers centered in Cs and IDs.  
 ```
@@ -161,7 +161,7 @@ python3 ../scripts/CHEUI_preprocess_m5C.py -i nanopolish_output_test.txt -m ../k
 ```
 
 ----------------------------
-# CHEUI_predict_model1
+## CHEUI_predict_model1
 ----------------------------
 CHEUI m5C model 1 takes the previous preprocess signals and calculates m5C methylation probability per individual signal.
 ```
@@ -187,7 +187,7 @@ python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_o
 ```sort -k1  --parallel=15  ./read_level_predictions.txt > ./read_level_predictions_sorted.txt```
 
 ----------------------------
-# CHEUI_predict_model2
+## CHEUI_predict_model2
 ----------------------------
 
 CHEUI model 2 for m5C calculates the methylation probability per site
@@ -242,9 +242,9 @@ chr10   344168  GGAAACAAC       16      0.214   0.80923474
 # Identify differential m6A RNA modifications between two conditions, A and B
 ----------------------------
 
-### Run CHEUI_predict_model1 for m6A, for both A and B conditions
+## Run CHEUI_predict_model1 for m6A, for both A and B conditions
 
-First use [Run preprocessing step for m6A](#preprocessing_m6A) to preprocess signals centerd in A for both replicates.
+First use [CHEUI_preprocess_m6A](#CHEUI_preprocess_m6A) to preprocess signals centerd in A for both replicates.
 
 ```
 python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o condition_A_signals+IDs.p -n 15
@@ -276,7 +276,7 @@ cat condition_A_read_level_predictions.txt condition_B_read_level_predictions.tx
 sort -k1 --parallel=20 CHEUI_read_level_A_B.txt > CHEUI_read_level_A_B.sorted.txt 
 ```
 
-### Run CHEUI-diff
+## Run CHEUI-diff
 First write a config.yml file to provide information about condition and replicates
 
 config.yml:
