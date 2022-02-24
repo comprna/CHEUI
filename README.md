@@ -78,7 +78,7 @@ optional arguments:
 ```
 python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o out_test_signals+IDs.p -n 15
 ```
-### Run CHEUI_predict_model1 for m6A
+### - [Run CHEUI_predict_model1 for m6A](#model1_m6A)
 CHEUI m6A model 1 takes the previous preprocess signals and calculates m6A methylation probability per individual signal.
 ```
  ../scripts/CHEUI_preprocess_m6A.py --help 
@@ -102,7 +102,7 @@ python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_o
 ### Sort the predictions to group all the predictions from the same site
 ```sort -k1  --parallel=15  ./read_level_predictions.txt > ./read_level_predictions_sorted.txt```
 
-### Run CHEUI_predict_model2 for m6A
+### - [Run CHEUI_predict_model2 for m6A](#model2_m6A)
 CHEUI model 2 for m6A calculates the methylation probability per site
 ```
  ../scripts/CHEUI_predict_model2.py
@@ -229,7 +229,7 @@ chr10   344168  GGAAACAAC       16      0.214   0.80923474
 
 ### Run CHEUI_predict_model1 for m6A, for both A and B conditions
 
-First use [CHEUI_preprocess_m6A.py](#preprocessing_m6A) to preprocess signals centerd in A for both replicates.
+First use [Run preprocessing step for m6A](#preprocessing_m6A) to preprocess signals centerd in A for both replicates.
 
 ```
 python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o condition_A_signals+IDs.p -n 15
@@ -238,7 +238,7 @@ python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../k
 ```
 python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o condition_B_signals+IDs.p -n 15
 ```
-Run CHEUI m6A model 1, that takes the previous preprocess signals and calculates m6A methylation probability per individual signal. For the two conditions. 
+Run [Run CHEUI_predict_model1 for m6A](#model1_m6A), that takes the previous preprocess signals and calculates m6A methylation probability per individual signal. For the two conditions. 
 Please notice that the --label will be used later to run the differential m6A modification.
 
 ```
