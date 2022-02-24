@@ -21,7 +21,7 @@ keras==2.4.3
 ------------------------------------------
 # Outline of CHEUI-solo 
 ------------------------------------------
- <img src="https://github.com/comprna/CHEUI/blob/master/misc/pipeline_CHEUI-solo+diff_github.png" width="800" height="500">
+ <img src="https://github.com/comprna/CHEUI/blob/master/misc/pipeline_CHEUI-solo+diff_github.png" width="900" height="500">
 
 ## Use Nanopolish for re-squiggling 
 
