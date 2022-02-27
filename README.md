@@ -215,7 +215,7 @@ Example data files for CHEUI-solo
 
 An example of the read-level prediction for m6A file generated using ../scripts/CHEUI_predict_model1.py 
 can be found in test/read_level_predictions.txt.
-It contains 2 columns, the first column contains information about chromosome_location_k-mer_readID.
+It contains 2 columns, the first column contains information about contig/transcriptome_location_k-mer_readID.
 Second column contains the probability of the middle A/C of the k-mer is methylated.
 ```
 chr10_444122_TTGTAGATG_3386eb53-8805-4c11-a721-02a23fc73cb4     0.39094510674476624
