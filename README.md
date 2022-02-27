@@ -22,12 +22,11 @@ keras==2.4.3
 ------------------------------------------
  <img src="https://github.com/comprna/CHEUI/blob/master/misc/pipeline_CHEUI-solo+diff_github.png" width="900" height="500">
 
-## Use Nanopolish for re-squiggling 
-
-CHEUI starting point is a Nanopolish output file (https://nanopolish.readthedocs.io/en/latest/).
-First, a bamfile sorted and indexed with samtools is needed to run Nanopolish. 
-We provide an example of how to run Nanopolish with the right flags:  
-
+## Before running CHEUI (IMPORTANT)
+Before running CHEUI:
+1. fast5 files should be base-called, we recommend guppy version 4 or higher. 
+2. Fastqs should be mapped to a reference TRANSCRIPTOME.
+3. Run Nanopolish (https://nanopolish.readthedocs.io/en/latest/). We provide an example of how to run Nanopolish with the right flags:  
 ```
 nanopolish index -s <sequencing_summary.txt> -d <fast5_folder> <fastq>
 
