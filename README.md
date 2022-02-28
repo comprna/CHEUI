@@ -253,16 +253,16 @@ chr10   344168  GGAAACAAC       16      0.214   0.80923474
 # Identify differential m6A RNA modifications between two conditions, A and B
 ----------------------------
 
-## Run CHEUI_predict_model1 for m6A, for both A and B conditions
+## Run CHEUI_predict_model1 for m6A, for both X and Y conditions
 
 First use [CHEUI_preprocess_m6A](#CHEUI_preprocess_m6A) to preprocess signals centerd in A for both replicates.
 
 ```
-python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o condition_A_signals+IDs.p -n 15
+python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o condition_X_signals+IDs.p -n 15
 
 ```
 ```
-python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o condition_B_signals+IDs.p -n 15
+python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o condition_Y_signals+IDs.p -n 15
 ```
 
 ----------------------------
@@ -274,17 +274,17 @@ Run [CHEUI_predict_model1](#CHEUI_predict_model1), that takes the previous prepr
 Please notice that the --label will be used later to run the differential m6A modification.
 
 ```
-python ../scripts/CHEUI_predict_model1.py -i condition_A_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o  condition_A_read_level_predictions.txt -l A_rep1
+python ../scripts/CHEUI_predict_model1.py -i condition_A_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o  condition_X_read_level_predictions.txt -l X_rep1
 ```
 ```
-python ../scripts/CHEUI_predict_model1.py -i condition_B_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o  condition_B_read_level_predictions.txt -l B_rep1
+python ../scripts/CHEUI_predict_model1.py -i condition_B_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o  condition_Y_read_level_predictions.txt -l Y_rep1
 ```
 
 ### combine read-level probability results and sort them
 ```
-cat condition_A_read_level_predictions.txt condition_B_read_level_predictions.txt > CHEUI_read_level_A_B.txt
+cat condition_X_read_level_predictions.txt condition_Y_read_level_predictions.txt > CHEUI_read_level_X_Y.txt
 
-sort -k1 --parallel=20 CHEUI_read_level_A_B.txt > CHEUI_read_level_A_B.sorted.txt 
+sort -k1 --parallel=20 CHEUI_read_level_X_Y.txt > CHEUI_read_level_X_Y.sorted.txt 
 ```
 
 ## Run CHEUI-diff
@@ -293,14 +293,14 @@ First write a config.yml file to provide information about condition and replica
 config.yml:
 ```
 # path to input
-input: ./CHEUI_read_level_A_B.sorted.txt 
+input: ./CHEUI_read_level_X_Y.sorted.txt 
 
 # sample labels used to run /scripts/CHEUI_predict_model1.py
 sample_labels:
     condition1:
-        rep1: A_rep1
+        rep1: X_rep1
     condition2:
-        rep1: B_rep1
+        rep1: Y_rep1
 
 # cutoff used to classify methylated reads
 upper_cutoff: 0.7
