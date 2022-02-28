@@ -108,6 +108,10 @@ python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_o
 ```
 
 ### Sort the predictions to group all the predictions from the same site
+#### Using several replicates 
+In case there are more than 1 replicate combine the two read_level_predictions files: ```cat ./read_level_predictions1.txt ./read_level_predictions2.txt >> ./read_level_predictions_combined.txt``` then sort this file. 
+```sort -k1  --parallel=15  ./read_level_predictions_combined.txt > ./read_level_predictions_combined.sorted.txt```
+#### Using only 1 replicate
 ```sort -k1  --parallel=15  ./read_level_predictions.txt > ./read_level_predictions_sorted.txt```
 
 ----------------------------
@@ -187,7 +191,10 @@ python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_o
 ```
 
 ### Sort the predictions to group all the predictions from the same site
-In case there are more than 1 replicate combine the two read_level_predictions files: ```cat /read_level_predictions1.txt /read_level_predictions2.txt >> /read_level_predictions_combined.txt``` then sort this file. 
+#### Using several replicates 
+In case there are more than 1 replicate combine the two read_level_predictions files: ```cat ./read_level_predictions1.txt ./read_level_predictions2.txt >> ./read_level_predictions_combined.txt``` then sort this file. 
+```sort -k1  --parallel=15  ./read_level_predictions_combined.txt > ./read_level_predictions_combined.sorted.txt```
+#### Using only 1 replicate
 ```sort -k1  --parallel=15  ./read_level_predictions.txt > ./read_level_predictions_sorted.txt```
 
 ----------------------------
