@@ -274,10 +274,10 @@ Run [CHEUI_predict_model1](#CHEUI_predict_model1), that takes the previous prepr
 Please notice that the --label will be used later to run the differential m6A modification.
 
 ```
-python ../scripts/CHEUI_predict_model1.py -i condition_A_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o  condition_X_read_level_predictions.txt -l X_rep1
+python ../scripts/CHEUI_predict_model1.py -i condition_X_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o  condition_X_read_level_predictions.txt -l X_rep1
 ```
 ```
-python ../scripts/CHEUI_predict_model1.py -i condition_B_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o  condition_Y_read_level_predictions.txt -l Y_rep1
+python ../scripts/CHEUI_predict_model1.py -i condition_Y_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o  condition_Y_read_level_predictions.txt -l Y_rep1
 ```
 
 ### combine read-level probability results and sort them
