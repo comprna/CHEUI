@@ -25,7 +25,7 @@ keras==2.4.3
 ## Before running CHEUI (IMPORTANT)
 Before running CHEUI:
 1. fast5 files should be base-called, we recommend guppy version 4 or higher. 
-2. Fastqs should be mapped to a reference TRANSCRIPTOME. ```minimap2 -ax map-ont -k14 <reference transcript> <fastq>```
+2. Fastqs should be mapped to a reference TRANSCRIPTOME. e.g.```minimap2 -ax map-ont -k14 <reference transcript> <fastq>```
 3. Run Nanopolish (https://nanopolish.readthedocs.io/en/latest/). We provide an example of how to run Nanopolish with the right flags:  
 ```
 nanopolish index -s <sequencing_summary.txt> -d <fast5_folder> <fastq>
@@ -49,7 +49,7 @@ cd CHEUI/test
 Please follow the instructions below carefully.
 1. Notice that for detecting m6A or m5C, the nanopolish output files require different preprocessing scripts, CHEUI_preprocess_m6A.py for m6A and CHEUI_preprocess_m5C.py for m5C.
 2. CHEUI model 1 and 2 (read level predictions and site level predictions) also use different predictive models for m6A and m5C that have to be specified using the --DL_model flag:
-         for m6A: ../CHEUI_trained_models/CHEUI_m6A_model1.h5 and ./CHEUI_trained_models/CHEUI_m6A_model2.h5
+         for m6A: ../CHEUI_trained_models/CHEUI_m6A_model1.h5 and ../CHEUI_trained_models/CHEUI_m6A_model2.h5
          for m5C: ../CHEUI_trained_models/CHEUI_m5C_model1.h5 and ../CHEUI_trained_models/CHEUI_m5C_model2.h5
 
 
