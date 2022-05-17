@@ -40,7 +40,7 @@ Definitions
   any of the tools that are part of the Program, or creating works based on the 
   Program.
 
-Each licensee is addressed as “you”.
+  Each licensee is addressed as “you”.
 
 1. Permission is hereby granted to use the Program free of charge for any 
 noncommercial purpose, including teaching and research at universities, 
@@ -55,17 +55,54 @@ this License and to the absence of any warranty; and give any other
 recipients of the Program a copy of this License along with the Program.
 
 3. You may modify your copy or copies of the Program or any portion of 
-it, thus forming a work based on the Program, and copy and distribute such modifications or work under the terms of Section 2 above, provided that you also meet all of these conditions:
-a) You must cause the modified files to carry prominent notices stating that you changed the files and the date of any change.
-b) You must cause any work that you distribute or publish, that in whole or in part contains or is derived from the Program or any part thereof, to be licensed as a whole at no charge to all third parties under the terms of this License.
-These requirements apply to the modified work as a whole. If identifiable sections of that work are not derived from the Program, and can be reasonably considered independent and separate works in themselves,then this License and its terms do not apply to those sections when you distribute them as separate works. But when you distribute the same sections as part of a whole which is a work based on the Program, the distribution of the whole must be on the terms of this License, whose regulations for other licensees extend to the entire whole, and thus to each and every part regardless of who wrote it. (If the same, independent sections are distributed as part of a package that is otherwise reliant on, or is based on the Program, then the distribution of the whole package, including but not restricted to the independent section, must be on the unmodified terms of this License, regardless of who the author of the included sections was.)
+it, thus forming a work based on the Program, and copy and distribute 
+such modifications or work under the terms of Section 2 above, provided 
+that you also meet all of these conditions:
+
+  a) You must cause the modified files to carry prominent notices stating 
+  that you changed the files and the  date of any change.
+  
+  b) You must cause any work that you distribute or publish, that in whole 
+  or in part contains or is derived from the Program or any part thereof, 
+  to be licensed as a whole at no   charge to all third parties under the 
+  terms of this License.
+
+These requirements apply to the modified work as a whole. If identifiable 
+sections of that work are not derived from the Program, and can be reasonably 
+considered independent and separate works in themselves,then this License and 
+its terms do not apply to those sections when you distribute them as separate 
+works. But when you distribute the same sections as part of a whole which is a work based on the Program, the distribution of the whole must be on the terms of this License, whose regulations for other licensees extend to the entire whole, and thus to each and every part regardless of who wrote it. (If the same, independent sections are distributed as part of a package that is otherwise reliant on, or is based on the Program, then the distribution of the whole package, including but not restricted to the independent section, must be on the unmodified terms of this License, regardless of who the author of the included sections was.)
 Thus, it is not the intent of this section to claim rights or contest your rights to work written entirely by you; rather, the intent is to exercise the right to control the distribution of derivative or collective works based or reliant on the Program.
+
 In addition, mere aggregation of another work not based on the Program (or with a work based on the Program) on a volume of storage or distribution medium does not bring the other work under the scope of this License.
+
 4. You may copy and distribute the Program (or a work based on it, under Section 3) in source code or executable form under the terms of Sections 2 and 3 above provided that you also do one of the following:
-a) Accompany it with the complete corresponding machine-readable source code, which must be distributed under the terms of Sections 2 and 3 above on a medium customarily used for software interchange; or,
-b) Accompany it with a written offer, valid for at least three years, to give any third party, for a charge no more than your cost of physically performing source distribution, a complete machine-readable copy of the corresponding source code, to be distributed under the terms of Sections 2 and 3 above on a medium customarily used for software interchange; or,
-c) Accompany it with the information you received about the offer to distribute the corresponding source code. (This alternative is allowed only for noncommercial distribution and only if you received the program in source code or executable form with such an offer, in accord with Subsection b) above.)
-The source code for a work means the preferred form of the work for making modifications to it. For an executable work, complete source code means all the source code for all modules it contains, plus any associated interface definition files, plus the scripts used to control the installation of the Program. However, as a special exception, the source code distributed need not include anything that is normally distributed (in either source or binary form) with the major components of the operating system on which the executable runs, unless that component itself accompanies the Program.
+
+  a) Accompany it with the complete corresponding machine-readable source 
+  code, which must be distributed under the terms of Sections 2 and 3 above 
+  on a medium customarily used for software interchange; or,
+
+  b) Accompany it with a written offer, valid for at least three years, to 
+  give any third party, for a charge no more than your cost of physically 
+  performing source distribution, a complete machine-readable copy of the 
+  corresponding source code, to be distributed under the terms of Sections 
+  2 and 3 above on a medium customarily used for software interchange; or,
+
+  c) Accompany it with the information you received about the offer to 
+  distribute the corresponding source  code. (This alternative is allowed 
+  only for noncommercial distribution and only if you received the program 
+  in source code or executable form with such an offer, in accord with 
+  Subsection b) above.)
+
+The source code for a work means the preferred form of the work for making 
+modifications to it. For an executable work, complete source code means all 
+the source code for all modules it contains, plus any associated interface 
+definition files, plus the scripts used to control the installation of the 
+Program. However, as a special exception, the source code distributed need 
+not include anything that is normally distributed (in either source or 
+binary form) with the major components of the operating system on which 
+the executable runs, unless that component itself accompanies the Program.
+
 If distribution of the Program is made by offering access to copy from a designated place, then offering equivalent access to copy the source code from the same place counts as distribution of the source code, even though third parties are not compelled to copy the source code.
 5. You may not copy, modify, sublicense, or distribute the Program except as expressly provided under this License. Any attempt otherwise to copy, modify, sublicense or distribute the Program is void, and will automatically terminate your rights under this License. However, parties who have received copies, or rights, from you under this License will not have their licenses terminated so long as such parties remain in full compliance.
 6. You are not required to accept this License, since you have not signed it. Nothing else grants you permission to modify or distribute the Program or its derivative works; law prohibits these actions if you do not accept this License. Therefore, by modifying or distributing the Program (or any work based on the Program), you indicate your acceptance of this License and all its terms and conditions for copying, distributing or modifying the Program or works based on it, to do so.
