@@ -217,8 +217,8 @@ Example of the read-level prediction for m6A file generated using ../scripts/CHE
 The file contains 2 columns, the first column contains information about contig/transcriptome_location_k-mer_readID.
 Second column contains the probability of the middle A (in this example) to be methylated:
 ```
-ENST00000000233.10_1003_TTGTAGATG_3386eb53-8805-4c11-a721-02a23fc73cb4     0.39094510674476624
-ENST00000000233.10_1007_TTGCAGAAA_87b56740-d8db-4d17-8cd1-aa5019d4750b     0.58213871717453
+ENST00000000233.10_1003_TTGTAGATG_3386eb53-8805-4c11-a721-02a23fc73cb4    0.39094510674476624
+ENST00000000233.10_1007_TTGCAGAAA_87b56740-d8db-4d17-8cd1-aa5019d4750b    0.58213871717453
 ENST00000000233.10_133_TGTGAAGAA_06685ba0-c2f9-4540-9805-3e1746df432f     0.08152690529823303
 ENST00000000412.8_2120_GGCGATGAC_18dad7fd-796a-4f1a-a242-27e4c5226234     0.5041788816452026
 ENST00000000412.8_2120_GGCGATGAC_a760a4ac-597e-4f57-892e-37eb0a6e1c56     0.19357600808143616
@@ -228,13 +228,13 @@ An example of the site-level prediction file for m6A generated using ../scripts/
 
 This file is a tab separated file containing; contig, position, site, coverage, stoichiometry of the site and probability of the site being methylated:
 ```
-contig	            position	site	     coverage	stoichiometry	     probability
-ENST00000000233.10	1003	    CTTGAGTAA	648	     0.1013215859030837	0.11857438
-ENST00000000233.10	1007	    AGTAATAAA	628	     0.3223684210526316	0.54757184
-ENST00000000233.10	133	     AAGCAGATG	467	     0.2560240963855422	0.3631263
-ENST00000000412.8	 2120	    AGAAACCTG	63	      0.05	              0.038466703
-ENST00000000412.8	 2126	    CTGGACTGA	68	      0.9242424242424242	0.9999988
-ENST00000000412.8	 2130	    ACTGATCTT	67	      0.05	              0.08036163
+contig	            position	site	     coverage	stoichiometry	  probability
+ENST00000000233.10	1003	    CTTGAGTAA	648	     0.10132158      0.11857438
+ENST00000000233.10	1007	    AGTAATAAA	628	     0.32236842     	0.54757184
+ENST00000000233.10	1333     AAGCAGATG	467	     0.25602409     	0.3631263
+ENST00000000412.8	 2120	    AGAAACCTG	63	      0.05	           0.038466703
+ENST00000000412.8	 2126	    CTGGACTGA	68	      0.92424242     	0.9999988
+ENST00000000412.8	 2130	    ACTGATCTT	67	      0.05	           0.08036163
 ...
 ```
 ----------------------------
