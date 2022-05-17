@@ -227,6 +227,7 @@ ENST00000000412.8_2120_GGCGATGAC_397c1862-b29c-4dd1-93a7-753da410535b     0.4283
 An example of the site-level prediction file for m6A generated using ../scripts/CHEUI_predict_model2.py
 
 This file is a tab separated file containing; contig, position, site, coverage, stoichiometry of the site and probability of the site being methylated:
+
 ```
 contig	            position	site	     coverage	stoichiometry	  probability
 ENST00000000233.10	1003	    CTTGAGTAA	648	     0.10132158      0.11857438
@@ -235,7 +236,6 @@ ENST00000000233.10	1333     AAGCAGATG	467	     0.25602409     	0.3631263
 ENST00000000412.8	 2120	    AGAAACCTG	63	      0.05	           0.038466703
 ENST00000000412.8	 2126	    CTGGACTGA	68	      0.92424242     	0.9999988
 ENST00000000412.8	 2130	    ACTGATCTT	67	      0.05	           0.08036163
-...
 ```
 ----------------------------
 # Identify differential m6A RNA modifications between two conditions, A and B
