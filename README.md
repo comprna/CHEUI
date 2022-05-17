@@ -90,7 +90,6 @@ python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../k
 ```
 
 The processing of the Nanopolish output for m5C is very similar:
-
 ```
 ../scripts/CHEUI_preprocess_m5C.py --help
 
@@ -151,7 +150,7 @@ python ../scripts/CHEUI_predict_model1.py -i out_C_signals+IDs.p/nanopolish_outp
 
 ### Sort the predictions to group all the predictions from the same site
 
-The output from model 1 needs to be sorted before using model 2 to predict m6A at 
+The output from model 1 needs to be sorted before using model 2 to predict m6A (or m5C) at 
 transcriptomic sites. We provide below two ways of doing this depending of whether you have
 one or more replicates:
 
@@ -213,30 +212,30 @@ python3 ../scripts/CHEUI_predict_model2.py -i read_level_m5C_predictions_sorted.
 Example data files for CHEUI-solo
 ----------------------------
 
-An example of the read-level prediction for m6A file generated using ../scripts/CHEUI_predict_model1.py 
-can be found in test/read_level_predictions.txt.
-It contains 2 columns, the first column contains information about contig/transcriptome_location_k-mer_readID.
-Second column contains the probability of the middle A/C of the k-mer is methylated.
-```
-chr10_444122_TTGTAGATG_3386eb53-8805-4c11-a721-02a23fc73cb4     0.39094510674476624
-chr10_445500_TTGCAGAAA_87b56740-d8db-4d17-8cd1-aa5019d4750b     0.58213871717453
-chr10_344399_TGTGAAGAA_06685ba0-c2f9-4540-9805-3e1746df432f     0.08152690529823303
-chr10_343799_GGCGATGAC_18dad7fd-796a-4f1a-a242-27e4c5226234     0.5041788816452026
-chr10_445260_TTTAAGAGT_a760a4ac-597e-4f57-892e-37eb0a6e1c56     0.19357600808143616
-chr10_444385_CTTTACGAG_397c1862-b29c-4dd1-93a7-753da410535b     0.42834094166755676
-chr10_444122_TTGTAGATG_5b66ec6a-1f4f-4638-bc69-63b54786cd6d     0.17935198545455933
-```
-An example of the site-level prediction file for m6A generated using ../scripts/CHEUI_predict_model2.py can be found in test/site_level_predictions.txt
-This file is a tab separated file containing; contig, position, site, coverage, stoichiometry of the site and probability of the site being methylated.
-```
-contig  position        site    coverage        stoichiometry   probability
-chr10   344099  TGTTAATAA       15      0.3     0.6243764
-chr10   344100  GTTAATAAA       16      0.5     0.8859474
-chr10   344130  AATCATAAG       15      0.6     0.6003279
-chr10   344157  GAAGAGTAT       17      0.3571  0.8588939
-chr10   344160  GAGTATGGG       17      0.33    0.5015969
-chr10   344168  GGAAACAAC       16      0.214   0.80923474
+Example of the read-level prediction for m6A file generated using ../scripts/CHEUI_predict_model1.py 
 
+The file contains 2 columns, the first column contains information about contig/transcriptome_location_k-mer_readID.
+Second column contains the probability of the middle A (in this example) to be methylated:
+```
+ENST00000000233.10_1003_TTGTAGATG_3386eb53-8805-4c11-a721-02a23fc73cb4     0.39094510674476624
+ENST00000000233.10_1007_TTGCAGAAA_87b56740-d8db-4d17-8cd1-aa5019d4750b     0.58213871717453
+ENST00000000233.10_133_TGTGAAGAA_06685ba0-c2f9-4540-9805-3e1746df432f     0.08152690529823303
+ENST00000000412.8_2120_GGCGATGAC_18dad7fd-796a-4f1a-a242-27e4c5226234     0.5041788816452026
+ENST00000000412.8_2120_GGCGATGAC_a760a4ac-597e-4f57-892e-37eb0a6e1c56     0.19357600808143616
+ENST00000000412.8_2120_GGCGATGAC_397c1862-b29c-4dd1-93a7-753da410535b     0.42834094166755676
+```
+An example of the site-level prediction file for m6A generated using ../scripts/CHEUI_predict_model2.py
+
+This file is a tab separated file containing; contig, position, site, coverage, stoichiometry of the site and probability of the site being methylated:
+```
+contig	            position	site	     coverage	stoichiometry	     probability
+ENST00000000233.10	1003	    CTTGAGTAA	648	     0.1013215859030837	0.11857438
+ENST00000000233.10	1007	    AGTAATAAA	628	     0.3223684210526316	0.54757184
+ENST00000000233.10	133	     AAGCAGATG	467	     0.2560240963855422	0.3631263
+ENST00000000412.8	 2120	    AGAAACCTG	63	      0.05	              0.038466703
+ENST00000000412.8	 2126	    CTGGACTGA	68	      0.9242424242424242	0.9999988
+ENST00000000412.8	 2130	    ACTGATCTT	67	      0.05	              0.08036163
+...
 ```
 ----------------------------
 # Identify differential m6A RNA modifications between two conditions, A and B
