@@ -48,7 +48,7 @@ cd CHEUI/test
 ----------------------------
 Please follow the instructions below carefully.
 
-1. Notice that for detecting m6A or m5C, the nanopolish output files require different preprocessing scripts: ```CHEUI_preprocess_m6A.py``` for m6A and ```CHEUI_preprocess_m5C.py``` for m5C.
+1. Notice that for detecting m6A or m5C, the nanopolish output files require different preprocessing scripts: ``CHEUI_preprocess_m6A.py`` for m6A and ```CHEUI_preprocess_m5C.py``` for m5C.
 
 2. CHEUI model 1 (read level predictions) and model 2 (site level predictions) use different predictive models for m6A and m5C that have to be specified using the --DL_model flag: 
         for m6A: ```../CHEUI_trained_models/CHEUI_m6A_model1.h5``` and ```../CHEUI_trained_models/CHEUI_m6A_model2.h5``` 
