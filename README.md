@@ -48,180 +48,167 @@ cd CHEUI/test
 ----------------------------
 Please follow the instructions below carefully.
 
-1. Notice that for detecting m6A or m5C, the nanopolish output files require different preprocessing scripts: ``CHEUI_preprocess_m6A.py`` for m6A and ```CHEUI_preprocess_m5C.py``` for m5C.
+1. Notice that for detecting m6A or m5C, the nanopolish output files require different preprocessing scripts: ``CHEUI_preprocess_m6A.py`` for m6A and ``CHEUI_preprocess_m5C.py`` for m5C.
 
 2. CHEUI model 1 (read level predictions) and model 2 (site level predictions) use different predictive models for m6A and m5C that have to be specified using the --DL_model flag: 
-        for m6A: ```../CHEUI_trained_models/CHEUI_m6A_model1.h5``` and ```../CHEUI_trained_models/CHEUI_m6A_model2.h5``` 
-        For m5C: ```../CHEUI_trained_models/CHEUI_m5C_model1.h5``` and ```../CHEUI_trained_models/CHEUI_m5C_model2.h5```
+        for m6A: ``../CHEUI_trained_models/CHEUI_m6A_model1.h5`` and ``../CHEUI_trained_models/CHEUI_m6A_model2.h5`` 
+        For m5C: ``../CHEUI_trained_models/CHEUI_m5C_model1.h5`` and ``../CHEUI_trained_models/CHEUI_m5C_model2.h5``
 
 
 ----------------------------
-# Detect m6A RNA modifications in one condition    
+# Detect m6A and m5C modifications in on condition    
 ----------------------------
 
 ----------------------------
-## CHEUI_preprocess_m6A
+## CHEUI preprocessing step
 ----------------------------
 
-This script takes the output of nanopolish and creates a file containing signals corresponding to 9-mers centered in As and IDs.  
+This script takes the output from nanopolish and creates a file containing signals corresponding to 9-mers centered in As and IDs.  
 ```
 ../scripts/CHEUI_preprocess_m6A.py --help
 
 required arguments:
-  -i, --input_nanopolish 
-                        Nanopolish file. Run nanopolish with the following
-                        flags: nanopolish eventalign --reads <in.fasta>--bam
-                        <in.bam> --genome <genome.fa> --print-read-names--
-                        scale-events --samples > <out.txt>
-  -m, --kmer_model  file containing all the expected signal k-mer means
-  -o, --out_dir     output directory
+  -i, --input_nanopolish  Nanopolish output file. Nanopolish should be run with the following flags:
+                          nanopolish eventalign --reads <in.fasta>--bam
+                          <in.bam> --genome <genome.fa> --print-read-names--
+                          scale-events --samples > <out.txt>
+  -m, --kmer_model        file containing the expected signal k-mer means
+                          (available at CHEUI/kmer_models/model_kmer.csv)
+  -o, --out_dir           output directory
 
 optional arguments:
-  -h, --help            show this help message and exit
-  -v, --version         show program's version number and exit
+  -h, --help              show this help message and exit
+  -v, --version           show program's version number and exit
   -s <str>, --suffix_name <str>
-                        name to use for output files
-  -n CPU, --cpu CPU     Number of cores to use
-```
-```
-python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o out_test_signals+IDs.p -n 15
-```
-----------------------------
-## CHEUI_predict_model1
-----------------------------
-CHEUI m6A model 1 takes the previous preprocess signals and calculates m6A methylation probability per individual signal.
-```
- ../scripts/CHEUI_predict_model1.py --help 
- required arguments:
-  -i, --signals_input 
-                        path to the ID+signal file
-  -m, --DL_model    path to the m6A trainned model 1 
-  -l LABEL, --label LABEL
-                        label of the condition of the sample, e.g. WT_rep1
-  -o, --file_out    Path to the output file
-  -r, --resume          Continue running predictions
-
-optional arguments:
-  -h, --help            show help message and exit
-  -v, --version         show program's version number and exit
-```
-```
-python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o ./read_level_predictions.txt -l WT_rep1
+                          name to use for output files
+  -n CPU, --cpu CPU       Number of cores to use
 ```
 
-### Sort the predictions to group all the predictions from the same site
-#### Using several replicates 
-In case there are more than 1 replicate combine the two read_level_predictions files: ```cat ./read_level_predictions.txt ./read_level_predictions2.txt >> ./read_level_predictions_combined.txt``` then sort this file. 
-```sort -k1  --parallel=15  ./read_level_predictions_combined.txt > ./read_level_predictions_sorted.txt```
-#### Using only 1 replicate
-```sort -k1  --parallel=15  ./read_level_predictions.txt > ./read_level_predictions_sorted.txt```
+Example command of the preprocessing step for m6A:
+```
+python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o out_A_signals+IDs.p -n 15
+```
 
-----------------------------
-## CHEUI_predict_model2
-----------------------------
-CHEUI model 2 for m6A calculates the methylation probability per site
-```
- ../scripts/CHEUI_predict_model2.py
- -i, --input       path to read-level prediction file from CHEUI_predict_model1.py 
- -m, --DL_model    path to pretrainned model 2
- -c, --cutoff      model 2 probability cutoff for printing sites. Default value: 0
- -d, --double_cutoff 
-                       Model 1 probability cutoffs used to calculate the
-                       stoichiometry. Default values: 0.3 and 0.7
- -n, --min_reads   Minimun number of reads in a site to include in the analysis. Default value: 20
- -o, --file_out    Path to the output file
+The processing of the Nanopolish output for m5C is very similar:
 
-optional arguments:
- -h, --help            show this help message and exit
- -v, --version         show program's version number and exit
-```
-```
-python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt -m  ../CHEUI_trained_models/CHEUI_m6A_model2.h5 -o site_level_predictions.txt -c 0.5
-```
-----------------------------
-# Detect m5C RNA modifications in one condition
-----
-
-----------------------------
-## CHEUI_preprocess_m6A
-----------------------------
-This script takes the output of nanopolish and creates a file containing signals corresponding to 9-mers centered in Cs and IDs.  
 ```
 ../scripts/CHEUI_preprocess_m5C.py --help
 
 required arguments:
-  -i, --input_nanopolish 
-                        Nanopolish file. Run nanopolish with the following
-                        flags: nanopolish eventalign --reads <in.fasta>--bam
-                        <in.bam> --genome <genome.fa> --print-read-names--
-                        scale-events --samples > <out.txt>
-  -m, --kmer_model  file containing all the expected signal k-mer means
-  -o, --out_dir     output directory
+  -i, --input_nanopolish  Nanopolish output file. Nanopolish should be run with the following flags:
+                          nanopolish eventalign --reads <in.fasta>--bam
+                          <in.bam> --genome <genome.fa> --print-read-names--
+                          scale-events --samples > <out.txt>
+  -m, --kmer_model        file containing the expected signal k-mer means
+                          (available at CHEUI/kmer_models/model_kmer.csv)
+  -o, --out_dir           output directory
 
 optional arguments:
-  -h, --help            show this help message and exit
-  -v, --version         show program's version number and exit
+  -h, --help              show this help message and exit
+  -v, --version           show program's version number and exit
   -s <str>, --suffix_name <str>
-                        name to use for output files
-  -n CPU, --cpu CPU     Number of cores to use
+                          name to use for output files
+  -n CPU, --cpu CPU       Number of cores to use
 ```
+
+
+Example command of the preprocessing step for m5C:
 ```
-python3 ../scripts/CHEUI_preprocess_m5C.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o out_test_signals+IDs.p -n 15
+python3 ../scripts/CHEUI_preprocess_m5C.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o out_C_signals+IDs.p -n 15
 ```
 
 ----------------------------
-## CHEUI_predict_model1
+## CHEUI model 1: prediction of modifications in individual reads
 ----------------------------
-CHEUI m5C model 1 takes the previous preprocess signals and calculates m5C methylation probability per individual signal.
+
+CHEUI model 1 takes the output from the previous step of preprocessing signals and calculates with the m6A_model_1
+the m6A methylation probability in individual read signals at each individual A nucleotide, and with the m5C_model_1
+the m5C methylation probability in individual read signals at each individual C nucleotide.
 ```
  ../scripts/CHEUI_predict_model1.py --help 
+ 
  required arguments:
-  -i, --signals_input 
-                        path to the ID+signal file
-  -m, --DL_model    path to the m6A trainned model 1 
-  -l LABEL, --label LABEL
-                        label of the condition of the sample, e.g. WT_rep1
-  -o, --file_out    Path to the output file
-  -r, --resume          Continue running predictions
+  -i, --signals_input      path to the ID+signal file
+  -m, --DL_model           path to the trained (m6A or m5C) model 1 
+  -l LABEL, --label LABEL  label of the condition of the sample, e.g. WT_rep1
+  -o, --file_out           Path to the output file
+  -r, --resume             Continue running predictions
 
 optional arguments:
-  -h, --help            show help message and exit
-  -v, --version         show program's version number and exit
+  -h, --help               show help message and exit
+  -v, --version            show program's version number and exit
 ```
+
+Example command for the prediction of m6A in individual reads at each A nucleotide:
 ```
-python ../scripts/CHEUI_predict_model1.py -i out_test_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m5C_model1.h5 -o ./read_level_predictions.txt -l WT_rep1
+python ../scripts/CHEUI_predict_model1.py -i out_A_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o ./read_level_m6A_predictions.txt -l WT_rep1
+```
+
+Example command for the prediction of m5C in individual reads at each C nucleotide:
+```
+python ../scripts/CHEUI_predict_model1.py -i out_C_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m5C_model1.h5 -o ./read_level_m5C_predictions.txt -l WT_rep1
 ```
 
 ### Sort the predictions to group all the predictions from the same site
-#### Using several replicates 
-In case there are more than 1 replicate combine the two read_level_predictions files: ```cat ./read_level_predictions.txt ./read_level_predictions2.txt >> ./read_level_predictions_combined.txt``` then sort this file. 
-```sort -k1  --parallel=15  ./read_level_predictions_combined.txt > ./read_level_predictions_sorted.txt```
+
+The output from model 1 needs to be sorted before using model 2 to predict m6A at 
+transcriptomic sites. We provide below two ways of doing this depending of whether you have
+one or more replicates:
+
 #### Using only 1 replicate
-```sort -k1  --parallel=15  ./read_level_predictions.txt > ./read_level_predictions_sorted.txt```
+
+```
+sort -k1  --parallel=15  ./read_level_m6A_predictions.txt > ./read_level_m6A_predictions_sorted.txt
+sort -k1  --parallel=15  ./read_level_m5C_predictions.txt > ./read_level_m5C_predictions_sorted.txt
+```
+
+#### Using several replicates 
+
+In case there are N replicates and you want to combine them for model 2:
+
+```
+cat ./read_level_m6A_predictions_1.txt ... ./read_level_m6A_predictions_N.txt >> ./read_level_m6A_predictions_combined.txt
+cat ./read_level_m5C_predictions_1.txt ... ./read_level_m5C_predictions_N.txt >> ./read_level_m5C_predictions_combined.txt
+``` 
+
+then sort these files: 
+```
+sort -k1  --parallel=15  ./read_level_m6A_predictions_combined.txt > ./read_level_m6A_predictions_sorted.txt
+sort -k1  --parallel=15  ./read_level_m5C_predictions_combined.txt > ./read_level_m5C_predictions_sorted.txt
+```
 
 ----------------------------
 ## CHEUI_predict_model2
 ----------------------------
-
-CHEUI model 2 for m5C calculates the methylation probability per site
+CHEUI model 2 calculates the probability and stoichiometry for m6A (or m5C) at each transcriptomic site: 
+each site from the transcriptome reference used for mapping above: 
 ```
  ../scripts/CHEUI_predict_model2.py
- -i, --input       path to read-level prediction file from CHEUI_predict_model1.py 
- -m, --DL_model    path to pretrainned model 2
- -c, --cutoff      model 2 probability cutoff for printing sites. Default value: 0
- -d, --double_cutoff 
-                       Model 1 probability cutoffs used to calculate the
-                       stoichiometry. Default values: 0.3 and 0.7
- -n, --min_reads   Minimun number of reads in a site to include in the analysis. Default value: 20
- -o, --file_out    Path to the output file
+ -i, --input            path to read-level prediction file from CHEUI_predict_model1.py 
+ -m, --DL_model         path to pretrained model 2
+ -c, --cutoff           model 2 probability cutoff for printing tested sites. Default value: 0
+ -d, --double_cutoff    Model 1 probability double cutoff used to calculate the
+                        stoichiometry. Default values: 0.3 and 0.7 (<0.3 is considered not-modified,
+                        >0.7 is considered modified, and all other reads are ignored).
+ -n, --min_reads        Minimun number of reads in a site to include in the analysis. Default value: 20
+ -o, --file_out         Path to the output file
 
 optional arguments:
  -h, --help            show this help message and exit
  -v, --version         show program's version number and exit
 ```
+
+Example command for the prediction of m6A probability and stoichiometry at every A nucleotide site in the reference transcriptome:
 ```
-python3 ../scripts/CHEUI_predict_model2.py -i read_level_predictions_sorted.txt -m  ../CHEUI_trained_models/CHEUI_m5C_model2.h5 -o site_level_predictions.txt -c 0.5
+python3 ../scripts/CHEUI_predict_model2.py -i read_level_m6A_predictions_sorted.txt -m  ../CHEUI_trained_models/CHEUI_m6A_model2.h5 -o site_level_m6A_predictions.txt -c 0.5
 ```
+
+Example command for the prediction of m5C probability and stoichiometry at every C nucleotide site in the reference transcriptome:
+```
+python3 ../scripts/CHEUI_predict_model2.py -i read_level_m5C_predictions_sorted.txt -m  ../CHEUI_trained_models/CHEUI_m5C_model2.h5 -o site_level_m5C_predictions.txt -c 0.5
+```
+
+
 ----------------------------
 Example data files for CHEUI-solo
 ----------------------------
