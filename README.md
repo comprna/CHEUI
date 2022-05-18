@@ -177,7 +177,7 @@ sort -k1  --parallel=15  ./read_level_m5C_predictions_combined.txt > ./read_leve
 ```
 
 ----------------------------
-## CHEUI_predict_model2
+## CHEUI model 2: prediction of stoichiometry and modification probability at transcriptomic sites
 ----------------------------
 CHEUI model 2 calculates the probability and stoichiometry for m6A (or m5C) at each transcriptomic site: 
 each site from the transcriptome reference used for mapping above: 
@@ -209,7 +209,7 @@ python3 ../scripts/CHEUI_predict_model2.py -i read_level_m5C_predictions_sorted.
 
 
 ----------------------------
-Example data files for CHEUI-solo
+Example output files for CHEUI models 1 and 2 (CHEUI solo outputs)
 ----------------------------
 
 Example of the read-level prediction for m6A file generated using ../scripts/CHEUI_predict_model1.py 
@@ -229,59 +229,64 @@ An example of the site-level prediction file for m6A generated using ../scripts/
 This file is a tab separated file containing; contig, position, site, coverage, stoichiometry of the site and probability of the site being methylated:
 
 ```
-contig	            position	site	     coverage	stoichiometry	  probability
-ENST00000000233.10	1003	    CTTGAGTAA	648	     0.10132158      0.11857438
-ENST00000000233.10	1007	    AGTAATAAA	628	     0.32236842     	0.54757184
-ENST00000000233.10	1333     AAGCAGATG	467	     0.25602409     	0.3631263
-ENST00000000412.8	 2120	    AGAAACCTG	63	      0.05	           0.038466703
-ENST00000000412.8	 2126	    CTGGACTGA	68	      0.92424242     	0.9999988
-ENST00000000412.8	 2130	    ACTGATCTT	67	      0.05	           0.08036163
+contig              position    site    coverage        stoichiometry   probability
+ENST00000000233.10 1003     CTTGAGTAA   648              0.10132158     0.11857438
+ENST00000000233.10 1003     CTTGAGTAA   648              0.10132158     0.11857438
+ENST00000000233.10 1007     AGTAATAAA   628              0.32236842     0.54757184
+ENST00000000233.10 1333     AAGCAGATG   467              0.25602409     0.3631263
+ENST00000000412.8  2120     AGAAACCTG   63               0.05           0.038466703
+ENST00000000412.8  2126     CTGGACTGA   68               0.92424242     0.9999988
+ENST00000000412.8  2130     ACTGATCTT   67               0.05           0.08036163
 ```
+
 ----------------------------
-# Identify differential m6A RNA modifications between two conditions, A and B
+# Identify differential  RNA modifications between two conditions
 ----------------------------
 
-## Run CHEUI_predict_model1 for m6A, for both X and Y conditions
+## Run CHEUI_predict_model1 for m6A (or m5C) for both conditions, e.g. X and Y
 
 First use [CHEUI_preprocess_m6A](#CHEUI_preprocess_m6A) to preprocess signals centerd in A for both replicates.
 
+For m6A:
 ```
-python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o condition_X_signals+IDs.p -n 15
-
+python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_X_output_test.txt -m ../kmer_models/model_kmer.csv -o condition_X_m6A_signals+IDs.p -n 15
+python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_Y_output_test.txt -m ../kmer_models/model_kmer.csv -o condition_Y_m6A_signals+IDs.p -n 15
 ```
+For m5C:
 ```
-python3 ../scripts/CHEUI_preprocess_m6A.py -i nanopolish_output_test.txt -m ../kmer_models/model_kmer.csv -o condition_Y_signals+IDs.p -n 15
+python3 ../scripts/CHEUI_preprocess_m5C.py -i nanopolish_X_output_test.txt -m ../kmer_models/model_kmer.csv -o condition_X_m5C_signals+IDs.p -n 15
+python3 ../scripts/CHEUI_preprocess_m5C.py -i nanopolish_Y_output_test.txt -m ../kmer_models/model_kmer.csv -o condition_Y_m5C_signals+IDs.p -n 15
 ```
 
 ----------------------------
 ### IMPORTANT
 ----------------------------
-Please when using ../scripts/CHEUI_predict_model1.py choose the correct --label for each condition. Later the label name will be used for the differential methylation config file.
+When using ``../scripts/CHEUI_predict_model1.py`` please choose the correct **label** for each condition. Later the label name will be used for the differential methylation config file.
 
-Run [CHEUI_predict_model1](#CHEUI_predict_model1), that takes the previous preprocess signals and calculates m6A methylation probability per individual signal. For the two conditions. 
-Please notice that the --label will be used later to run the differential m6A modification.
+Run [CHEUI_predict_model1](#CHEUI_predict_model1) that takes the preprocessed signals and calculates m6A (m5C) probability per individual signal for the two conditions. 
+
+Example for m6A for the two conditions (note the use of different labels):
 
 ```
-python ../scripts/CHEUI_predict_model1.py -i condition_X_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o  condition_X_read_level_predictions.txt -l X_rep1
-```
-```
-python ../scripts/CHEUI_predict_model1.py -i condition_Y_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o  condition_Y_read_level_predictions.txt -l Y_rep1
+python ../scripts/CHEUI_predict_model1.py -i condition_X_m6A_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o  condition_X_m6A_read_level_predictions.txt -l X_rep1
+
+python ../scripts/CHEUI_predict_model1.py -i condition_Y_m6A_signals+IDs.p/nanopolish_output_test_signals+IDS.p -m ../CHEUI_trained_models/CHEUI_m6A_model1.h5 -o  condition_Y_m6A_read_level_predictions.txt -l Y_rep1
 ```
 
-### combine read-level probability results and sort them
+### combine the read-level probability results and sort them
 ```
-cat condition_X_read_level_predictions.txt condition_Y_read_level_predictions.txt > CHEUI_read_level_X_Y.txt
+cat condition_X_m6A_read_level_predictions.txt condition_Y_m6A_read_level_predictions.txt > CHEUI_m6A_read_level_X_Y.txt
 
-sort -k1 --parallel=20 CHEUI_read_level_X_Y.txt > CHEUI_read_level_X_Y.sorted.txt 
+sort -k1 --parallel=20 CHEUI_m6A_read_level_X_Y.txt > CHEUI_m6A_read_level_X_Y.sorted.txt 
 ```
 
 ## Run CHEUI-diff
-First write a config.yml file to provide information about condition and replicates
+First write a **config.yml** file to provide the information about the conditions and replicates
 
-config.yml:
+Example of **config.yml**:
 ```
 # path to input
-input: ./CHEUI_read_level_X_Y.sorted.txt 
+input: ./CHEUI_m6A_read_level_X_Y.sorted.txt 
 
 # sample labels used to run /scripts/CHEUI_predict_model1.py
 sample_labels:
@@ -297,6 +302,7 @@ upper_cutoff: 0.7
 lower_cutoff: 0.3
 ```
 
+Example command to run CHEUI-diff
 ```
 python3 ../scripts/CHEUI_diffenrentialRNAMod.py -c config.yml
 ```
@@ -306,9 +312,9 @@ Example data files for CHEUI-diff
 ----------------------------
 ```
 ID                     coverage_1      coverage_2      stoichiometry_1        stoichiometry_2       stoichiometry_diff      statistic   pval_U
-chr10_344212_TGGCAAATT  21               21              0.06666666666666667     0.06666666666666667     0.0                    0.0     1.0
-chr10_344237_TGCTATGCC  24               24              0.0                     0.0                     0.0                    0.0     1.0
-chr10_344255_CGGGACTTT  23               23              0.0                     0.0                     0.0                    0.0     1.0
-chr10_344262_TTTGAAGAA  24               24              0.0                     0.0                     0.0                    0.0     1.0
+txt1_212_TGGCAAATT  21               21              0.06666666666666667     0.06666666666666667     0.0                    0.0     1.0
+txt1_237_TGCTATGCC  24               24              0.0                     0.0                     0.0                    0.0     1.0
+txt1_255_CGGGACTTT  23               23              0.0                     0.0                     0.0                    0.0     1.0
+txt1_262_TTTGAAGAA  24               24              0.0                     0.0                     0.0                    0.0     1.0
 ```
 
