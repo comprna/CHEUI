@@ -9,11 +9,11 @@ CHEUI (Methylation (CH<sub>3</sub>) Estimation Using Ionic current) is an RNA mo
 # Dependencies
 ------------------------------------------
 ```
-python=<3.5
-numpy==1.19.2
-pandas==1.2.2
-tensorflow==2.4.1
-keras==2.4.3
+python=3.7
+numpy==1.21.5
+pandas==1.3.4
+tensorflow-gpu==2.4.1
+keras-preprocessing==1.1.2
 ```
 
 ------------------------------------------
@@ -37,8 +37,25 @@ nanopolish eventalign -t 20 \
 --scale-events --signal-index  --samples --print-read-names > \
 nanopolish_out.txt
 ```
-## Download CHEUI
+## Install CHEUI
+Installation can be performed manually or using Conda (recommended).
+
+Manual installation: 
 ```
+git clone https://github.com/comprna/CHEUI.git
+cd CHEUI/test
+```
+
+Conda installation with manual CUDA installation (recommended): 
+```
+conda create --name cheui python=3.7 tensorflow-gpu=2.4.1 pandas=1.3.4 -y && conda activate cheui
+git clone https://github.com/comprna/CHEUI.git
+cd CHEUI/test
+```
+
+Conda installation with integrated CUDA installation (not recommended): 
+```
+conda create --name cheui python=3.7 tensorflow-gpu=2.4.1 pandas=1.3.4 conda-forge::cudatoolkit-dev -y && conda activate cheui
 git clone https://github.com/comprna/CHEUI.git
 cd CHEUI/test
 ```
