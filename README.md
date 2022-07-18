@@ -8,7 +8,7 @@ CHEUI (Methylation (CH<sub>3</sub>) Estimation Using Ionic current) is an RNA mo
 
 ------------------------------------------
 # Dependencies
-------------------------------------------
+
 ```
 python=3.7
 numpy==1.21.5
@@ -19,7 +19,7 @@ keras-preprocessing==1.1.2
 
 ------------------------------------------
 # Outline of CHEUI-solo and CHEUI-diff
-------------------------------------------
+
  <img src="https://github.com/comprna/CHEUI/blob/master/misc/pipeline_CHEUI-solo+diff_github.png" width="900" height="500">
 
 ## Before running CHEUI
