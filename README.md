@@ -3,7 +3,7 @@
 
 **About CHEUI**
 
-CHEUI (Methylation (CH<sub>3</sub>) Estimation Using Ionic current) is an RNA modification detection software. CHEUI can be used to detect m6A and m5C in individual reads at single-nucleotide resolution from any sample (e.g. single condition), or detect differential m6A or m5C between any two conditions. CHEUI uses a two-stage deep learning method to detect m6A and m5C transcriptome-wide at single-read and single-site resolution in any sequence context (i.e. without any sequence constrains).
+CHEUI (Methylation (CH<sub>3</sub>) Estimation Using Ionic current) is an RNA modification detection software for Oxford Nanopore direct RNA sequencing data. CHEUI can be used to detect m6A and m5C in individual reads at single-nucleotide resolution from any sample (e.g. single condition), or detect differential m6A or m5C between any two conditions. CHEUI uses a two-stage deep learning method to detect m6A and m5C transcriptome-wide at single-read and single-site resolution in any sequence context (i.e. without any sequence constrains).
 
 
 ------------------------------------------
