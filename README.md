@@ -22,26 +22,25 @@ keras-preprocessing==1.1.2
 
  <img src="https://github.com/comprna/CHEUI/blob/master/misc/pipeline_CHEUI-solo+diff_github.png" width="900" height="500">
 
-## Before running CHEUI
+## Preprocessing data before running CHEUI:
 
 Before running CHEUI:
-1. fast5 files should be base-called, we recommend guppy version 4 or higher. 
-
-2. Fastqs should be mapped to a reference TRANSCRIPTOME. e.g.
+1. Raw signal data (fast5) should be basecalled using Guppy 4.0.11+ (https://community.nanoporetech.com/downloads/guppy/)
+2. Basecalled sequences (fastq) should be aligned to a reference transcriptome using minimap2 and primary, positive strand alignments should be selected, e.g.
 ```
-minimap2 -ax map-ont -k14 <reference transcript> <fastq>
+minimap2 -ax map-ont -k14 <transcriptome fasta> <read fastq> | samtools view -f 2308 -b > <sorted-bam-file>
 ```
 
-4. Run Nanopolish (https://nanopolish.readthedocs.io/en/latest/). We provide an example of how to run Nanopolish with the right flags:  
+3. Signal data should be resquiggled to aligned sequences using Nanopolish (https://nanopolish.readthedocs.io/en/latest/), ensuring that events are rescaled, e.g.
+ 
 ```
-nanopolish index -s <sequencing_summary.txt> -d <fast5_folder> <fastq>
+nanopolish index -s <sequencing_summary.txt> -d <fast5_folder> <read fastq>
 
-nanopolish eventalign -t 20 \
---reads <fastq> \
---bam <sorted.bam> \
---genome <references.fasta> \
---scale-events --signal-index  --samples --print-read-names > \
-nanopolish_out.txt
+nanopolish eventalign -t 48 \
+--reads <read fastq> \
+--bam <sorted-bam-file> \
+--genome <transcriptome fasta> \
+--scale-events --signal-index  --samples --print-read-names > nanopolish_out.txt
 ```
 ## Install CHEUI
 Installation can be performed manually or using Conda (recommended).
