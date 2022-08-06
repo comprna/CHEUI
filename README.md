@@ -82,7 +82,7 @@ Please follow the instructions below carefully.
 
 
 ----------------------------
-# Detect m6A and m5C modifications in on condition    
+# Detect m6A and m5C modifications in one condition    
 ----------------------------
 
 ----------------------------
