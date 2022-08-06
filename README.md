@@ -29,6 +29,7 @@ Before running CHEUI:
 2. Basecalled sequences (fastq) should be aligned to a reference transcriptome using minimap2 and primary, positive strand alignments should be selected, e.g.
 ```
 minimap2 -ax map-ont -k14 <transcriptome fasta> <read fastq> | samtools view -f 2308 -b > <sorted-bam-file>
+samtools index <sorted-bam-file>
 ```
 
 3. Signal data should be resquiggled to aligned sequences using Nanopolish (https://nanopolish.readthedocs.io/en/latest/), ensuring that events are rescaled, e.g.
