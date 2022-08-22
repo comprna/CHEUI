@@ -225,12 +225,12 @@ optional arguments:
 
 Example command for the prediction of m6A probability and stoichiometry at every A nucleotide site in the reference transcriptome:
 ```
-python3 ../scripts/CHEUI_predict_model2.py -i read_level_m6A_predictions_sorted.txt -m  ../CHEUI_trained_models/CHEUI_m6A_model2.h5 -o site_level_m6A_predictions.txt -c 0.5
+python3 ../scripts/CHEUI_predict_model2.py -i read_level_m6A_predictions_sorted.txt -m  ../CHEUI_trained_models/CHEUI_m6A_model2.h5 -o site_level_m6A_predictions.txt
 ```
 
 Example command for the prediction of m5C probability and stoichiometry at every C nucleotide site in the reference transcriptome:
 ```
-python3 ../scripts/CHEUI_predict_model2.py -i read_level_m5C_predictions_sorted.txt -m  ../CHEUI_trained_models/CHEUI_m5C_model2.h5 -o site_level_m5C_predictions.txt -c 0.5
+python3 ../scripts/CHEUI_predict_model2.py -i read_level_m5C_predictions_sorted.txt -m  ../CHEUI_trained_models/CHEUI_m5C_model2.h5 -o site_level_m5C_predictions.txt
 ```
 
 
