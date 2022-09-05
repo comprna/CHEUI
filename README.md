@@ -28,7 +28,7 @@ Before running CHEUI:
 1. Raw signal data (fast5) should be basecalled using Guppy 4.0.11+ (https://community.nanoporetech.com/downloads/guppy/)
 2. Basecalled sequences (fastq) should be aligned to a reference transcriptome using minimap2 and primary, positive strand alignments should be selected, e.g.
 ```
-minimap2 -ax map-ont -k14 <transcriptome fasta> <read fastq> | samtools view -F 2308 -b > <sorted-bam-file>
+minimap2 -ax map-ont -k14 <transcriptome fasta> <read fastq> | samtools view -F 2324 -b > <sorted-bam-file>
 samtools index <sorted-bam-file>
 ```
 
