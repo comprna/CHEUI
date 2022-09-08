@@ -107,7 +107,7 @@ optional arguments:
   -v, --version           show program's version number and exit
   -s <str>, --suffix_name <str>
                           name to use for output files
-  -n CPU, --cpu CPU       Number of cores to use
+  -n CPU, --cpu CPU       Number of CPUs (threads) to use
 ```
 
 Example command of the preprocessing step for m6A:
