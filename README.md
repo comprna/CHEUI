@@ -240,15 +240,16 @@ Example output files for CHEUI models 1 and 2 (CHEUI solo outputs)
 
 Example of the read-level prediction for m6A file generated using ../scripts/CHEUI_predict_model1.py 
 
-The file contains 2 columns, the first column contains information about contig/transcriptome_location_k-mer_readID.
-Second column contains the probability of the middle A (in this example) to be methylated:
+The file contains 3 columns, the first column contains information about contig/transcriptome_location_k-mer_readID.
+Second column contains the read levele and k-mer probability of the middle A (in this example) to be methylated, 
+the third column contains the label of the sample:
 ```
-ENST00000000233.10_1003_TTGTAGATG_3386eb53-8805-4c11-a721-02a23fc73cb4    0.39094510674476624
-ENST00000000233.10_1007_TTGCAGAAA_87b56740-d8db-4d17-8cd1-aa5019d4750b    0.58213871717453
-ENST00000000233.10_133_TGTGAAGAA_06685ba0-c2f9-4540-9805-3e1746df432f     0.08152690529823303
-ENST00000000412.8_2120_GGCGATGAC_18dad7fd-796a-4f1a-a242-27e4c5226234     0.5041788816452026
-ENST00000000412.8_2120_GGCGATGAC_a760a4ac-597e-4f57-892e-37eb0a6e1c56     0.19357600808143616
-ENST00000000412.8_2120_GGCGATGAC_397c1862-b29c-4dd1-93a7-753da410535b     0.42834094166755676
+ENST00000000233.10_1003_TTGTAGATG_3386eb53-8805-4c11-a721-02a23fc73cb4    0.39094510674476624 WT_1
+ENST00000000233.10_1007_TTGCAGAAA_87b56740-d8db-4d17-8cd1-aa5019d4750b    0.58213871717453    WT_1
+ENST00000000233.10_133_TGTGAAGAA_06685ba0-c2f9-4540-9805-3e1746df432f     0.08152690529823303 WT_1 
+ENST00000000412.8_2120_GGCGATGAC_18dad7fd-796a-4f1a-a242-27e4c5226234     0.5041788816452026  WT_1
+ENST00000000412.8_2120_GGCGATGAC_a760a4ac-597e-4f57-892e-37eb0a6e1c56     0.19357600808143616 WT_1
+ENST00000000412.8_2120_GGCGATGAC_397c1862-b29c-4dd1-93a7-753da410535b     0.42834094166755676 WT_1
 ```
 An example of the site-level prediction file for m6A generated using ../scripts/CHEUI_predict_model2.py
 
