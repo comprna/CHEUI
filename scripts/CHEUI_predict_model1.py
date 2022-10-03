@@ -102,10 +102,6 @@ IDs_signals = {}
 
 with open(signals_input, 'rb') as signal_in:  
     with open(file_out, 'a') as f_out:
-            
-        print('KMER'+'\t'+'Prediction'+'\t'+'label', 
-              file=f_out)
-        
         while True:
             try:
                 counter +=1
