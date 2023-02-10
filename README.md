@@ -145,6 +145,48 @@ python3 ../scripts/CHEUI_preprocess_m5C.py -i nanopolish_output_test.txt -m ../k
 ```
 
 ----------------------------
+### CHEUI preprocessing step -- C++ version
+----------------------------
+A faster method to run the CHEUI preprocessing step. The C++ version is 2-10x times faster than the python version. 
+
+Install
+```
+cd ../scripts/preprocessing_CPP/
+./build.sh
+```
+
+Parameters of the program
+```
+$ ./CHEUI -h
+required arguments:
+  -i, --input-nanopolish  Nanopolish output file. Nanopolish should be run with the following flags:
+                          nanopolish eventalign --reads <in.fasta>--bam
+                          <in.bam> --genome <genome.fa> --print-read-names--
+                          scale-events --samples > <out.txt>
+  -m, --kmer-model        file containing the expected signal k-mer means
+                          (available at CHEUI/kmer_models/model_kmer.csv)
+  -o, --out-dir           output directory
+  --m6A/--m6C             preprocessing type
+
+optional arguments:
+  -h, --help              show this help message and exit
+  -s <str>, --suffix_name <str>
+                          name to use for output files
+  -n CPU, --cpu CPU       Number of cores to use
+```
+
+
+Example command of the preprocessing step for m6A:
+```
+./CHEUI -i ../../test/nanopolish_output_test.txt -o ../../test/out_A_signals+IDs.p/ -m ../../kmer_models/model_kmer.csv -n 16 --m6A
+```
+
+Example command of the preprocessing step for m5C:
+```
+./CHEUI -i ../../test/nanopolish_output_test.txt -o ../../test/out_A_signals+IDs.p/ -m ../../kmer_models/model_kmer.csv -n 16 --m5C
+```
+
+----------------------------
 ## CHEUI model 1: prediction of modifications in individual reads
 ----------------------------
 
