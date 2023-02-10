@@ -149,7 +149,7 @@ python3 ../scripts/CHEUI_preprocess_m5C.py -i nanopolish_output_test.txt -m ../k
 ----------------------------
 A faster method to run the CHEUI preprocessing step. The C++ version is 2-10x times faster than the python version. 
 
-Install
+Installation
 ```
 cd ../scripts/preprocessing_CPP/
 ./build.sh
