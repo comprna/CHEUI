@@ -895,7 +895,7 @@ void parse_nanopolish(string file, char symbol, vector<kmer_models> &model_kmer,
 
                     vector<string> IDs = split_string(ID, '_');
                     string s = IDs[IDs.size() - 2].substr(5);
-                    int index_ = s.find_first_of('A');
+                    int index_ = s.find_first_of(symbol);
 
                     if (index_ != -1)
                     {
