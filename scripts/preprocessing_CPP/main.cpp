@@ -514,17 +514,20 @@ kmers_parse_r _parse_kmers(vector<string> &checkedLine, int contig_idx, int posi
     vector<pair<int, kmers_parse>> kmer_lines;
     string line;
     int pos1;
+    int latest;
 
     if (!parsed_kmer.empty())
     {
         tim_sort(parsed_kmer);
         kmer_lines = parsed_kmer;
         pos1 = kmer_lines[0].first;
+        latest = kmer_lines[kmer_lines.size() - 1].first;
     }
     else
     {
         // kmer_lines.clear();
         pos1 = stoi(checkedLine[position_idx]);
+        latest = pos1;
     }
 
     vector<int> positions = {pos1, pos1 + 1, pos1 + 2, pos1 + 3, pos1 + 4};
@@ -533,6 +536,13 @@ kmers_parse_r _parse_kmers(vector<string> &checkedLine, int contig_idx, int posi
     {
         if (!checkedLine.empty())
         {
+            int val = stoi(checkedLine[position_idx]);
+            if(abs(val - latest) > 1)
+            {
+                break;
+            }
+            latest = val;
+
             vector<float> samples;
             for (string i : split_string(checkedLine[samples_idx], ','))
             {
@@ -540,7 +550,6 @@ kmers_parse_r _parse_kmers(vector<string> &checkedLine, int contig_idx, int posi
             }
 
             // find the val in kmer_lines.keys(), check whether it is in the dict
-            int val = stoi(checkedLine[position_idx]);
             auto it = find_if(kmer_lines.begin(), kmer_lines.end(), [&](const pair<int, kmers_parse> &element)
                               { return element.first == val; });
             if (it != kmer_lines.end())
@@ -569,14 +578,14 @@ kmers_parse_r _parse_kmers(vector<string> &checkedLine, int contig_idx, int posi
 
         checkedLine = _check_line(line, contig_idx, position_idx, reference_kmer_idx, model_kmer_idx, samples_idx, symbol);
 
-        if (!checkedLine.empty() && ((stoi(checkedLine[1]) > (pos1 + 4)) || (stoi(checkedLine[1]) < pos1)))
-        {
-            break;
-        }
-        else
-        {
-            continue;
-        }
+        // if (!checkedLine.empty() && ((stoi(checkedLine[1]) > (pos1 + 4)) || (stoi(checkedLine[1]) < pos1)))
+        // {
+        //     break;
+        // }
+        // else
+        // {
+        //     continue;
+        // }
     }
 
     // check if it forms a 9mer
