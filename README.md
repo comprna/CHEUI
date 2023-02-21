@@ -7,6 +7,30 @@ CHEUI (Methylation (CH<sub>3</sub>) Estimation Using Ionic current) is an RNA mo
 
 CHEUI is open source and freely available under an Academic Public License (see copy of the license in this repository).
 
+------------------------------------------
+# Table of Contents
+------------------------------------------
+
+   * [Dependencies](#dependencies)
+   * [Outline of CHEUI-solo and CHEUI-diff](#outline-of-cheui-solo-and-cheui-diff)
+   * [Preprocessing data before running CHEUI](#preprocessing-data-before-running-cheui)
+   * [Install CHEUI](#install-cheui)
+   * [IMPORTANT](#important)
+   * [Detect m6A and m5C modifications in one condition](#detect-m6a-and-m5c-modifications-in-one-condition)
+     * [CHEUI preprocessing step](#cheui-preprocessing-step)
+       * [CHEUI preprocessing step -- C++ version](#cheui-preprocessing-step----c-version)
+     * [CHEUI model 1: prediction of modifications in individual reads](#cheui-model-1-prediction-of-modifications-in-individual-reads)
+       * [Sort the predictions to group all the predictions from the same site](#sort-the-predictions-to-group-all-the-predictions-from-the-same-site)
+         * [Using only 1 replicate](#using-only-1-replicate)
+         * [Using several replicates](#using-several-replicates)
+     * [CHEUI model 2: prediction of stoichiometry and modification probability at transcriptomic sites](#cheui-model-2-prediction-of-stoichiometry-and-modification-probability-at-transcriptomic-sites)
+     * [Example output files for CHEUI models 1 and 2 (CHEUI solo outputs)](#example-output-files-for-cheui-models-1-and-2-cheui-solo-outputs)
+   * [Identify differential RNA modifications between two conditions](#identify-differential-rna-modifications-between-two-conditions)
+     * [Run CHEUI_predict_model1 for m6A (or m5C) for both conditions, e.g. X and Y](#run-cheui_predict_model1-for-m6a-or-m5c-for-both-conditions-eg-x-and-y)
+       * [IMPORTANT](#important-1)
+       * [combine the read-level probability results and sort them](#combine-the-read-level-probability-results-and-sort-them)
+     * [Run CHEUI-diff](#run-cheui-diff)
+     * [Example data files for CHEUI-diff](#example-data-files-for-cheui-diff)
 
 ------------------------------------------
 # Dependencies
