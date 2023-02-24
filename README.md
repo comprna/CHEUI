@@ -190,7 +190,7 @@ required arguments:
   -m, --kmer-model        file containing the expected signal k-mer means
                           (available at CHEUI/kmer_models/model_kmer.csv)
   -o, --out-dir           output directory
-  --m5A/--m6C             preprocessing type
+  --m6A/--m5C             preprocessing type
 
 optional arguments:
   -h, --help              show this help message and exit
