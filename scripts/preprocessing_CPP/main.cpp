@@ -962,11 +962,12 @@ int main(int argc, char *argv[])
 
     argagg::parser argparser{{
         {"help", {"-h", "--help"}, "shows this help message", 0},
-        {"input", {"-i", "--input-nanopolish"}, "Nanopolish file. <out.txt>", 1},
-        {"model", {"-m", "--kmer-model"}, "file containing all the expected signal k-mer means", 1},
-        {"output", {"-o", "--out-dir"}, "output folder (default: .)", 1},
+        {"input", {"-i", "--input-nanopolish"}, "Nanopolish file. <out.txt> (required", 1},
+        {"model", {"-m", "--kmer-model"}, "file containing all the expected signal k-mer means (required)", 1},
+        {"output", {"-o", "--out-dir"}, "output folder (required)", 1},
         {"threads", {"-n", "--CPU"}, "Number of CPUs (threads) to use (default: 1)", 1},
         {"suffix", {"-s", "--suffix-name"}, "name to use for output files", 1},
+        {"temp", {"-t", "--temp-dir"}, "output folder (default: out dir)", 1},
         {"type1", {"--m6A"}, "select the preprocess type", 0},
         {"type2", {"--m5C"}, "select the preprocess type", 0},
     }};
@@ -1049,10 +1050,23 @@ int main(int argc, char *argv[])
     // otherwise, direct process the original input file
     if (n_threads > 1)
     {
+        string temp_path;
+        bool temp = false;
+        if(args["temp"])
+        {
+            temp_path = args["temp"].as<string>("");
+            temp = true;
+            mkdir(temp_path.c_str(), 0777);
+        }
+        else
+        {
+            temp_path = args["output"].as<string>("");
+        }
+
         set<string> filepath;
         try
         {
-            filepath = split_file(args["input"].as<string>(""), n_threads, args["output"].as<string>(""), symbol);
+            filepath = split_file(args["input"].as<string>(""), n_threads, temp_path, symbol);
         }
         catch (const char *c)
         {
@@ -1082,9 +1096,20 @@ int main(int argc, char *argv[])
             task.get();
         }
 
-        for (string file : filepath)
+        if(temp)
         {
-            remove(file.c_str());
+            #ifndef _WIN32
+                string command = "rm -rf " + temp_path;
+                system(command.c_str());
+            #endif
+
+        } 
+        else 
+        {
+            for (string file : filepath)
+            {
+                remove(file.c_str());
+            }
         }
 
         // #ifndef _WIN32
