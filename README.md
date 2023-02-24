@@ -190,13 +190,14 @@ required arguments:
   -m, --kmer-model        file containing the expected signal k-mer means
                           (available at CHEUI/kmer_models/model_kmer.csv)
   -o, --out-dir           output directory
-  --m6A/--m6C             preprocessing type
+  --m5A/--m6C             preprocessing type
 
 optional arguments:
   -h, --help              show this help message and exit
   -s <str>, --suffix_name <str>
                           name to use for output files
   -n CPU, --cpu CPU       Number of cores to use
+  -t, --temp-dir          temp file directory (default: out dir)
 ```
 
 
