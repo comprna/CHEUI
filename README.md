@@ -37,7 +37,7 @@ CHEUI is open source and freely available under an Academic Public License (see 
 
 ```
 python=3.7
-numpy==1.21.5
+numpy==1.19.2
 pandas==1.3.4
 tensorflow-gpu==2.4.1
 keras-preprocessing==1.1.2
