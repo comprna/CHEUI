@@ -396,6 +396,8 @@ upper_cutoff: 0.7
 
 # cutoff used to classify unmethylated reads
 lower_cutoff: 0.3
+
+out: ./CHEUI_differentialRNAMod_A_vs_B.txt
 ```
 
 Example command to run CHEUI-diff
