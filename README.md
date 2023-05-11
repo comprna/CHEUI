@@ -208,7 +208,12 @@ Example command of the preprocessing step for m6A:
 
 Example command of the preprocessing step for m5C:
 ```
-./CHEUI -i ../../test/nanopolish_output_test.txt -o ../../test/out_A_signals+IDs.p/ -m ../../kmer_models/model_kmer.csv -n 16 --m5C
+./CHEUI -i ../../test/nanopolish_output_test.txt -o ../../test/out_C_signals+IDs.p/ -m ../../kmer_models/model_kmer.csv -n 16 --m5C
+```
+
+For large nanopolish file, we recommend to split the file into smaller files and run the preprocessing step, then using the combine script 
+```
+python3 ../scripts/combine_binary_file.py -i [output binary folder] -o [combined output file name]
 ```
 
 ----------------------------
