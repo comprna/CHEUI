@@ -37,7 +37,7 @@ input_path = ARGS.input_dir
 
 file_out = ARGS.output_file
 # Define the folder containing the pickle files
-input_path='/media/admin/Data/files'
+
 
 # Define a function that yields the contents of each file one at a time
 def load_data(folder):
