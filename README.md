@@ -353,6 +353,9 @@ For m5C:
 python3 ../scripts/CHEUI_preprocess_m5C.py -i nanopolish_X_output_test.txt -m ../kmer_models/model_kmer.csv -o condition_X_m5C_signals+IDs.p -n 15
 python3 ../scripts/CHEUI_preprocess_m5C.py -i nanopolish_Y_output_test.txt -m ../kmer_models/model_kmer.csv -o condition_Y_m5C_signals+IDs.p -n 15
 ```
+## Run combine_binary_file.py 
+python3 ../scripts/combine_binary_file.py -i </ folder with split binary files> -o <combined output_file>
+
 
 ----------------------------
 ### IMPORTANT
