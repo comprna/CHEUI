@@ -51,9 +51,9 @@ def load_data(folder):
                         break
 
 # Combine all the datasets into a single dictionary
-combined_data = []
+combined_data = {}
 for dataset in load_data(input_path):
-    combined_data += dataset
+    combined_data.update(dataset)
 
 # Save the combined data to a new pickle file
 with open(file_out, 'wb') as f:
