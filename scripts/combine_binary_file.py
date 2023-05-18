@@ -3,7 +3,7 @@
 """
 Created on Thu May 11 11:57:37 2023
 
-@author: admin
+@author: Akanksha Srivastava
 """
 import os
 import pickle
@@ -50,12 +50,11 @@ def load_data(folder):
                     except:
                         break
 
-# Combine all the datasets into a single dictionary
-combined_data = {}
-for dataset in load_data(input_path):
-    combined_data.update(dataset)
 
 # Save the combined data to a new pickle file
-with open(file_out, 'wb') as f:
-    pickle.dump(combined_data, f)
-   
+if os.path.exists(file_out):
+    print("The file already exist")
+else:
+    with open(file_out, 'ab') as f:
+        for dataset in load_data(input_path):
+            pickle.dump(dataset, f)
