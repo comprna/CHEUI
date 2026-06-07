@@ -7,7 +7,7 @@ CHEUI (Methylation (CH<sub>3</sub>) Estimation Using Ionic current) is an RNA mo
 
 CHEUI is open source and freely available under an Academic Public License (see copy of the license in this repository).
 
-We have now developed SWARM (https://github.com/comprna/SWARM), which improves on CHEUI in accuracy for the RNA002 chemistry and includes a pseudouridine model. SWARM also predicts m6A, m5C, and pseudouridine models for the RNA004 chemistry, both in individual reads and at transcriptomic sites. 
+We have now developed SWARM (https://github.com/comprna/SWARM), which improves on CHEUI in accuracy for the RNA002 chemistry and includes a pseudouridine model. SWARM also predicts m6A, m5C, and pseudouridine for the RNA004 chemistry, both in individual reads and at transcriptomic sites. 
 
 ------------------------------------------
 # Table of Contents
